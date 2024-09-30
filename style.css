@@ -4,7 +4,6 @@ body {
     background-color: azure;
 }
 
-/* Nake the elements in nav on one line */
 ul, li{
     display: inline-block;
     list-style: none;
@@ -22,7 +21,7 @@ nav {
 }
 
 div {
-    
+
     background-color: turquoise;
 }
 
