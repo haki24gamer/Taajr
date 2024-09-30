@@ -15,15 +15,11 @@ nav {
     top: 0;
     left: 0px;
     width: 100%;
-    background-color: white;
+    background-color: turquoise;
     padding: 10px;
     text-align: center;
 }
 
-div {
-
-    background-color: turquoise;
-}
 
 footer {
     position: fixed;
