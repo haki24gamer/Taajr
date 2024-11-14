@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}Page d'accueil{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Welcome to Our E-commerce Store</h1>
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card h-100">
+                <img class="card-img-top" src="https://via.placeholder.com/150" alt="Product Image">
+                <div class="card-body">
+                    <h4 class="card-title">Product 1</h4>
+                    <p class="card-text">Description of Product 1.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-primary">Buy Now</a>
+                </div>
+            </div>
+        </div>
+        <!-- Repeat similar blocks for more products -->
+    </div>
+</div>
+{% endblock %}

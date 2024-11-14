@@ -1,0 +1,7 @@
+cs50
+flask
+flask_sqlalchemy
+flask_bootstrap
+flask-Session
+pytz
+requests
