@@ -1,0 +1,136 @@
+-- SQLite conversion for 'avis' table
+
+DROP TABLE IF EXISTS avis;
+CREATE TABLE avis (
+    ID_avis INTEGER PRIMARY KEY AUTOINCREMENT,
+    comment_avis TEXT DEFAULT NULL,
+    date_avis TEXT DEFAULT NULL,  -- Dates sont stockées sous forme de texte en SQLite
+    note_avis TEXT DEFAULT NULL,
+    ID_off INTEGER,
+    ID_uti INTEGER,
+    FOREIGN KEY (ID_off) REFERENCES offres(ID_off),
+    FOREIGN KEY (ID_uti) REFERENCES utilisateur(ID_uti)
+);
+
+
+DROP TABLE IF EXISTS appartenir;
+CREATE TABLE IF NOT EXISTS appartenir (
+    ID_off INTEGER NOT NULL,
+    ID_cat INTEGER NOT NULL,
+    PRIMARY KEY (ID_cat, ID_off),
+    FOREIGN KEY (ID_off) REFERENCES offres(ID_off),
+    FOREIGN KEY (ID_cat) REFERENCES categorie(ID_cat)
+);
+
+DROP TABLE IF EXISTS categorie;
+CREATE TABLE categorie (
+    ID_cat INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom_cat TEXT DEFAULT NULL
+);
+
+DROP TABLE IF EXISTS commande;
+CREATE TABLE IF NOT EXISTS commande (
+    ID_com INTEGER PRIMARY KEY AUTOINCREMENT,
+    date_com TEXT DEFAULT NULL,
+    ID_uti INTEGER,
+    FOREIGN KEY (ID_uti) REFERENCES utilisateur(ID_uti)
+);
+
+DROP TABLE IF EXISTS utilisateur;
+CREATE TABLE IF NOT EXISTS utilisateur (
+    ID_uti INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom_uti TEXT NOT NULL,
+    email_uti TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS offres;
+CREATE TABLE IF NOT EXISTS offres (
+    ID_off INTEGER PRIMARY KEY AUTOINCREMENT,
+    titre_off TEXT NOT NULL,
+    description_off TEXT,
+    prix_off REAL NOT NULL
+);
+
+
+
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+
+# Initialisation de l'application Flask
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Base SQLite
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialisation de SQLAlchemy
+db = SQLAlchemy(app)
+
+# Définition du modèle User
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+# Crée les tables avant la première requête
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+# Route pour afficher les utilisateurs
+@app.route('/users')
+def list_users():
+    users = User.query.all()
+    return render_template('users.html', users=users)
+
+# Route pour ajouter un utilisateur
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    username = request.form['username']
+    email = request.form['email']
+    new_user = User(username=username, email=email)
+    db.session.add(new_user)
+    db.session.commit()
+    return redirect(url_for('list_users'))
+
+# Route pour supprimer un utilisateur
+@app.route('/delete_user/<int:id>')
+def delete_user(id):
+    user = User.query.get(id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+    return redirect(url_for('list_users'))
+
+# Modèle HTML (inclus directement pour simplifier)
+@app.route('/users.html')
+def users_template():
+    return '''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Users</title>
+    </head>
+    <body>
+        <h1>Liste des utilisateurs</h1>
+        <ul>
+            {% for user in users %}
+            <li>{{ user.username }} - {{ user.email }} 
+                <a href="{{ url_for('delete_user', id=user.id) }}">Supprimer</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <form action="{{ url_for('add_user') }}" method="POST">
+            <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <button type="submit">Ajouter</button>
+        </form>
+    </body>
+    </html>
+    '''
+
+# Point d'entrée principal
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+python app.py
