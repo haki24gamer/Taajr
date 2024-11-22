@@ -25,7 +25,7 @@ Ce dépôt contient le code source du projet Taajr. Ce guide vous aidera à dém
 
 3. **Créer et activer un environnement virtuel Python :**
 
-    Assurez-vous d'avoir Python installé sur votre système.
+    Assurez-vous d'avoir Python installé sur votre système, et l'environnement virtuel est activé.
 
     Pour activer l'environnement virtuel, exécutez :
 
