@@ -51,7 +51,7 @@ Ce dépôt contient le code source du projet Taajr. Ce guide vous aidera à dém
 
 5. **Installer SQLite3 :**
 
-    Si SQLite3 n'est pas déjà installé sur votre système, vous pouvez le télécharger et l'installer depuis [SQLite Download Page](https://www.sqlite.org/download.html)
+    Si SQLite3 n'est pas déjà installé sur votre système, vous pouvez le télécharger et l'installer depuis [SQLite Download Page](https://www.sqlite.org/download.html).
 
 ## Contribution
 
