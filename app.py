@@ -1,5 +1,4 @@
 from flask import Flask, render_template
-from flask_bootstrap import Bootstrap
 import cs50
 
 app = Flask(__name__)
