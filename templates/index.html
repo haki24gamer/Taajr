@@ -1,100 +1,187 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Taajr - Boutique en ligne{% endblock %}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .carousel-item img {
-      height: 300px;
-      object-fit: cover;
-    }
-    .category-card img {
-      height: 200px;
-      object-fit: cover;
-    }
-    .product-card img {
-      height: 300px;
-      object-fit: cover;
-    }
-    .footer {
-      background-color: #031B88;
-      color: white;
-      padding: 20px 0;
-    }
-  </style>
-</head>
-<body>
+{% extends "layout.html" %}
 
-  <!-- Barre de recherche -->
-  <div class="bg-primary py-3">
-    <div class="container">
-      <form class="d-flex justify-content-center">
-        <input class="form-control me-2 w-50" type="search" placeholder="Recherchez un produit ou un service..." aria-label="Search">
-        <button class="btn btn-primary" type="submit" style="background-color: #031B88; border-color: #031B88;">Rechercher</button>
-      </form>
+{% block title %}Accueil - Taajr{% endblock %}
+
+{% block content %}
+  <!-- Carousel -->
+  <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
     </div>
-  </div>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand text-white" href="#">TAAJR</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link text-white" href="#">Accueil</a></li>
-          <li class="nav-item"><a class="nav-link text-white" href="#">Catégories</a></li>
-          <li class="nav-item"><a class="nav-link text-white" href="#">Meilleures Ventes</a></li>
-          <li class="nav-item"><a class="nav-link text-white" href="#">Produits</a></li>
-          <li class="nav-item"><a class="nav-link text-white" href="#">Services</a></li>
-        </ul>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="https://via.placeholder.com/1200x300/ffb6c1/333?text=Black+Friday+Week+21+nov+-+2+déc" class="d-block w-100" alt="Black Friday">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Black Friday Week</h5>
+          <p>Commence à minuit du 21 nov. au 2 déc. !</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="https://via.placeholder.com/1200x300/007bff/fff?text=Livraison+Express+24H" class="d-block w-100" alt="Livraison Express">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Livraison Express 24H</h5>
+          <p>Recevez vos commandes rapidement partout en France.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="https://via.placeholder.com/1200x300/28a745/fff?text=Nouvelle+Collection+High+Tech" class="d-block w-100" alt="Nouvelle Collection">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Nouvelle Collection High Tech</h5>
+          <p>Découvrez nos derniers produits technologiques à prix réduits.</p>
+        </div>
       </div>
     </div>
-  </nav>
+    <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Précédent</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Suivant</span>
+    </button>
+  </div>
 
-  <!-- Contenu dynamique -->
+
   <div class="container my-5">
-    {% block content %}
-    {% endblock %}
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer text-white" style="background-color: #031B88;">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-4">
-          <h6 class="fw-bold">Taajr</h6>
-          <ul class="list-unstyled">
-            <li><a href="#" class="text-white text-decoration-none">À propos de Taajr</a></li>
-            <li><a href="#" class="text-white text-decoration-none">Carrières</a></li>
-            <li><a href="#" class="text-white text-decoration-none">Durabilité</a></li>
-          </ul>
-        </div>
-        <div class="col-md-4">
-          <h6 class="fw-bold">Moyens de paiement</h6>
-          <ul class="list-unstyled">
-            <li><a href="#" class="text-white text-decoration-none">Cartes de crédit et de débit</a></li>
-            <li><a href="#" class="text-white text-decoration-none">Paiemments mobiles</a></li>
-            <li><a href="#" class="text-white text-decoration-none">Cartes prépayées</a></li>
-          </ul>
-        </div>
-        <div class="col-md-4">
-          <h6 class="fw-bold">Besoin d'aide ?</h6>
-          <ul class="list-unstyled">
-            <li><a href="#" class="text-white text-decoration-none">Contactez-nous</a></li>
-          </ul>
+    
+    <!-- Categories -->
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>Catégories</h2>
+      <a href="#" class="btn btn-link btn-lg">Plus...</a>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card category-card">
+          <img src="/static/Images/81Ov6TonctL.jpg" class="card-img-top" alt="High Tech">
+          <div class="card-body">
+            <h5 class="card-title">High Tech</h5>
+          </div>
         </div>
       </div>
-      <div class="text-center mt-4">
-        <p class="mb-0">© 2024-2025, Taajr.com Inc. ou ses affiliés</p>
+      <div class="col-md-4">
+        <div class="card category-card">
+          <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Cuisine et Maison">
+          <div class="card-body">
+            <h5 class="card-title">Cuisine et Maison</h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card category-card">
+          <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Animalerie">
+          <div class="card-body">
+            <h5 class="card-title">Animalerie</h5>
+          </div>
+        </div>
       </div>
     </div>
-  </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Products -->
+    <div class="d-flex justify-content-between align-items-center mt-5">
+        <h2>Produits</h2>
+        <a href="#" class="btn btn-link btn-lg">Plus...</a>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card product-card">
+            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Smartphone Stellar X">
+            <div class="card-body">
+              <h5 class="card-title">Smartphone Stellar X</h5>
+              <p class="card-text">Puissant smartphone avec écran AMOLED, caméra 108 MP et batterie 5000 mAh.</p>
+              <p class="card-text fw-bold">Prix : 499 €</p>
+              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card product-card">
+            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Pack Bien-être Naturel">
+            <div class="card-body">
+              <h5 class="card-title">Pack Bien-être Naturel</h5>
+              <p class="card-text">Inclut des huiles essentielles et produits bio pour améliorer votre quotidien.</p>
+              <p class="card-text fw-bold">Prix : 39,99 €</p>
+              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card product-card">
+            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Sac à Dos Urbain Pro">
+            <div class="card-body">
+              <h5 class="card-title">Sac à Dos Urbain Pro</h5>
+              <p class="card-text">Design ergonomique, multiples compartiments, idéal pour les professionnels.</p>
+              <p class="card-text fw-bold">Prix : 79,99 €</p>
+              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card product-card">
+            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Casque Audio BassPro 500">
+            <div class="card-body">
+              <h5 class="card-title">Casque Audio BassPro 500</h5>
+              <p class="card-text">Audio immersif, réduction de bruit active, autonomie de 30h.</p>
+              <p class="card-text fw-bold">Prix : 129,99 €</p>
+              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+   <!-- Services -->
+<div class="d-flex justify-content-between align-items-center mt-5">
+  <h2>Services</h2>
+  <a href="#" class="btn btn-link btn-lg">Plus...</a>
+</div>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card">
+      <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Livraison Express">
+      <div class="card-body">
+        <h5 class="card-title">Livraison Express 24H</h5>
+        <p class="card-text">Recevez vos commandes rapidement en 24 heures partout en France.</p>
+        <p class="card-text fw-bold">Prix : 9,99 €</p>
+        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Assurance Produit">
+      <div class="card-body">
+        <h5 class="card-title">Assurance Produit</h5>
+        <p class="card-text">Protégez vos produits contre tout dommage ou dysfonctionnement.</p>
+        <p class="card-text fw-bold">Prix : 4,99 €</p>
+        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Service Installation">
+      <div class="card-body">
+        <h5 class="card-title">Service Installation</h5>
+        <p class="card-text">Installation professionnelle de vos produits électroniques et électroménagers.</p>
+        <p class="card-text fw-bold">Prix : 29,99 €</p>
+        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card">
+      <img src="/static/Images/formation-marketing-digital.jpg" class="card-img-top" alt="Formation en Marketing">
+      <div class="card-body">
+        <h5 class="card-title">Formation en Marketing</h5>
+        <p class="card-text">Apprenez les bases et les stratégies avancées pour maîtriser le marketing digital.</p>
+        <p class="card-text fw-bold">Prix : 99,99 €</p>
+        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+  </div>
+{% endblock %}
