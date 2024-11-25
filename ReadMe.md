@@ -4,8 +4,8 @@ Ce dépôt contient le code source du projet Taajr. Ce guide vous aidera à dém
 
 ## Prérequis
 
-- **Git** (assurez-vous que Git est installé sur votre système Windows. Vous pouvez le télécharger depuis [Git pour Windows](https://git-scm.com/download/win)).
-- **Visual Studio Code** ou un autre éditeur de code.
+- **Git** (assurez-vous que Git est installé sur votre système Windows. Vous pouvez le télécharger depuis [Git pour Windows](https://git-scm.com/download/win))
+- **Visual Studio Code** ou un autre éditeur de code
 
 ## Installation
 

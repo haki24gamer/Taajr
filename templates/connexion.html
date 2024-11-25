@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Taajr</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3 class="mb-0">Inscription à Taajr</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="vendeur-tab" data-bs-toggle="tab" data-bs-target="#vendeur" type="button" role="tab" aria-controls="vendeur" aria-selected="true">
+                                    Vendeur
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="client-tab" data-bs-toggle="tab" data-bs-target="#client" type="button" role="tab" aria-controls="client" aria-selected="false">
+                                    Client
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-4" id="myTabContent">
+                            <!-- Formulaire Vendeur -->
+                            <div class="tab-pane fade show active" id="vendeur" role="tabpanel" aria-labelledby="vendeur-tab">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="vendeurNom" class="form-label">Nom</label>
+                                        <input type="text" class="form-control" id="vendeurNom" placeholder="Entrez votre nom">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="vendeurEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="vendeurEmail" placeholder="Entrez votre email">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="vendeurPassword" class="form-label">Mot de passe</label>
+                                        <input type="password" class="form-control" id="vendeurPassword" placeholder="Entrez un mot de passe">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="vendeurPhone" class="form-label">Téléphone</label>
+                                        <input type="tel" class="form-control" id="vendeurPhone" placeholder="Entrez votre numéro de téléphone">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">S'inscrire en tant que Vendeur</button>
+                                </form>
+                            </div>
+                            <!-- Formulaire Client -->
+                            <div class="tab-pane fade" id="client" role="tabpanel" aria-labelledby="client-tab">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="clientNom" class="form-label">Nom</label>
+                                        <input type="text" class="form-control" id="clientNom" placeholder="Entrez votre nom">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="clientEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="clientEmail" placeholder="Entrez votre email">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="clientPassword" class="form-label">Mot de passe</label>
+                                        <input type="password" class="form-control" id="clientPassword" placeholder="Entrez un mot de passe">
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">S'inscrire en tant que Client</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <small>Vous avez déjà un compte ? <a href="login.html" class="text-primary">Connectez-vous ici</a>.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
