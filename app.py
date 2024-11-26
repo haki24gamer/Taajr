@@ -25,7 +25,7 @@ def Connexion():
 
 @app.route('/Produits')
 def Produits():
-    return render_template('produit.html')
+    return render_template('Produits.html')
 
 @app.route('/Services')
 def Services():
