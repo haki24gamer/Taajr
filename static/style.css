@@ -1,5 +1,4 @@
 .product-container {
-    display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: space-around;
@@ -11,6 +10,7 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 10px; /* Add margin to create horizontal space */
 }
 
 /* Espaces réservés pour l'image */
@@ -58,5 +58,8 @@
 @media (max-width: 768px) {
     .product-container {
         justify-content: center;
+    }
+    .product-card {
+        width: 100%;
     }
 }
