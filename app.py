@@ -11,8 +11,8 @@ db = SQL("sqlite:///base.db")
 def index():
     return render_template("index.html")
 
-@app.route('/Inscription', methods=["GET", "POST"])
-def Inscription():
+@app.route('/Connexion', methods=["GET", "POST"])
+def Connexion():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
@@ -21,7 +21,7 @@ def Inscription():
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template('Inscriptions.html')
+        return render_template('Connexion.html')
 
 @app.route('/Produits')
 def Produits():
