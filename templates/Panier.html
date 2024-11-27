@@ -172,6 +172,9 @@
 
   <!-- JavaScript pour la gestion du panier -->
   <script>
+    // Simuler l'état d'authentification
+    const isAuthenticated = true; // Changez ceci à false pour tester les restrictions
+
     const productList = document.getElementById('product-list');
     const cartItems = document.getElementById('cart-items');
     const totalPriceElement = document.getElementById('total-price');
@@ -192,12 +195,16 @@
 
     // Ajouter un produit au panier
     productList.addEventListener('click', (e) => {
+      if (!isAuthenticated) {
+        alert("Vous devez être connecté pour ajouter un produit au panier.");
+        return;
+      }
+
       if (e.target.classList.contains('add-to-cart')) {
         const row = e.target.closest('tr');
         const name = row.children[1].textContent.trim();
         const price = parseFloat(row.children[2].textContent.replace('€', '').trim());
 
-        // Ajouter le produit au tableau du panier
         cart.push({ name, price, quantity: 1 });
         const index = cart.length;
 
@@ -212,24 +219,25 @@
         `;
         cartItems.appendChild(cartRow);
 
-        // Mettre à jour le total
         updateTotal();
       }
     });
 
     // Supprimer un produit du panier
     cartItems.addEventListener('click', (e) => {
+      if (!isAuthenticated) {
+        alert("Vous devez être connecté pour supprimer un produit du panier.");
+        return;
+      }
+
       if (e.target.classList.contains('remove-from-cart')) {
         const row = e.target.closest('tr');
         const index = Array.from(cartItems.children).indexOf(row);
 
-        // Retirer l'élément du tableau
         cart.splice(index, 1);
 
-        // Supprimer la ligne du tableau
         row.remove();
 
-        // Mettre à jour les indices et le total
         Array.from(cartItems.children).forEach((row, i) => {
           row.children[0].textContent = i + 1;
         });
@@ -246,18 +254,20 @@
 
     // Passer la commande
     document.getElementById('checkout').addEventListener('click', () => {
+      if (!isAuthenticated) {
+        alert("Vous devez être connecté pour passer une commande.");
+        return;
+      }
+
       if (cart.length === 0) {
         alert("Votre panier est vide !");
         return;
       }
 
-      // Simuler l'ajout à la base de données
       console.log("Commande passée :", cart);
 
-      // Afficher un message de succès
       alert("Votre commande a été effectuée avec succès !");
 
-      // Réinitialiser le panier
       cart = [];
       cartItems.innerHTML = '';
       updateTotal();
