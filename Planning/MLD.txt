@@ -6,5 +6,5 @@ Offer (ID_off, libelle_off, description_off, quantite_en_stock, prix_off, date_o
 Categorie (ID_cat, nom_cat)
 Appartenir (#ID_off, #ID_cat)
 Inclure (#ID_off, #ID_com)
-Details_Client (adresse)
-Details_Vendeur (nom_boutique, adresse_boutique)
+Details_Client (adresse, #ID_pers)
+Details_Vendeur (nom_boutique, adresse_boutique, #ID_pers)
