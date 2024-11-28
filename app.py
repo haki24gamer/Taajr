@@ -25,11 +25,13 @@ def Connexion():
 
 @app.route('/Produits')
 def Produits():
-    return render_template('Produits.html')
+    products = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Produit' GROUP BY offre.ID_off")
+    return render_template('Produits.html', products=products)
 
 @app.route('/Services')
 def Services():
-    return render_template('Services.html')
+    services = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Service' GROUP BY offre.ID_off")
+    return render_template('Services.html', services=services)
 
 if __name__ == '__main__':
     app.run(debug=True)
