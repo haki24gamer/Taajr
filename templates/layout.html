@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Taajr - Boutique en ligne{% endblock %}</title>
   <link href="/static/bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
   <style>
     .carousel-item img {
       height: 300px;
@@ -31,21 +32,21 @@
 
 <div style="background-color: #6096FD;">
     <div class="container-fluid d-flex align-items-center">
-        <img src="/static/Images/Taajr(1).png" width="100px" class="me-3">
-        <form class="d-flex flex-grow-1" style="max-width: 65%;">
-            <input type="text" class="form-control me-2" placeholder="Search">
-            <div class="input-group-btn">
-                <button class="btn-primary btn" type="submit" style="background-color: #031B88; border-color: #031B88;">
-                    <img src="/static/Images/search.svg" width="25px" height="25px">
-                </button>
-            </div>
-        </form>
-        <div class="d-flex align-items-center ms-auto">
-            <a href="#"><img src="/static/Images/Maquette Taajr/person-circle.svg" width="50px" class="me-4"></a>
-            <a href="#"><img src="/static/Images/Maquette Taajr/heart.svg" width="50px" class="me-4"></a>
-            <a href="#"><img src="/static/Images/Maquette Taajr/cart.svg" width="50px" class="me-4"></a>
-            Panier
-        </div>
+      <a href="/"><img src="/static/Images/Taajr(1).png" width="100px" class="me-3"></a>
+      <form class="d-flex flex-grow-1" style="max-width: 65%;">
+          <input type="text" class="form-control me-2" placeholder="Search">
+          <div class="input-group-btn">
+              <button class="btn-primary btn" type="submit" style="background-color: #031B88; border-color: #031B88;">
+                  <img src="/static/Images/search.svg" width="25px" height="25px">
+              </button>
+          </div>
+      </form>
+      <div class="d-flex align-items-center ms-auto">
+          <a href="/Connexion"><img src="/static/Images/Maquette Taajr/person-circle.svg" width="50px" class="me-4"></a>
+          <a href="#"><img src="/static/Images/Maquette Taajr/heart.svg" width="50px" class="me-4"></a>
+          <a href="#"><img src="/static/Images/Maquette Taajr/cart.svg" width="50px" class="me-4"></a>
+          Panier
+      </div>
     </div>
 </div>
 
@@ -58,11 +59,11 @@
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <h4>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="#">Accueil</a></li>
+                    <li class="nav-item me-3"><a class="nav-link text-black" href="/">Accueil</a></li>
                     <li class="nav-item me-3"><a class="nav-link text-black" href="#">Catégories</a></li>
                     <li class="nav-item me-3"><a class="nav-link text-black" href="#">Meilleures Ventes</a></li>
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="#">Produits</a></li>
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="#">Services</a></li>
+                    <li class="nav-item me-3"><a class="nav-link text-black" href="/Produits">Produits</a></li>
+                    <li class="nav-item me-3"><a class="nav-link text-black" href="/Services">Services</a></li>
                 </ul>
             </h4>
         </div>

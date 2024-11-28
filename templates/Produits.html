@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}Produits - Taajr{% endblock %}
+
+{% block content %}
+    <div class="product-container">
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-3">
+                <div class="card product-card">
+                    <div class="card-img-top">Image à ajouter plus tard</div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.libelle_off }}</h5>
+                        <p class="card-text">{{ product.description_off }}</p>
+                        <p class="rating">⭐⭐⭐☆☆ ({{ product.reviews_count }} avis)</p>
+                        <p class="card-text fw-bold">Prix : {{ product.prix_off }}fdj</p>
+                        <button class="btn btn-primary">Ajouter au panier</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+
