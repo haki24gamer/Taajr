@@ -62,6 +62,17 @@ CREATE TABLE IF NOT EXISTS "paiement" (
     type_pay CHAR(50)
 );
 
+CREATE TABLE "Details_Client" (
+    ID_uti INTEGER,
+    adresse CHAR(50), 
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"("ID_uti")
+    );
+CREATE TABLE "Details_Vendeur" (
+    ID_uti INTEGER,
+    nom_boutique CHAR(50), 
+    adresse_boutique CHAR(50),
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"("ID_uti")
+    );
 
 
 
