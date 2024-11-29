@@ -18,8 +18,9 @@
             background-color: #003366;
             color: white;
             position: fixed;
-            padding: 20px;
+            padding: 8px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
         .sidebar a {
             color: white;
@@ -35,10 +36,10 @@
             background-color: #0055aa;
         }
         .sidebar a i {
-            margin-right: 10px;
+            margin-right: 3px;
         }
         .main-content {
-            margin-left: 250px;
+            margin-left: 350px;
             padding: 20px;
         }
         .card {
@@ -62,16 +63,22 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h2 class="text-center mb-4">Admin Panel</h2>
-        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
-        <a href="#users"><i class="fas fa-users"></i> Gestion des utilisateurs</a>
-        <a href="#products"><i class="fas fa-box-open"></i> Gestion des produits</a>
-        <a href="#orders"><i class="fas fa-shopping-cart"></i> Gestion des commandes</a>
-        <a href="#settings"><i class="fas fa-cog"></i> Paramètres</a>
+        <a href="tableaudebord.html"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+        <a href="utilisateur.html"><i class="fas fa-users"></i> Gestion des utilisateurs</a>
+        <a href="produits.html"><i class="fas fa-box-open"></i> Gestion des produits</a>
+        <a href="commmandes.html"><i class="fas fa-shopping-cart"></i> Gestion des commandes</a>
+        <a href="services.html"><i class="fas fa-hands-helping"></i> Gestion des services</a>
+        <a href="categories.html"><i class="fas fa-list"></i> Gestion des categories</a>
+        <a href="message.html"><i class="fas fa-comment-dots"></i> Gestion des messages et reclamations</a>
+        <a href="comtesadmin.html"><i class="fas fa-user-cog"></i> Gestion des comptes administrateur</a>
+        <a href="parametres.html"><i class="fas fa-cog"></i> Paramètres</a>
+        <a href="notifications.html"><i class="fas fa-bell"></i> Gestion des notifications</a>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
         <h1 class="mb-4">Bienvenue, Administrateur !</h1>
+        <p class="text-muted">Voici un aperçu de l’activité récente sur votre plateforme.</p>
 
         <!-- Stats Section -->
         <div class="row g-4">
@@ -102,8 +109,8 @@
             <div class="col-md-3">
                 <div class="card text-center text-white bg-danger">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="fas fa-dollar-sign"></i> Revenus</h5>
-                        <p class="card-text fs-4">$12,500</p>
+                        <h5 class="card-title"><i class="fas fa-user-plus"></i> Nouveaux Inscrits</h5>
+                        <p class="card-text fs-7">12</p>
                     </div>
                 </div>
             </div>
@@ -111,7 +118,7 @@
 
         <!-- Table Section -->
         <div class="mt-5">
-            <h3>👥Liste des utilisateurs</h3>
+            <h3>Liste des utilisateurs</h3>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
@@ -129,7 +136,6 @@
                         <td>jean.dupont@example.com</td>
                         <td>Client</td>
                         <td>
-                            <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Modifier</button>
                             <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Supprimer</button>
                         </td>
                     </tr>
@@ -139,7 +145,6 @@
                         <td>sarah.ahmed@example.com</td>
                         <td>Vendeur</td>
                         <td>
-                            <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Modifier</button>
                             <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Supprimer</button>
                         </td>
                     </tr>
