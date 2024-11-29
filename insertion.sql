@@ -84,6 +84,9 @@ ALTER TABLE "utilisateur" ADD COLUMN genre CHAR(50);
 -- Ajouter un champs image pour la table offre
 ALTER TABLE "offre" ADD COLUMN image_off CHAR(50);
 
+-- Ajouter un champ logo pour la table details_vendeur
+ALTER TABLE "Details_Vendeur" ADD COLUMN logo CHAR(50);
+
 -- Insert into offers
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur bleu', 10, 20, '2021-01-01', 'Produit', 1);
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Pantalon', 'Pantalon de couleur noir', 10, 30, '2021-01-01', 'Produit', 1);
