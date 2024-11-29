@@ -78,6 +78,9 @@ CREATE TABLE "Details_Vendeur" (
 -- Deletion de adresse_uti de la table utilisateur
 ALTER TABLE "utilisateur" DROP COLUMN adresse_uti;
 
+-- Ajouter la date de naissance et le genre a la table utilisateur
+ALTER TABLE "utilisateur" ADD COLUMN date_naissance DATE;
+ALTER TABLE "utilisateur" ADD COLUMN genre CHAR(50);
 
 
 -- Insert into offers
