@@ -122,6 +122,17 @@
 										placeholder="Votre nom" />
 									<div class="error-message" id="nomError"></div>
 								</div>
+                                <!-- Prenom -->
+								<div class="mb-3">
+									<label for="prenom" class="form-label">Prenom</label>
+									<input
+										type="text"
+										class="form-control"
+										id="prenom"
+										name="prenom"
+										placeholder="Votre prenom" />
+									<div class="error-message" id="prenomError"></div>
+								</div>
 								<!-- Numéro de Téléphone -->
 								<div class="mb-3">
 									<label for="telephone" class="form-label"
@@ -195,23 +206,6 @@
 										name="boutique"
 										placeholder="Nom de votre boutique" />
 									<div class="error-message" id="boutiqueError"></div>
-								</div>
-
-								<!-- Catégorie -->
-								<div class="mb-3">
-									<label for="categorie" class="form-label"
-										>Catégorie de Produits/Services</label
-									>
-									<select class="form-select" id="categorie" name="categorie">
-										<option value="">Choisissez une catégorie</option>
-										<option value="electronique">Électronique</option>
-										<option value="vetements">Vêtements</option>
-										<option value="services_pro">
-											Services Professionnels
-										</option>
-										<option value="autre">Autre</option>
-									</select>
-									<div class="error-message" id="categorieError"></div>
 								</div>
 								<!-- Description de la Boutique -->
 								<div class="mb-3">
@@ -366,6 +360,13 @@
 					if (!/^[a-zA-Z\s]+$/.test(nom)) {
 						document.getElementById("nomError").textContent =
 							"Le nom ne peut contenir que des lettres.";
+						formIsValid = false;
+					}
+                    // Validation du prenom
+					var prenom = document.getElementById("prenom").value;
+					if (!/^[a-zA-Z\s]+$/.test(prenom)) {
+						document.getElementById("prenomError").textContent =
+							"Le prenom ne peut contenir que des lettres.";
 						formIsValid = false;
 					}
 

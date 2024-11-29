@@ -106,9 +106,9 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="nom" class="form-label"><strong>Prénom</strong></label>
-                                <input type="text" class="form-control" id="nom" name="nom" placeholder="Votre prenom">
-                                <div class="error-message" id="nomError"></div>
+                                <label for="prenom" class="form-label"><strong>Prénom</strong></label>
+                                <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Votre prenom">
+                                <div class="error-message" id="prenomError"></div>
                             </div>
 
                             <div class="mb-3">
@@ -184,6 +184,12 @@
             const nom = document.getElementById('nom').value.trim();
             if (!/^[a-zA-Z\séèàùêîôäëïöü]+$/.test(nom)) {
                 document.getElementById('nomError').textContent = 'Le nom est requis.';
+                valid = false;
+            }
+            // Validate name
+            const prenom = document.getElementById('prenom').value.trim();
+            if (!/^[a-zA-Z\séèàùêîôäëïöü]+$/.test(prenom)) {
+                document.getElementById('prenomError').textContent = 'Le prenom est requis.';
                 valid = false;
             }
 
