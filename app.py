@@ -74,6 +74,57 @@ def Ajouterproduits():
 
         # Si c'est une requête GET, afficher le formulaire pour ajouter un produit
         return render_template('Ajouterproduits.html')
+    
+      # Route pour supprimer un produit
+@app.route('/supprimer_produit/', methods=['GET'])
+def supprimer_produit(nom):
+    # Trouver le produit par son nom
+    produit = Produit.query.get(nom)
+    
+    # Si le produit existe, on le supprime
+    if produit:
+        db.session.delete(produit)
+        db.session.commit()
+        return f"Produit {produit.nom} supprimé avec succès.", 200
+    else:
+        return f"Produit avec nom {id} non trouvé.", 404
+    
+    # Route pour modifier un produit
+@app.route('/modifier_produit/', methods=['GET', 'POST'])
+def modifier_produit(nom):
+    produit = produit.query.get(nom)  # Trouver le produit par ID
+    if not produit:
+        return f"Produit avec nom {nom} non trouvé.", 404
+
+    if request.method == 'POST':
+        # Récupérer les données envoyées via le formulaire
+        nouveau_nom = request.form.get('nom_produit')
+        nouveau_prix = request.form.get('prix_produit')
+
+        # Mettre à jour le produit
+        if nouveau_nom:
+            produit.nom = nouveau_nom
+        if nouveau_prix:
+            try:
+                produit.prix = float(nouveau_prix)
+            except ValueError:
+                return "Prix invalide.", 400
+        
+        # Commit les changements à la base de données
+        db.session.commit()
+        return f"Produit {produit.nom} modifié avec succès.", 200
+    
+    # Route pour afficher les produits d'un utilisateur
+@app.route('/utilisateur/<int:user_id>/produits')
+def afficher_produits(user_id):
+    # Récupérer l'utilisateur par ID
+    user = User.query.get_or_404(user_id)
+    
+    # Récupérer tous les produits associés à cet utilisateur
+    produits = Produit.query.filter_by(user_id=user.id).all()
+
+    return render_template('produits.html', user=user, produits=produits)
+
 
 @app.route('/Services')
 def Services():
@@ -121,6 +172,59 @@ def Ajouterservices():
 
         # Si c'est une requête GET, afficher le formulaire pour ajouter un services
         return render_template('Ajouterservices.html')
+    
+   
+    # Route pour supprimer un service
+@app.route('/supprimer_service/', methods=['GET'])
+def supprimer_service(nom):
+    service = Service.query.get(nom)
+    if not service:
+        return f"Service avec le nom {nom} non trouvé.", 404
+
+    # Supprimer le service de la base de données
+    db.session.delete(service)
+    db.session.commit()
+
+    return f"Service {service.nom} supprimé avec succès.", 200
+
+# Route pour modifier un service
+@app.route('/modifier_service/', methods=['GET', 'POST'])
+def modifier_service(nom):
+    service = Service.query.get(nom)
+    if not service:
+        return f"Service avec le nom {nom} non trouvé.", 404
+
+    if request.method == 'POST':
+        # Récupérer les nouvelles données envoyées par le formulaire
+        nouveau_nom = request.form.get('nom_services')
+        nouvelle_description = request.form.get('description_services')
+        nouveau_prix = request.form.get('prix_services')
+
+        # Mise à jour des attributs du service
+        if nouveau_nom:
+            service.nom = nouveau_nom
+        if nouvelle_description:
+            service.description = nouvelle_description
+        if nouveau_prix:
+            try:
+                service.prix = float(nouveau_prix)
+            except ValueError:
+                return "Le prix doit être un nombre valide.", 400
+
+        # Enregistrer les modifications dans la base de données
+        db.session.commit()
+        return f"Service {service.nom} modifié avec succès.", 200
+
+# Route pour afficher les services d'un utilisateur
+@app.route('/utilisateur/<int:user_id>/services')
+def afficher_services(user_id):
+    # Récupérer l'utilisateur par ID
+    user = User.query.get_or_404(user_id)
+    
+    # Récupérer tous les services associés à cet utilisateur
+    services = Services.query.filter_by(user_id=user.id).all()
+
+    return render_template('services.html', user=user, services=services)
         
 
 if __name__ == '__main__':
