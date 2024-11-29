@@ -20,7 +20,7 @@ def Connexion():
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template('inscription.html')
+        return render_template('connexion.html')
 
 @app.route('/Produits')
 def Produits():
