@@ -75,8 +75,8 @@ CREATE TABLE "Details_Vendeur" (
     );
 
 
-
-
+-- Deletion de adresse_uti de la table utilisateur
+ALTER TABLE "utilisateur" DROP COLUMN adresse_uti;
 
 
 
