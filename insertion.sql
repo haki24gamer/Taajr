@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS "utilisateur" (
     ID_uti INTEGER PRIMARY KEY AUTOINCREMENT,
     nom_uti CHAR(50),
     prenom_uti CHAR(50),
-    adresse_uti CHAR(50),
     email_uti CHAR(50),
     mot_de_passe CHAR(50),
     telephone CHAR(50),
