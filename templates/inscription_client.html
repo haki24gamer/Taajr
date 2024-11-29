@@ -98,7 +98,7 @@
                         <p class="mb-0">Remplissez les informations pour créer votre compte client.</p>
                     </div>
                     <div class="card-body">
-                        <form id="clientForm">
+                        <form id="clientForm" action="{{ url_for('Inscription_Client') }}" method="POST">
                             <div class="mb-3">
                                 <label for="nom" class="form-label"><strong>Nom</strong></label>
                                 <input type="text" class="form-control" id="nom" name="nom" placeholder="Votre nom">
@@ -170,7 +170,7 @@
         </div>
     </div>
 
-    <script>
+    <!-- <script>
         document.getElementById('clientForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -256,6 +256,6 @@
                 document.getElementById('clientForm').reset();
             }
         });
-    </script>
+    </script> -->
 </body>
 </html>

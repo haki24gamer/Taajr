@@ -1,4 +1,3 @@
-
 CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE IF NOT EXISTS "utilisateur" (
     ID_uti INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,7 +84,10 @@ ALTER TABLE "utilisateur" ADD COLUMN genre CHAR(50);
 ALTER TABLE "offre" ADD COLUMN image_off CHAR(50);
 
 -- Ajouter un champ logo pour la table details_vendeur
-ALTER TABLE "Details_Vendeur" ADD COLUMN logo CHAR(50);
+ALTER TABLE "Details_Vendeur" ADD COLUMN logo CHAR(100);
+
+-- Add description column to Details_Vendeur
+ALTER TABLE "Details_Vendeur" ADD COLUMN description CHAR(255);
 
 -- Insert into offers
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur bleu', 10, 20, '2021-01-01', 'Produit', 1);

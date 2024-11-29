@@ -110,7 +110,7 @@
 							</p>
 						</div>
 						<div class="card-body">
-							<form id="vendeurForm">
+							<form id="vendeurForm" method="POST" action="/Inscription_Vendeur" enctype="multipart/form-data">
 								<!-- Nom -->
 								<div class="mb-3">
 									<label for="nom" class="form-label">Nom</label>
@@ -346,119 +346,5 @@
 				</div>
 			</div>
 		</div>
-		<script>
-			document
-				.getElementById("vendeurForm")
-				.addEventListener("submit", function (event) {
-					event.preventDefault();
-					clearErrors(); // Clear previous errors
-
-					var formIsValid = true;
-
-					// Validation des champs
-					var nom = document.getElementById("nom").value;
-					if (!/^[a-zA-Z\s]+$/.test(nom)) {
-						document.getElementById("nomError").textContent =
-							"Le nom ne peut contenir que des lettres.";
-						formIsValid = false;
-					}
-                    // Validation du prenom
-					var prenom = document.getElementById("prenom").value;
-					if (!/^[a-zA-Z\s]+$/.test(prenom)) {
-						document.getElementById("prenomError").textContent =
-							"Le prenom ne peut contenir que des lettres.";
-						formIsValid = false;
-					}
-
-					var telephone = document.getElementById("telephone").value;
-					if (!/^\d{8}$/.test(telephone)) {
-						document.getElementById("telephoneError").textContent =
-							"Le numéro de téléphone doit contenir 8 chiffres.";
-						formIsValid = false;
-					}
-
-					var adresse = document.getElementById("adresse").value;
-					if (!/^[a-zA-Z0-9\s,éèàùêîôäëïöü]+$/.test(adresse)) {
-						document.getElementById("adresseError").textContent =
-							"L'adresse doit contenir des lettres, des chiffres, des accents, des virgules.";
-						formIsValid = false;
-					}
-
-					var email = document.getElementById("email").value;
-					if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-						document.getElementById("emailError").textContent =
-							"L'email est invalide.";
-						formIsValid = false;
-					}
-
-					var password = document.getElementById("password").value;
-					if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
-						document.getElementById("passwordError").textContent =
-							"Le mot de passe doit contenir au moins 6 caractères, incluant des lettres et des chiffres.";
-						formIsValid = false;
-					}
-
-					var confirmPassword =
-						document.getElementById("confirmPassword").value;
-					if (password !== confirmPassword) {
-						document.getElementById("confirmPasswordError").textContent =
-							"Les mots de passe ne correspondent pas.";
-						formIsValid = false;
-					}
-
-					var boutique = document.getElementById("boutique").value;
-					if (!/^[a-zA-Z\s]+$/.test(boutique)) {
-						document.getElementById("boutiqueError").textContent =
-							"Le nom de la boutique doit contenir uniquement des lettres.";
-						formIsValid = false;
-					}
-
-					var description = document.getElementById("description").value;
-					if (!/^[a-zA-Z\s]+$/.test(description)) {
-						document.getElementById("descriptionError").textContent =
-							"La description doit contenir uniquement des lettres et des espaces.";
-						formIsValid = false;
-					}
-
-					var zonesLivraison = document.getElementById("zonesLivraison").value;
-					if (!/^[a-zA-Z0-9\s,-éèàùêîôäëïöü]+$/.test(zonesLivraison)) {
-						document.getElementById("zonesLivraisonError").textContent =
-							"Les zones de livraison doivent être valides.";
-						formIsValid = false;
-					}
-
-					var politiqueRetour =
-						document.getElementById("politiqueRetour").value;
-					if (!/^[A-Za-z0-9\s-]+$/.test(politiqueRetour)) {
-						document.getElementById("politiqueRetourError").textContent =
-							"La politique de retour doit contenir uniquement des lettres et des espaces.";
-						formIsValid = false;
-					}
-
-					var horaires =
-						document.getElementById("jourDebut").value !== "" &&
-						document.getElementById("jourFin").value !== "" &&
-						document.getElementById("heureDebut").value !== "" &&
-						document.getElementById("heureFin").value !== "";
-					if (!horaires) {
-						document.getElementById("horairesError").textContent =
-							"Veuillez remplir les horaires d'ouverture correctement.";
-						formIsValid = false;
-					}
-
-					if (formIsValid) {
-						document
-							.getElementById("successMessage")
-							.classList.remove("d-none");
-					}
-				});
-
-			function clearErrors() {
-				var errorMessages = document.querySelectorAll(".error-message");
-				errorMessages.forEach(function (msg) {
-					msg.textContent = "";
-				});
-			}
-		</script>
 	</body>
 </html>
