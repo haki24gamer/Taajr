@@ -1,10 +1,21 @@
 from flask import Flask, render_template, request, redirect
 from cs50 import SQL
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///base.db")
+
+# Configuration for file uploads
+UPLOAD_FOLDER = 'static/Images/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -47,35 +58,94 @@ def Inscription():
 
 @app.route('/Inscription_Vendeur', methods=["GET", "POST"])
 def Inscription_Vendeur():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+        # Collect form data
+        nom = request.form.get("nom")
+        prenom = request.form.get("prenom")
+        email = request.form.get("email")
+        mot_de_passe = request.form.get("password")
+        telephone = request.form.get("telephone")
+        boutique = request.form.get("boutique")
+        adresse_boutique = request.form.get("adresse")
+        description = request.form.get("description")
+        jourDebut = request.form.get("jourDebut")
+        jourFin = request.form.get("jourFin")
+        heureDebut = request.form.get("heureDebut")
+        heureFin = request.form.get("heureFin")
+        politiqueRetour = request.form.get("politiqueRetour")
+        type_uti = 'Vendeur'
+        
+        # Handle logo upload
+        logo = request.files.get('logo')
+        if logo and allowed_file(logo.filename):
+            logo_filename = secure_filename(logo.filename)
+            logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
+            logo_relative_path = os.path.join('Images', logo_filename)
+        else:
+            logo_relative_path = None  # Or handle error
+        
+        # Handle document upload
+        document = request.files.get('document')
+        if document and allowed_file(document.filename):
+            document_filename = secure_filename(document.filename)
+            document.save(os.path.join(app.config['UPLOAD_FOLDER'], document_filename))
+        else:
+            document_filename = None  # Or handle error
+        
+        # Insert into utilisateur
+        user_id = db.execute("""
+            INSERT INTO utilisateur 
+            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, type_uti) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, nom, prenom, email, mot_de_passe, telephone, type_uti)
+        
+        # Combine fields into description
+        full_description = f"{description}; {jourDebut}; {jourFin}; {heureDebut}; {heureFin}; {politiqueRetour}"
+        
+        # Insert into Details_Vendeur
+        db.execute("""
+            INSERT INTO Details_Vendeur 
+            (ID_uti, nom_boutique, adresse_boutique, description, logo) 
+            VALUES (?, ?, ?, ?, ?)
+        """, user_id, boutique, adresse_boutique, full_description, logo_relative_path)
 
-        # Redirect user to home page
+        document = document_filename
+        
         return redirect("/")
-
-    # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template('inscription_vendeur.html')
     
 @app.route('/Inscription_Client', methods=["GET", "POST"])
 def Inscription_Client():
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-
-        # Redirect user to home page
+        # Collect form data
+        nom = request.form.get("nom")
+        prenom = request.form.get("prenom")
+        email = request.form.get("email")
+        mot_de_passe = request.form.get("password")
+        telephone = request.form.get("telephone")
+        adresse = request.form.get("adresse")
+        date_naissance = request.form.get("birthdate")
+        genre = request.form.get("gender")
+        type_uti = 'Client'
+        
+        # Insert into utilisateur
+        user_id = db.execute("""
+            INSERT INTO utilisateur 
+            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, nom, prenom, email, mot_de_passe, telephone, date_naissance, genre, type_uti)
+        
+        # Insert into Details_Client
+        db.execute("""
+            INSERT INTO Details_Client 
+            (ID_uti, adresse) 
+            VALUES (?, ?)
+        """, user_id, adresse)
+        
         return redirect("/")
-
-    # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template('inscription_client.html')
-    
-@app.route('/Panier')
-def Panier():
-    return render_template('Panier.html')
-
-@app.route('/Menu_Vendeur')
-def Menu_Vendeur():
-    return render_template('Menu_Vendeur.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
