@@ -68,5 +68,14 @@ def Inscription_Client():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template('inscription_client.html')
+    
+@app.route('/Panier')
+def Panier():
+    return render_template('Panier.html')
+
+@app.route('/Menu_Vendeur')
+def Menu_Vendeur():
+    return render_template('Menu_Vendeur.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
