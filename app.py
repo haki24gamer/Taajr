@@ -45,6 +45,8 @@ def Ajouterproduits():
         if user_id is None:
             # Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
             return redirect(url_for('connexion.html'))  # Ajustez selon votre URL de connexion
+        
+        
 
         # Préparation de la requête d'insertion avec les données récupérées
         requete = """
@@ -62,7 +64,7 @@ def Ajouterproduits():
         })
 
         # Commit pour valider l'insertion dans la base de données
-        # db.commit()
+        db.commit()
 
         # Rediriger l'utilisateur vers une autre page après l'insertion (ex: liste des produits)
         return redirect(url_for('Ajouterproduits.html'))  # Ajustez cela en fonction de votre URL de redirection
@@ -70,8 +72,6 @@ def Ajouterproduits():
 
         # Si c'est une requête GET, afficher le formulaire pour ajouter un produit
         return render_template('Ajouterproduits.html')
-
-
 
 @app.route('/Services')
 def Services():
