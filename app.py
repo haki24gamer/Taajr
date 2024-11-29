@@ -41,6 +41,7 @@ def Ajouterproduits():
         
         # Si l'utilisateur est connecté, on récupère son ID depuis la session
         user_id = 1  # Assurez-vous que l'utilisateur est connecté
+        type_off ='Produit'
 
         if user_id is None:
             # Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
@@ -50,18 +51,19 @@ def Ajouterproduits():
 
         # Préparation de la requête d'insertion avec les données récupérées
         requete = """
-        INSERT INTO offre (libelle_off, description_off, quantite_en_stock, prix_off, type_off, ID_uti)
-        VALUES ?,?,?,?, 'Produit', ?)
-        """
+         INSERT INTO offre (libelle_off, description_off, quantite_en_stock, prix_off, type_off, ID_uti)
+         VALUES (?, ?, ?, ?, 'Produit',user_id)
+         """
 
         # Exécution de la requête avec les données du formulaire et l'ID utilisateur
-        db.execute(requete, {
-           'nom_produit': nom_produit,
-            'description_produit': description_produit,
-            'quantite_stock': quantite_stock,
-            'prix_produit': prix_produit,
-            'user_id': user_id
-        })
+        db.execute(requete, (
+           nom_produit,           # Valeur pour libelle_off
+           description_produit,   # Valeur pour description_off
+           quantite_stock,        # Valeur pour quantite_en_stock
+           prix_produit,          # Valeur pour prix_off
+           
+          
+        ) )
 
         # Commit pour valider l'insertion dans la base de données
         db.commit()
@@ -77,6 +79,49 @@ def Ajouterproduits():
 def Services():
     services = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Service' GROUP BY offre.ID_off")
     return render_template('Services.html', services=services)
+
+@app.route('/Ajouterservices', methods=["GET", 'POST'])
+def Ajouterservices():
+    if request.method == 'POST':
+         # Récupération des données du formulaire
+        nom_services = request.form.get('nom_services')
+        description_services = request.form.get('description_services')
+        date_services = request.form.get('date_services')
+        prix_services = request.form.get('prix_services')
+        
+         # Si l'utilisateur est connecté, on récupère son ID depuis la session
+        user_id = 1  # Assurez-vous que l'utilisateur est connecté
+        type_off ='services'
+
+        if user_id is None:
+            # Si l'utilisateur n'est pas connecté, redirigez-le vers la page de connexion
+            return redirect(url_for('connexion.html'))  # Ajustez selon votre URL de connexion
+        
+        
+        # Préparation de la requête d'insertion avec les données récupérées
+        requete = """
+         INSERT INTO offre (libelle_off, description_off, prix_services, type_off, ID_uti)
+         VALUES (?, ?,'services',user_id)
+         """
+
+        # Exécution de la requête avec les données du formulaire et l'ID utilisateur
+        db.execute(requete,(
+           nom_services,           # Valeur pour libelle_off
+           description_services,   # Valeur pour description_off
+           
+           prix_services,          # Valeur pour prix_off
+           
+         ))
+        # Commit pour valider l'insertion dans la base de données
+        db.commit()
+
+        # Rediriger l'utilisateur vers une autre page après l'insertion (ex: liste des services)
+        return redirect(url_for('Ajouterservices.html'))  # Ajustez cela en fonction de votre URL de redirection
+    else:
+
+        # Si c'est une requête GET, afficher le formulaire pour ajouter un services
+        return render_template('Ajouterservices.html')
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
