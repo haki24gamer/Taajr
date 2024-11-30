@@ -93,6 +93,9 @@ ALTER TABLE "Details_Vendeur" ADD COLUMN description CHAR(255);
 ALTER TABLE "utilisateur" DROP COLUMN mot_de_passe;
 ALTER TABLE "utilisateur" ADD COLUMN mot_de_passe CHAR(255) AFTER email_uti;
 
+-- Ajouter une descriptions pour categories
+ALTER TABLE "categorie" ADD COLUMN description CHAR(255);
+
 -- Insert into offers
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur bleu', 10, 20, '2021-01-01', 'Produit', 1);
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Pantalon', 'Pantalon de couleur noir', 10, 30, '2021-01-01', 'Produit', 1);
@@ -111,3 +114,21 @@ INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, 
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de jardinage', 'Entretien de votre jardin', 10, 30, '2021-01-01', 'Service', 2);
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de bricolage', 'Bricolage de votre maison', 10, 40, '2021-01-01', 'Service', 2);
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de nettoyage', 'Nettoyage de votre maison', 10, 20, '2021-01-01', 'Service', 3);
+
+
+-- Insert into categories using one query
+INSERT INTO "categorie" (nom_cat, description) VALUES 
+    ('Mode et vetements', 'Vêtements et accessoires de mode pour hommes, femmes et enfants'), 
+    ('Chaussures', 'Chaussures pour toutes les occasions et tous les styles'), 
+    ('Services', 'Services divers pour répondre à vos besoins quotidiens'),
+    ('Electromenager', 'Appareils électroménagers pour la maison'), 
+    ('Informatique', 'Matériel informatique et accessoires'), 
+    ('Jouets', 'Jouets pour enfants de tous âges'), 
+    ('Jeux video', 'Jeux vidéo pour toutes les plateformes'),
+    ('Sport et loisirs', 'Équipements et accessoires pour le sport et les loisirs'), 
+    ('Musique', 'Instruments de musique et accessoires'), 
+    ('Livres', 'Livres de tous genres et pour tous les âges'), 
+    ('Électronique', 'Appareils électroniques et gadgets'),
+    ('Beauté et soins', 'Produits de beauté et soins personnels'), 
+    ('Maison et jardin', 'Articles pour la maison et le jardin'), 
+    ('Santé et bien-être', 'Produits pour la santé et le bien-être');
