@@ -202,8 +202,20 @@ def Panier():
 
 @app.route('/Categories')
 def Categories():
-    categories = db.execute("SELECT nom_cat, description, image FROM categorie")
+    categories = db.execute("SELECT ID_cat, nom_cat, description, image FROM categorie")
     return render_template('Categories.html', categories=categories)
+
+@app.route('/category/<int:category_id>')
+def category_offers(category_id):
+    offers = db.execute("""
+        SELECT offre.*, utilisateur.nom_uti, utilisateur.prenom_uti
+        FROM offre
+        JOIN appartenir ON offre.ID_off = appartenir.ID_off
+        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
+        WHERE appartenir.ID_cat = ?
+    """, category_id)
+    category = db.execute("SELECT nom_cat FROM categorie WHERE ID_cat = ?", category_id)
+    return render_template('category_offers.html', offers=offers, category=category[0] if category else None)
 
 if __name__ == '__main__':
     app.run(debug=True)

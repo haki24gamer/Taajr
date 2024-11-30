@@ -1,0 +1,22 @@
+
+{% extends "layout.html" %}
+
+{% block title %}{{ category.nom_cat }} - Taajr{% endblock %}
+
+{% block content %}
+<h2>{{ category.nom_cat }}</h2>
+<div class="row">
+    {% for offer in offers %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <img src="/static/{{ offer.image_off }}" class="card-img-top" alt="Image de l'Offre">
+            <div class="card-body">
+                <h5 class="card-title">{{ offer.libelle_off }}</h5>
+                <p class="card-text">{{ offer.description_off }}</p>
+                <p>Vendeur: {{ offer.prenom_uti }} {{ offer.nom_uti }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
