@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect,url_for,flash
 from cs50 import SQL
 import os
 from werkzeug.utils import secure_filename
+from flask_login import login_user, current_user, logout_user, login_required
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -21,17 +23,30 @@ def allowed_file(filename):
 def index():
     return render_template("index.html")
 
-@app.route('/Connexion', methods=["GET", "POST"])
-def Connexion():
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
+# Route pour la connexion
+@app.route('/connexion', methods=['GET', 'POST'])
+def connexion():
+    if request.method == 'POST':
+        email = request.form['email']
+        mot_de_passe = request.form['mot_de_passe']
 
-        # Redirect user to home page
-        return redirect("/")
+          # Vérifier que l'email et le mot de passe sont bien remplis
+        if email and mot_de_passe:
+        # Recherche de l'utilisateur dans la base
+         utilisateur = utilisateur.query.filter_by(email_uti=email).first()
 
-    # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render_template('inscription.html')
+        # Vérification des informations
+        if utilisateur and check_password_hash(utilisateur.mot_de_passe, mot_de_passe):
+            flash("Bienvenue")
+            return redirect(url_for('index'))
+        else:
+            flash('Connexion échouée. Vérifiez votre email et mot de passe.', 'danger')
+
+    return render_template('connexion.html')
+@app.route('/Deconnexion')
+def deconnexion():
+    flash('Vous êtes déconnecté (virtuellement) !', 'info')
+    return redirect(url_for('index'))
 
 @app.route('/Produits')
 def Produits():
