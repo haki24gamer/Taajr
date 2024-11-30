@@ -44,6 +44,15 @@ def inject_categories():
     categories = db.execute("SELECT ID_cat, nom_cat FROM categorie")
     return dict(categories=categories)
 
+@app.context_processor
+def inject_favoris_ids():
+    user_id = session.get('user_id')
+    if user_id:
+        favoris = db.execute("SELECT ID_off FROM likes WHERE ID_uti = ?", user_id)
+        favoris_ids = [item['ID_off'] for item in favoris]
+        return dict(favoris_ids=favoris_ids)
+    return dict(favoris_ids=[])
+
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -306,11 +315,86 @@ def Ajouter_au_panier():
         # Incrémenter la quantité
         db.execute("UPDATE panier SET quantity = quantity + 1 WHERE ID_panier = ?", panier_item[0]['ID_panier'])
     else:
-        # Ajouter le produit au panier
         db.execute("INSERT INTO panier (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], product_id)
-    
     flash('Produit ajouté au panier.', 'success')
     return redirect(request.referrer)
+
+@app.route('/like_offer', methods=['POST'])
+def like_offer():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour aimer des articles.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    offer_id = request.form.get('offer_id')
+    if not offer_id:
+        flash('Offre invalide.', 'danger')
+        return redirect(request.referrer)
+    
+    # Vérifier si l'offre existe
+    offer = db.execute("SELECT * FROM offre WHERE ID_off = ?", offer_id)
+    if not offer:
+        flash('Offre non trouvée.', 'danger')
+        return redirect(request.referrer)
+    
+    # Vérifier si l'offre est déjà aimée
+    liked = db.execute("SELECT * FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
+    if liked:
+        flash('Offre déjà aimée.', 'info')
+        print(f"User {session['user_id']} already liked offer {offer_id}.")
+    else:
+        db.execute("INSERT INTO likes (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], offer_id)
+        flash('Offre ajoutée à vos favoris.', 'success')
+        # Debugging: Confirm insertion
+        print(f"User {session['user_id']} liked offer {offer_id}.")
+
+    return redirect(request.referrer)
+
+@app.route('/unlike_offer', methods=['POST'])
+def unlike_offer():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour enlever des articles de vos favoris.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    offer_id = request.form.get('offer_id')
+    if not offer_id:
+        flash('Offre invalide.', 'danger')
+        return redirect(request.referrer)
+    
+    # Supprimer l'offre des favoris
+    deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
+    if deleted:
+        flash('Offre retirée de vos favoris.', 'success')
+        # Debugging: Confirm deletion
+        print(f"User {session['user_id']} unliked offer {offer_id}.")
+    else:
+        flash('Aucune modification effectuée.', 'info')
+        print(f"User {session['user_id']} tried to unlike offer {offer_id} but it was not found.")
+
+    return redirect(request.referrer)
+
+@app.route('/Favoris')
+def Favoris():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour voir vos favoris.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user_id = session['user_id']
+    favoris = db.execute("""
+        SELECT offre.*
+        FROM likes
+        INNER JOIN offre ON likes.ID_off = offre.ID_off
+        WHERE likes.ID_uti = ?
+    """, user_id)
+    
+    # Debugging: Print the retrieved favorites
+    print(f"User ID: {user_id}")
+    print(f"Favoris Retrieved: {favoris}")
+    
+    if not favoris:
+        flash('Vous n\'avez aucun favori.', 'info')
+        print("Aucune offre trouvée dans les favoris de l'utilisateur.")
+    
+    return render_template('Favoris.html', favoris=favoris)
 
 if __name__ == '__main__':
     app.run(debug=True)
