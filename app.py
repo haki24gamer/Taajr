@@ -89,6 +89,8 @@ def Inscription_Vendeur():
         heureFin = request.form.get("heureFin")
         politiqueRetour = request.form.get("politiqueRetour")
         type_uti = 'Vendeur'
+        naissance = request.form.get("birthdate")
+        genre = request.form.get("gender")
         
         # Handle logo upload
         logo = request.files.get('logo')
@@ -110,9 +112,9 @@ def Inscription_Vendeur():
         # Insert into utilisateur
         user_id = db.execute("""
             INSERT INTO utilisateur 
-            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, type_uti) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, nom, prenom, email, mot_de_passe, telephone, type_uti)
+            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, nom, prenom, email, mot_de_passe, telephone, naissance, genre, type_uti)
         
         # Combine fields into description
         full_description = f"{description}; {jourDebut}; {jourFin}; {heureDebut}; {heureFin}; {politiqueRetour}"
@@ -126,7 +128,7 @@ def Inscription_Vendeur():
 
         document = document_filename
         
-        return redirect("/")
+        return render_template
     else:
         return render_template('inscription_vendeur.html')
     
