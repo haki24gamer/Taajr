@@ -8,7 +8,9 @@
             {% for service in services %}
             <div class="col-md-3">
                 <div class="card product-card">
-                    <div class="card-img-top">Image à ajouter plus tard</div>
+                    <div class="card-img-top">
+                        <img src="{{ service.image_off }}" class="card-img-top">
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">{{ service.libelle_off }}</h5>
                         <p class="card-text">{{ service.description_off }}</p>

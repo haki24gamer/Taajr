@@ -118,6 +118,15 @@ INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, 
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de bricolage', 'Bricolage de votre maison', 10, 40, '2021-01-01', 'Service', 2);
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de nettoyage', 'Nettoyage de votre maison', 10, 20, '2021-01-01', 'Service', 3);
 
+-- Update products with default product image
+UPDATE offre
+SET image_off = 'Image/Produits/Produits.webp'
+WHERE type_off = 'Produit';
+
+-- Update services with default service image
+UPDATE offre
+SET image_off = 'Image/Services/Services.jpg'
+WHERE type_off = 'Service';
 
 -- Insert into categories using one query
 INSERT INTO "categorie" (nom_cat, description, image) VALUES 
