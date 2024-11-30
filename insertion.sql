@@ -89,6 +89,10 @@ ALTER TABLE "Details_Vendeur" ADD COLUMN logo CHAR(100);
 -- Add description column to Details_Vendeur
 ALTER TABLE "Details_Vendeur" ADD COLUMN description CHAR(255);
 
+-- Supprimer la colonne mot de passe et rajoute le avec char(255)
+ALTER TABLE "utilisateur" DROP COLUMN mot_de_passe;
+ALTER TABLE "utilisateur" ADD COLUMN mot_de_passe CHAR(255) AFTER email_uti;
+
 -- Insert into offers
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur bleu', 10, 20, '2021-01-01', 'Produit', 1);
 INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Pantalon', 'Pantalon de couleur noir', 10, 30, '2021-01-01', 'Produit', 1);
