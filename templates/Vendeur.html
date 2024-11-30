@@ -1,12 +1,5 @@
-{% extends "layout.html" %}
-
-{% block title %}Accueil - Taajr{% endblock %}
-
-{% block content %}
-
 <!DOCTYPE html>
 <html lang="en">
-
 
 <head>
   <meta charset="UTF-8">
@@ -71,6 +64,12 @@
 </head>
 
 <body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">E-Commerce</a>
+    </div>
+  </nav>
 
   <!-- Container -->
   <div class="container">
@@ -80,16 +79,17 @@
           <div class="card-header">
             Espace Vendeur - Gestion des Produits
           </div>
-          <div class="card-body text-center">
+          <div class="card-body">
             <div class="text-center mb-4">
               <p>Bienvenue dans votre espace vendeur. Vous pouvez gérer vos produits ici.</p>
             </div>
 
             <!-- Boutons -->
-            <button class="btn btn-primary" id="add-product-btn">Ajouter un Produit</button>
-            <button class="btn btn-warning" id="edit-product-btn">Modifier un Produit</button>
-            <button class="btn btn-danger" id="delete-product-btn">Supprimer un Produit</button>
+            <button class="btn btn-primary" id="add-product-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">Ajouter un Produit</button>
+            <button class="btn btn-warning" id="edit-product-btn" data-bs-toggle="modal" data-bs-target="#editProductModal">Modifier un Produit</button>
+            <button class="btn btn-danger" id="delete-product-btn" data-bs-toggle="modal" data-bs-target="#deleteProductModal">Supprimer un Produit</button>
             <button class="btn btn-info" id="view-products-btn">Afficher Tous les Produits</button>
+            <button class="btn btn-secondary" id="order-list-btn">Liste de Commande</button>
           </div>
         </div>
       </div>
@@ -180,7 +180,10 @@
     </div>
   </div>
 
-
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2024 E-Commerce - Tous droits réservés</p>
+  </footer>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
@@ -189,6 +192,7 @@
   <script>
     // Simuler une base de données locale
     let products = [];
+    let cart = [];
 
     // Ajouter un produit
     document.getElementById('add-product-form').addEventListener('submit', (e) => {
@@ -200,7 +204,7 @@
       const id = products.length + 1; // Générer un ID unique
 
       products.push({ id, type, name, price });
-      alert("Produit est ajouté avec succès !");
+      alert("Produit ajouté avec succès !");
       document.getElementById('add-product-form').reset();
       const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
       modal.hide();
@@ -214,9 +218,22 @@
       }
 
       const productList = products.map(product => 
-        `ID: ${product.id}, Nom: ${product.name}, Type: ${product.type}, Prix: ${product.price} €`
+        ID: ${product.id}, Nom: ${product.name}, Type: ${product.type}, Prix: ${product.price} €
       ).join('\n');
-      alert(`Liste des Produits:\n${productList}`);
+      alert(Liste des Produits:\n${productList});
+    });
+
+    // Afficher la liste de commande (produits dans le panier)
+    document.getElementById('order-list-btn').addEventListener('click', () => {
+      if (cart.length === 0) {
+        alert("Votre liste de commande est vide.");
+        return;
+      }
+
+      const orderList = cart.map(product => 
+        ID: ${product.id}, Nom: ${product.name}, Prix: ${product.price} €
+      ).join('\n');
+      alert(Liste de Commande:\n${orderList});
     });
 
     // Modifier un produit
@@ -260,6 +277,3 @@
 </body>
 
 </html>
-
-
-{% endblock %}
