@@ -1,14 +1,20 @@
-from flask import Flask, render_template, request, redirect,url_for,flash
+from flask import Flask, render_template, request, redirect,url_for,flash, session
 from cs50 import SQL
 import os
 from werkzeug.utils import secure_filename
 # from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_session import Session
 
 app = Flask(__name__)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///base.db")
+
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'static/Images/'
@@ -26,27 +32,35 @@ def index():
 # Route pour la connexion
 @app.route('/connexion', methods=['GET', 'POST'])
 def connexion():
-    if request.method == 'POST':
-        email = request.form['email']
-        mot_de_passe = request.form['mot_de_passe']
-
-          # Vérifier que l'email et le mot de passe sont bien remplis
-        if email and mot_de_passe:
-        # Recherche de l'utilisateur dans la base
-         utilisateur = utilisateur.query.filter_by(email_uti=email).first()
-
-        # Vérification des informations
-        if utilisateur and check_password_hash(utilisateur.mot_de_passe, mot_de_passe):
-            flash("Bienvenue")
-            return redirect(url_for('index'))
-        else:
-            flash('Connexion échouée. Vérifiez votre email et mot de passe.', 'danger')
+    # Forget any user_id
+    session.clear()
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        # Ensure email was submitted
+        if not request.form.get("email"):
+            flash('Veuillez saisir votre adresse email', 'danger')
+            return render_template('connexion.html')
+        # Ensure password was submitted
+        elif not request.form.get("mot_de_passe"):
+            flash('Veuillez saisir votre mot de passe', 'danger')
+            return render_template('connexion.html')
+        # Query database for email
+        rows = db.execute("SELECT * FROM utilisateur WHERE email_uti = ?", request.form.get("email"))
+        # Ensure email exists and password is correct
+        if len(rows) != 1 or not check_password_hash(rows[0]["mot_de_passe"], request.form.get("mot_de_passe")):
+            flash('Adresse email ou mot de passe incorrect', 'danger')
+            return render_template('connexion.html')
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["ID_uti"]
+        # Redirect user to home page
+        return redirect("/")
 
     return render_template('connexion.html')
+
 @app.route('/Deconnexion')
 def deconnexion():
-    flash('Vous êtes déconnecté (virtuellement) !', 'info')
-    return redirect(url_for('index'))
+    session.clear()
+    return redirect('/')
 
 @app.route('/Produits')
 def Produits():
