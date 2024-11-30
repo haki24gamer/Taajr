@@ -94,16 +94,13 @@
         <div class="collapse navbar-collapse justify-content-center" id="subNavbarNav">
             <h5>
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Électronique</a></li>
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Mode et vetements</a></li>
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Beauté et soins</a></li>
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Maison et jardin</a></li>
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Sport et loisirs</a></li>
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Livres</a></li>
-                    <li class="nav-item me-5"><a class="nav-link text-white" href="#">Santé et bien-être</a></li>
+                    {% for category in categories[:7] %}
+                    <li class="nav-item me-5">
+                      <a class="nav-link text-white" href="{{ url_for('category_offers', category_id=category.ID_cat) }}">{{ category.nom_cat }}</a>
+                    </li>
+                    {% endfor %}
                 </ul>
             </h5>
-
         </div>
     </div>
 </nav>

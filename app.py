@@ -39,6 +39,11 @@ def inject_user_info():
             return dict(user_name=user_name)
     return dict(user_name=None)
 
+@app.context_processor
+def inject_categories():
+    categories = db.execute("SELECT ID_cat, nom_cat FROM categorie")
+    return dict(categories=categories)
+
 @app.route('/')
 def index():
     return render_template("index.html")
