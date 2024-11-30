@@ -24,6 +24,17 @@
                                 <button type="submit" class="btn btn-primary">Ajouter au panier</button>
                             </form>
                         {% endif %}
+                        {% if product.ID_off in favoris_ids %}
+                            <form method="POST" action="{{ url_for('unlike_offer') }}">
+                                <input type="hidden" name="offer_id" value="{{ product.ID_off }}">
+                                <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('like_offer') }}">
+                                <input type="hidden" name="offer_id" value="{{ product.ID_off }}">
+                                <button type="submit" class="btn btn-outline-primary mt-2">Aimer</button>
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>
