@@ -81,6 +81,14 @@ CREATE TABLE IF NOT EXISTS "panier" (
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off)
 );
 
+CREATE TABLE IF NOT EXISTS "likes" (
+    ID_like INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_uti INTEGER,
+    ID_off INTEGER,
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti),
+    FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off)
+);
+
 -- Deletion de adresse_uti de la table utilisateur
 ALTER TABLE "utilisateur" DROP COLUMN adresse_uti;
 
@@ -168,3 +176,9 @@ INSERT INTO "appartenir" (ID_off, ID_cat) VALUES
     (31, 1), (31, 2), (32, 1), (32, 2), (33, 1), (33, 2), 
     (34, 1), (34, 2), (35, 1), (35, 2), (36, 1), (36, 2), 
     (37, 1), (37, 2), (38, 1), (38, 2);
+
+-- Insert sample likes for testing
+INSERT INTO "likes" (ID_uti, ID_off) VALUES (1, 1);
+INSERT INTO "likes" (ID_uti, ID_off) VALUES (1, 2);
+INSERT INTO "likes" (ID_uti, ID_off) VALUES (2, 3);
+INSERT INTO "likes" (ID_uti, ID_off) VALUES (3, 4);
