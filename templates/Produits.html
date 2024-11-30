@@ -16,7 +16,14 @@
                         <p class="card-text">{{ product.description_off }}</p>
                         <p class="rating">⭐⭐⭐☆☆ ({{ product.reviews_count }} avis)</p>
                         <p class="card-text fw-bold">Prix : {{ product.prix_off }}fdj</p>
-                        <button class="btn btn-primary">Ajouter au panier</button>
+                        {% if product.ID_off in cart_ids %}
+                            <button class="btn btn-secondary" disabled>Dans le panier</button>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
+                                <input type="hidden" name="product_id" value="{{ product.ID_off }}">
+                                <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -24,5 +31,4 @@
         </div>
     </div>
 {% endblock %}
-
 
