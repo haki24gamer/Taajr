@@ -155,9 +155,9 @@
     <!-- Formulaire -->
     <div class="form-container">
         <h1>Connexion</h1>
-        <form>
-            <input type="email" class="form-control" placeholder="Adresse email" required>
-            <input type="password" class="form-control" placeholder="Mot de passe" required>
+        <form method="POST" action="{{ url_for('connexion') }}" >
+            <input type="email" name="email" class="form-control" placeholder="Adresse email" required>
+            <input type="password"name="mot_de_passe" class="form-control" placeholder="Mot de passe" required>
             <button type="submit" class="btn-login">Se connecter</button>
         </form>
         <div class="form-link">
