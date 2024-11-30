@@ -162,5 +162,9 @@ def Inscription_Client():
     else:
         return render_template('inscription_client.html')
 
+@app.route('/Panier')
+def Panier():
+    return render_template('Panier.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
