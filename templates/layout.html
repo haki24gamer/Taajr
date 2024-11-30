@@ -45,13 +45,23 @@
           <div class="dropdown">
               <div class="dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <img src="/static/Images/Maquette Taajr/person-circle.svg" width="50px" class="me-4">
+                  {% if user_name %}
+                      {{ user_name }}
+                  {% endif %}
               </div>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                  <li><a class="dropdown-item" href="/Inscription">S'inscrire</a></li>
-                  <li><a class="dropdown-item" href="/connexion">Se connecter</a></li>
+                  {% if session.get('user_id') %}
+                      <li><a class="dropdown-item" href="/Deconnexion">Se déconnecter</a></li>
+                  {% else %}
+                      <li><a class="dropdown-item" href="/Inscription">S'inscrire</a></li>
+                      <li><a class="dropdown-item" href="/connexion">Se connecter</a></li>
+                  {% endif %}
               </ul>
           </div>
-          <a href="#"><img src="/static/Images/Maquette Taajr/heart.svg" width="50px" class="me-4"></a>
+          <!-- Add left margin to heart icon -->
+          <a href="#" class="ms-3">
+            <img src="/static/Images/Maquette Taajr/heart.svg" width="50px" class="me-4">
+          </a>
           <a href="/Panier"><img src="/static/Images/Maquette Taajr/cart.svg" width="50px" class="me-4"></a>
           Panier
       </div>
