@@ -120,12 +120,12 @@ INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, 
 
 -- Update products with default product image
 UPDATE offre
-SET image_off = 'Image/Produits/Produits.webp'
+SET image_off = 'Images/Produits/Produits.webp'
 WHERE type_off = 'Produit';
 
 -- Update services with default service image
 UPDATE offre
-SET image_off = 'Image/Services/Services.jpg'
+SET image_off = 'Images/Services/Services.jpg'
 WHERE type_off = 'Service';
 
 -- Insert into categories using one query
