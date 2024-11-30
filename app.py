@@ -25,6 +25,20 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.context_processor
+def inject_user_id():
+    return dict(user_id=session.get('user_id'))
+
+@app.context_processor
+def inject_user_info():
+    user_id = session.get('user_id')
+    if user_id:
+        user = db.execute("SELECT nom_uti, prenom_uti FROM utilisateur WHERE ID_uti = ?", user_id)
+        if user:
+            user_name = f"{user[0]['prenom_uti']} {user[0]['nom_uti']}"
+            return dict(user_name=user_name)
+    return dict(user_name=None)
+
 @app.route('/')
 def index():
     return render_template("index.html")
