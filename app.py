@@ -79,6 +79,8 @@ def Inscription_Vendeur():
         prenom = request.form.get("prenom")
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
+        # Hash the password
+        mot_de_passe = generate_password_hash(mot_de_passe)
         telephone = request.form.get("telephone")
         boutique = request.form.get("boutique")
         adresse_boutique = request.form.get("adresse")
@@ -140,6 +142,8 @@ def Inscription_Client():
         prenom = request.form.get("prenom")
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
+        # Hash the password
+        mot_de_passe = generate_password_hash(mot_de_passe)
         telephone = request.form.get("telephone")
         adresse = request.form.get("adresse")
         date_naissance = request.form.get("birthdate")
