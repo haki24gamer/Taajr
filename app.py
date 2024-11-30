@@ -275,14 +275,21 @@ def Categories():
 
 @app.route('/category/<int:category_id>')
 def category_offers(category_id):
+    # Update the SQL query to include reviews_count
     offers = db.execute("""
-        SELECT offre.*, utilisateur.nom_uti, utilisateur.prenom_uti
+        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
         FROM offre
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
         JOIN appartenir ON offre.ID_off = appartenir.ID_off
-        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
         WHERE appartenir.ID_cat = ?
+        GROUP BY offre.ID_off
     """, category_id)
+    
     category = db.execute("SELECT nom_cat FROM categorie WHERE ID_cat = ?", category_id)
+    
+    if not category:
+        flash('Catégorie non trouvée.', 'danger')
+        return redirect(url_for('Categories'))
     
     # Obtenir les IDs des offres dans le panier de l'utilisateur
     cart_ids = []
@@ -395,6 +402,11 @@ def Favoris():
         print("Aucune offre trouvée dans les favoris de l'utilisateur.")
     
     return render_template('Favoris.html', favoris=favoris)
+    return render_template('Favoris.html', favoris=favoris)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
