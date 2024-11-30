@@ -84,12 +84,26 @@ def deconnexion():
 @app.route('/Produits')
 def Produits():
     products = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Produit' GROUP BY offre.ID_off")
-    return render_template('Produits.html', products=products)
+    
+    # Obtenir les IDs des produits dans le panier de l'utilisateur
+    cart_ids = []
+    if 'user_id' in session:
+        cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
+        cart_ids = [item['ID_off'] for item in cart_items]
+    
+    return render_template('Produits.html', products=products, cart_ids=cart_ids)
 
 @app.route('/Services')
 def Services():
     services = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Service' GROUP BY offre.ID_off")
-    return render_template('Services.html', services=services)
+    
+    # Obtenir les IDs des services dans le panier de l'utilisateur
+    cart_ids = []
+    if 'user_id' in session:
+        cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
+        cart_ids = [item['ID_off'] for item in cart_items]
+    
+    return render_template('Services.html', services=services, cart_ids=cart_ids)
 
 @app.route('/Inscription', methods=["GET", "POST"])
 def Inscription():
@@ -203,7 +217,47 @@ def Inscription_Client():
 
 @app.route('/Panier')
 def Panier():
-    return render_template('Panier.html')
+    if 'user_id' in session:
+        cart_items = db.execute("""
+            SELECT panier.ID_panier, offre.libelle_off, panier.quantity, offre.prix_off
+            FROM panier
+            JOIN offre ON panier.ID_off = offre.ID_off
+            WHERE panier.ID_uti = ?
+        """, session['user_id'])
+        total_price = sum(item['quantity'] * item['prix_off'] for item in cart_items)
+    else:
+        cart_items = []
+        total_price = 0
+    return render_template('Panier.html', cart_items=cart_items, total_price=total_price)
+
+@app.route('/increment_quantity', methods=['POST'])
+def increment_quantity():
+    panier_id = request.form.get('panier_id')
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour modifier le panier.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    db.execute("UPDATE panier SET quantity = quantity + 1 WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
+    flash('Quantité augmentée.', 'success')
+    return redirect(url_for('Panier'))
+
+@app.route('/decrement_quantity', methods=['POST'])
+def decrement_quantity():
+    panier_id = request.form.get('panier_id')
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour modifier le panier.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    item = db.execute("SELECT quantity FROM panier WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
+    if item and item[0]['quantity'] > 1:
+        db.execute("UPDATE panier SET quantity = quantity - 1 WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
+        flash('Quantité diminuée.', 'success')
+    elif item:
+        db.execute("DELETE FROM panier WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
+        flash('Produit retiré du panier.', 'success')
+    else:
+        flash('Produit non trouvé.', 'danger')
+    return redirect(url_for('Panier'))
 
 @app.route('/Categories')
 def Categories():
@@ -220,7 +274,43 @@ def category_offers(category_id):
         WHERE appartenir.ID_cat = ?
     """, category_id)
     category = db.execute("SELECT nom_cat FROM categorie WHERE ID_cat = ?", category_id)
-    return render_template('category_offers.html', offers=offers, category=category[0] if category else None)
+    
+    # Obtenir les IDs des offres dans le panier de l'utilisateur
+    cart_ids = []
+    if 'user_id' in session:
+        cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
+        cart_ids = [item['ID_off'] for item in cart_items]
+    
+    return render_template('category_offers.html', offers=offers, category=category[0] if category else None, cart_ids=cart_ids)
+
+@app.route('/add_to_cart', methods=['POST'])
+def Ajouter_au_panier():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour ajouter des articles au panier.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    product_id = request.form.get('product_id')
+    if not product_id:
+        flash('Produit invalide.', 'danger')
+        return redirect(request.referrer)
+    
+    # Vérifier si le produit existe
+    produit = db.execute("SELECT * FROM offre WHERE ID_off = ?", product_id)
+    if not produit:
+        flash('Produit non trouvé.', 'danger')
+        return redirect(request.referrer)
+    
+    # Vérifier si le produit est déjà dans le panier
+    panier_item = db.execute("SELECT * FROM panier WHERE ID_uti = ? AND ID_off = ?", session['user_id'], product_id)
+    if panier_item:
+        # Incrémenter la quantité
+        db.execute("UPDATE panier SET quantity = quantity + 1 WHERE ID_panier = ?", panier_item[0]['ID_panier'])
+    else:
+        # Ajouter le produit au panier
+        db.execute("INSERT INTO panier (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], product_id)
+    
+    flash('Produit ajouté au panier.', 'success')
+    return redirect(request.referrer)
 
 if __name__ == '__main__':
     app.run(debug=True)
