@@ -1,4 +1,3 @@
-
 {% extends "layout.html" %}
 
 {% block title %}{{ category.nom_cat }} - Taajr{% endblock %}
@@ -14,6 +13,14 @@
                 <h5 class="card-title">{{ offer.libelle_off }}</h5>
                 <p class="card-text">{{ offer.description_off }}</p>
                 <p>Vendeur: {{ offer.prenom_uti }} {{ offer.nom_uti }}</p>
+                {% if offer.ID_off in cart_ids %}
+                    <button class="btn btn-secondary" disabled>Dans le panier</button>
+                {% else %}
+                    <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
+                        <input type="hidden" name="product_id" value="{{ offer.ID_off }}">
+                        <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                    </form>
+                {% endif %}
             </div>
         </div>
     </div>
