@@ -72,6 +72,23 @@ CREATE TABLE "Details_Vendeur" (
     FOREIGN KEY (ID_uti) REFERENCES "utilisateur"("ID_uti")
     );
 
+CREATE TABLE IF NOT EXISTS "panier" (
+    ID_panier INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID_uti INTEGER,
+    ID_off INTEGER,
+    quantity INTEGER DEFAULT 1,
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti),
+    FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off)
+);
+
+CREATE TABLE Produit_aimer (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilisateur_id INT NOT NULL,
+    produit_id INT NOT NULL,
+    UNIQUE (utilisateur_id, produit_id),
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id),
+    FOREIGN KEY (produit_id) REFERENCES produits(id)
+);
 
 -- Deletion de adresse_uti de la table utilisateur
 ALTER TABLE "utilisateur" DROP COLUMN adresse_uti;
@@ -160,4 +177,3 @@ INSERT INTO "appartenir" (ID_off, ID_cat) VALUES
     (31, 1), (31, 2), (32, 1), (32, 2), (33, 1), (33, 2), 
     (34, 1), (34, 2), (35, 1), (35, 2), (36, 1), (36, 2), 
     (37, 1), (37, 2), (38, 1), (38, 2);
-    
