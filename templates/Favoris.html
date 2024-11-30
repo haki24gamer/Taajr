@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Mes Favoris - Taajr{% endblock %}
+
+{% block content %}
+    <h2>Mes Favoris</h2>
+    {% if favoris %}
+    <div class="row">
+        {% for offer in favoris %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                {% if offer.image_off %}
+                <img src="/static/{{ offer.image_off }}" class="card-img-top" alt="Image de l'Offre">
+                {% else %}
+                <img src="/static/Images/default_offer.jpg" class="card-img-top" alt="Image par défaut">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ offer.libelle_off }}</h5>
+                    <p class="card-text">{{ offer.description_off }}</p>
+                    <p class="card-text fw-bold">Prix : {{ offer.prix_off }}fdj</p>
+                    <form method="POST" action="{{ url_for('unlike_offer') }}">
+                        <input type="hidden" name="offer_id" value="{{ offer.ID_off }}">
+                        <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p>Aucune offre dans vos favoris.</p>
+    {% endif %}
+
+    <!-- Debugging: Display raw 'favoris' data -->
+    <!-- <pre>{{ favoris | pprint }}</pre> -->
+{% endblock %}
