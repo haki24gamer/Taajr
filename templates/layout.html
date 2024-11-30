@@ -42,7 +42,15 @@
           </div>
       </form>
       <div class="d-flex align-items-center ms-auto">
-          <a href="/Inscription"><img src="/static/Images/Maquette Taajr/person-circle.svg" width="50px" class="me-4"></a>
+          <div class="dropdown">
+              <div class="dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img src="/static/Images/Maquette Taajr/person-circle.svg" width="50px" class="me-4">
+              </div>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li><a class="dropdown-item" href="/Inscription">S'inscrire</a></li>
+                  <li><a class="dropdown-item" href="/connexion">Se connecter</a></li>
+              </ul>
+          </div>
           <a href="#"><img src="/static/Images/Maquette Taajr/heart.svg" width="50px" class="me-4"></a>
           <a href="/Panier"><img src="/static/Images/Maquette Taajr/cart.svg" width="50px" class="me-4"></a>
           Panier
