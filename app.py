@@ -200,5 +200,10 @@ def Inscription_Client():
 def Panier():
     return render_template('Panier.html')
 
+@app.route('/Categories')
+def Categories():
+    categories = db.execute("SELECT nom_cat, description, image FROM categorie")
+    return render_template('Categories.html', categories=categories)
+
 if __name__ == '__main__':
     app.run(debug=True)

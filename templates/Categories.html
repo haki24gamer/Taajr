@@ -1,1 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}Catégories - Taajr{% endblock %}
+
+{% block content %}
+<div class="row">
+    {% for category in categories %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <img src="/static/{{ category.image }}" class="card-img-top" alt="{{ category.nom_cat }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ category.nom_cat }}</h5>
+                <p class="card-text">{{ category.description }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
 
