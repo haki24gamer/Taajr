@@ -128,7 +128,7 @@ def Inscription_Vendeur():
 
         document = document_filename
         
-        return render_template
+        return redirect("/connexion")
     else:
         return render_template('inscription_vendeur.html')
     
@@ -160,7 +160,7 @@ def Inscription_Client():
             VALUES (?, ?)
         """, user_id, adresse)
         
-        return redirect("/")
+        return redirect("/connexion")
     else:
         return render_template('inscription_client.html')
 
