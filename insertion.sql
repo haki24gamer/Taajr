@@ -81,15 +81,6 @@ CREATE TABLE IF NOT EXISTS "panier" (
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off)
 );
 
-CREATE TABLE Produit_aimer (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    utilisateur_id INT NOT NULL,
-    produit_id INT NOT NULL,
-    UNIQUE (utilisateur_id, produit_id),
-    FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id),
-    FOREIGN KEY (produit_id) REFERENCES produits(id)
-);
-
 -- Deletion de adresse_uti de la table utilisateur
 ALTER TABLE "utilisateur" DROP COLUMN adresse_uti;
 
