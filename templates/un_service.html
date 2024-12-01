@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}Détails du Service - Taajr{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        {% if service.image_off %}
+         <img src="/static/{{ service.image_off }}" class="card-img-right" alt="Image du Service">
+       {% endif %}
+        <h5 class="card-title">{{ service.libelle_off }}</h5>
+        <p class="card-text">{{ service.description_off }}</p>
+        <p class="card-text"><strong>Prix :</strong> {{ service.prix_off }} fdj</p>
+        <p class="card-text"><strong>Disponibilité :</strong> {{ service.quantite_en_stock }} places disponibles</p>
+        <a href="{{ url_for('Services') }}" class="btn btn-primary">Retour aux services</a>
+    </div>
+</div>
+
+<h3>Commentaires</h3>
+<ul>
+    {% for avis in avis %}
+    <li>
+        <strong>{{ avis.user_name }}</strong>: {{ avis.commentaire }} 
+        <em>({{ avis.date }})</em>
+    </li>
+    {% endfor %}
+</ul>
+
+{% if session.get('user_name') %}
+<h4>Ajouter un commentaire</h4>
+<form method="POST">
+    <div class="form-group">
+        <textarea name="commentaire" rows="4" class="form-control" placeholder="Votre commentaire..." required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Envoyer</button>
+</form>
+{% else %}
+<p><em>Connectez-vous pour ajouter un commentaire.</em></p>
+{% endif %}
+
+{% endblock %}

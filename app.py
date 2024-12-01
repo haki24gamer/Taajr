@@ -404,6 +404,85 @@ def Favoris():
     return render_template('Favoris.html', favoris=favoris)
     return render_template('Favoris.html', favoris=favoris)
 
+@app.route('/produit_details/<string:produit_nom>', methods=['GET', 'POST'])
+def produit_details(produit_nom):
+    # Requête pour obtenir les détails du produit
+    produit = db.execute("SELECT * FROM Offre WHERE libelle_off = ?", produit_nom)
+    if not produit:
+        return "Produit non trouvé", 404
+
+    produit = produit[0]  # Extraire le produit trouvé
+
+    # Si le formulaire est soumis via POST (ajout d'un commentaire)
+    if request.method == 'POST':
+        commentaire = request.form.get('commentaire')
+        if 'user_name' in session:  # Vérifier si l'utilisateur est connecté
+            user_name = session['user_name']
+            db.execute(
+                """
+                INSERT INTO Avis (ID_off, ID_uti, commentaire, date)
+                VALUES (
+                    (SELECT ID_off FROM Offre WHERE libelle_off = ?),
+                    (SELECT ID_uti FROM Utilisateur WHERE nom = ?),
+                    ?, datetime('now')
+                )
+                """,
+                produit_nom, user_name, commentaire
+            )
+            flash("Votre commentaire a été ajouté avec succès.")
+        else:
+            flash("Vous devez être connecté pour ajouter un commentaire.", "danger")
+        return redirect(url_for('produit_details', produit_nom=produit_nom))
+
+    # Requête pour récupérer les commentaires liés au produit
+    avis = db.execute(
+        "SELECT Avis.comment_avis, Avis.date_avis, Utilisateur.nom_uti AS user_name "
+        "FROM Avis "
+        "JOIN Utilisateur ON Avis.ID_uti = Utilisateur.ID_uti "
+        "JOIN Offre ON Avis.ID_off = Offre.ID_off "
+        "WHERE Offre.libelle_off = ?", produit_nom
+    )
+
+    # Rendu de la page avec les détails et commentaires
+    return render_template('un_produit.html', produit=produit, avis=avis)
+
+@app.route('/service_details/<string:service_nom>', methods=['GET', 'POST'])
+def service_details(service_nom):
+    # Requête pour obtenir les détails du service
+    service = db.execute("SELECT * FROM offre WHERE libelle_off = ?", (service_nom,))
+    if not service:
+        return "Service non trouvé", 404
+
+    # Requête pour obtenir les avis pour ce service
+    avis = db.execute("""
+        SELECT avis.comment_avis, avis.date_avis, Utilisateur.nom_uti AS user_name
+        FROM avis
+        JOIN utilisateur ON avis.ID_uti = utilisateur.ID_uti
+        JOIN offre ON avis.ID_off = offre.ID_off
+        WHERE offre.libelle_off = ?
+    """, (service_nom,))
+
+    # Si un commentaire est envoyé
+    if request.method == 'POST':
+        commentaire = request.form['commentaire']
+        user_id = session.get('user_id')  # Supposons que l'ID de l'utilisateur est stocké dans la session
+
+        if user_id:
+            db.execute("""
+                INSERT INTO avis (ID_uti, ID_off, commentaire, date)
+                VALUES (?, ?, ?, ?)
+            """, (user_id, service[0]['ID_off'], commentaire, datetime.now()))
+
+            flash("Votre commentaire a été ajouté !", "success")
+            return redirect(url_for('service_details', service_nom=service_nom))
+
+        else:
+            flash("Vous devez être connecté pour ajouter un commentaire.", "warning")
+            return redirect(url_for('login'))  # Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+
+    return render_template('un_service.html', service=service[0], avis=avis)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
