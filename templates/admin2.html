@@ -21,6 +21,8 @@
             padding: 8px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
+            padding-top: 25px;
+            width: 300px;
         }
         .sidebar a {
             color: white;
@@ -28,7 +30,7 @@
             display: flex;
             align-items: center;
             margin: 15px 0;
-            padding: 10px;
+            padding: 5px;
             border-radius: 5px;
             font-size: 16px;
         }
@@ -39,7 +41,7 @@
             margin-right: 3px;
         }
         .main-content {
-            margin-left: 350px;
+            margin-left: 290px;
             padding: 20px;
         }
         .card {
@@ -57,13 +59,64 @@
         .btn-primary:hover {
             background-color: #0056b3;
         }
+
+        .navbar {
+          background-color: #fff;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          padding: 5px 20px;
+      }
+
+      .navbar .container-fluid {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      /* Barre de recherche stylisée */
+      .search-bar {
+          width: 400px;
+          border-radius: 50px;
+          padding: 10px 20px;
+          font-size: 16px;
+          border: 1px solid #ddd;
+          transition: all 0.3s ease;
+      }
+
+      .search-bar:focus {
+          outline: none;
+          border-color: #007bff;
+          box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+      }
+
+      /* Bouton de déconnexion stylisé */
+      .logout-btn {
+          background-color: #dc3545;
+          color: #fff;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 50px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .logout-btn:hover {
+          background-color: #c82333;
+          transform: scale(1.1);
+      }
+
+      /* Effet d'ombre sur la navbar */
+      .navbar-shadow {
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
     </style>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
         <h2 class="text-center mb-4">Admin Panel</h2>
-        <a href="tableaudebord.html"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+        <a href="" onclick="loadContent('dashboard')"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
         <a href="utilisateur.html"><i class="fas fa-users"></i> Gestion des utilisateurs</a>
         <a href="produits.html"><i class="fas fa-box-open"></i> Gestion des produits</a>
         <a href="commmandes.html"><i class="fas fa-shopping-cart"></i> Gestion des commandes</a>
@@ -75,8 +128,25 @@
         <a href="notifications.html"><i class="fas fa-bell"></i> Gestion des notifications</a>
     </div>
 
+
     <!-- Main Content -->
     <div class="main-content">
+      
+      <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-shadow">
+      <div class="container-fluid">
+          <!-- Barre de recherche -->
+          <form class="d-flex">
+              <input class="search-bar" type="search" placeholder="Rechercher..." aria-label="Search">
+          </form>
+
+          <!-- Bouton de déconnexion -->
+          <a href="logout.php">
+              <button class="logout-btn">Déconnexion</button>
+          </a>
+      </div>
+  </nav>
+
         <h1 class="mb-4">Bienvenue, Administrateur !</h1>
         <p class="text-muted">Voici un aperçu de l’activité récente sur votre plateforme.</p>
 
@@ -132,8 +202,8 @@
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>Jean Dupont</td>
-                        <td>jean.dupont@example.com</td>
+                        <td>Halima Mohamed</td>
+                        <td>hali.med@example.com</td>
                         <td>Client</td>
                         <td>
                             <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Supprimer</button>
@@ -141,8 +211,8 @@
                     </tr>
                     <tr>
                         <td>2</td>
-                        <td>Sarah Ahmed</td>
-                        <td>sarah.ahmed@example.com</td>
+                        <td>Hagui Mohame</td>
+                        <td>hagui.med@example.com</td>
                         <td>Vendeur</td>
                         <td>
                             <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Supprimer</button>
