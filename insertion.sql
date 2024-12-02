@@ -81,8 +81,6 @@ CREATE TABLE IF NOT EXISTS "panier" (
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off)
 );
 
-<<<<<<< HEAD
-=======
 CREATE TABLE IF NOT EXISTS "likes" (
     ID_like INTEGER PRIMARY KEY AUTOINCREMENT,
     ID_uti INTEGER,
@@ -91,7 +89,6 @@ CREATE TABLE IF NOT EXISTS "likes" (
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off)
 );
 
->>>>>>> 04a98b807fa2ae12ececade023ffbb949c7ee678
 -- Deletion de adresse_uti de la table utilisateur
 ALTER TABLE "utilisateur" DROP COLUMN adresse_uti;
 
