@@ -1,3 +1,4 @@
+import datetime
 from flask import Flask, render_template, request, redirect,url_for,flash, session
 from cs50 import SQL
 import os
@@ -43,6 +44,15 @@ def inject_user_info():
 def inject_categories():
     categories = db.execute("SELECT ID_cat, nom_cat FROM categorie")
     return dict(categories=categories)
+
+@app.context_processor
+def inject_favoris_ids():
+    user_id = session.get('user_id')
+    if user_id:
+        favoris = db.execute("SELECT ID_off FROM likes WHERE ID_uti = ?", user_id)
+        favoris_ids = [item['ID_off'] for item in favoris]
+        return dict(favoris_ids=favoris_ids)
+    return dict(favoris_ids=[])
 
 @app.route('/')
 def index():
@@ -266,14 +276,21 @@ def Categories():
 
 @app.route('/category/<int:category_id>')
 def category_offers(category_id):
+    # Update the SQL query to include reviews_count
     offers = db.execute("""
-        SELECT offre.*, utilisateur.nom_uti, utilisateur.prenom_uti
+        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
         FROM offre
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
         JOIN appartenir ON offre.ID_off = appartenir.ID_off
-        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
         WHERE appartenir.ID_cat = ?
+        GROUP BY offre.ID_off
     """, category_id)
+    
     category = db.execute("SELECT nom_cat FROM categorie WHERE ID_cat = ?", category_id)
+    
+    if not category:
+        flash('Catégorie non trouvée.', 'danger')
+        return redirect(url_for('Categories'))
     
     # Obtenir les IDs des offres dans le panier de l'utilisateur
     cart_ids = []
@@ -306,11 +323,184 @@ def Ajouter_au_panier():
         # Incrémenter la quantité
         db.execute("UPDATE panier SET quantity = quantity + 1 WHERE ID_panier = ?", panier_item[0]['ID_panier'])
     else:
-        # Ajouter le produit au panier
         db.execute("INSERT INTO panier (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], product_id)
-    
     flash('Produit ajouté au panier.', 'success')
     return redirect(request.referrer)
 
+@app.route('/like_offer', methods=['POST'])
+def like_offer():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour aimer des articles.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    offer_id = request.form.get('offer_id')
+    if not offer_id:
+        flash('Offre invalide.', 'danger')
+        return redirect(request.referrer)
+    
+    # Vérifier si l'offre existe
+    offer = db.execute("SELECT * FROM offre WHERE ID_off = ?", offer_id)
+    if not offer:
+        flash('Offre non trouvée.', 'danger')
+        return redirect(request.referrer)
+    
+    # Vérifier si l'offre est déjà aimée
+    liked = db.execute("SELECT * FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
+    if liked:
+        flash('Offre déjà aimée.', 'info')
+        print(f"User {session['user_id']} already liked offer {offer_id}.")
+    else:
+        db.execute("INSERT INTO likes (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], offer_id)
+        flash('Offre ajoutée à vos favoris.', 'success')
+        # Debugging: Confirm insertion
+        print(f"User {session['user_id']} liked offer {offer_id}.")
+
+    return redirect(request.referrer)
+
+@app.route('/unlike_offer', methods=['POST'])
+def unlike_offer():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour enlever des articles de vos favoris.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    offer_id = request.form.get('offer_id')
+    if not offer_id:
+        flash('Offre invalide.', 'danger')
+        return redirect(request.referrer)
+    
+    # Supprimer l'offre des favoris
+    deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
+    if deleted:
+        flash('Offre retirée de vos favoris.', 'success')
+        # Debugging: Confirm deletion
+        print(f"User {session['user_id']} unliked offer {offer_id}.")
+    else:
+        flash('Aucune modification effectuée.', 'info')
+        print(f"User {session['user_id']} tried to unlike offer {offer_id} but it was not found.")
+
+    return redirect(request.referrer)
+
+@app.route('/Favoris')
+def Favoris():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour voir vos favoris.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user_id = session['user_id']
+    favoris = db.execute("""
+        SELECT offre.*
+        FROM likes
+        INNER JOIN offre ON likes.ID_off = offre.ID_off
+        WHERE likes.ID_uti = ?
+    """, user_id)
+    
+    # Debugging: Print the retrieved favorites
+    print(f"User ID: {user_id}")
+    print(f"Favoris Retrieved: {favoris}")
+    
+    if not favoris:
+        flash('Vous n\'avez aucun favori.', 'info')
+        print("Aucune offre trouvée dans les favoris de l'utilisateur.")
+    
+    return render_template('Favoris.html', favoris=favoris)
+    return render_template('Favoris.html', favoris=favoris)
+
+@app.route('/produit_details/<string:produit_nom>', methods=['GET', 'POST'])
+def produit_details(produit_nom):
+    # Requête pour obtenir les détails du produit
+    produit = db.execute("SELECT * FROM Offre WHERE libelle_off = ?", produit_nom)
+    if not produit:
+        return "Produit non trouvé", 404
+
+    produit = produit[0]  # Extraire le produit trouvé
+
+    # Si le formulaire est soumis via POST (ajout d'un commentaire)
+    if request.method == 'POST':
+        commentaire = request.form.get('commentaire')
+        if 'user_name' in session:  # Vérifier si l'utilisateur est connecté
+            user_name = session['user_name']
+            db.execute(
+                """
+                INSERT INTO Avis (ID_off, ID_uti, commentaire, date)
+                VALUES (
+                    (SELECT ID_off FROM Offre WHERE libelle_off = ?),
+                    (SELECT ID_uti FROM Utilisateur WHERE nom = ?),
+                    ?, datetime('now')
+                )
+                """,
+                produit_nom, user_name, commentaire
+            )
+            flash("Votre commentaire a été ajouté avec succès.")
+        else:
+            flash("Vous devez être connecté pour ajouter un commentaire.", "danger")
+        return redirect(url_for('produit_details', produit_nom=produit_nom))
+
+    # Requête pour récupérer les commentaires liés au produit
+    avis = db.execute(
+        "SELECT Avis.comment_avis, Avis.date_avis, Utilisateur.nom_uti AS user_name "
+        "FROM Avis "
+        "JOIN Utilisateur ON Avis.ID_uti = Utilisateur.ID_uti "
+        "JOIN Offre ON Avis.ID_off = Offre.ID_off "
+        "WHERE Offre.libelle_off = ?", produit_nom
+    )
+
+    # Rendu de la page avec les détails et commentaires
+    return render_template('un_produit.html', produit=produit, avis=avis)
+
+@app.route('/service_details/<string:service_nom>', methods=['GET', 'POST'])
+def service_details(service_nom):
+    # Requête pour obtenir les détails du service
+    service = db.execute("SELECT * FROM offre WHERE libelle_off = ?", (service_nom,))
+    if not service:
+        return "Service non trouvé", 404
+
+    # Requête pour obtenir les avis pour ce service
+    avis = db.execute("""
+        SELECT avis.comment_avis, avis.date_avis, Utilisateur.nom_uti AS user_name
+        FROM avis
+        JOIN utilisateur ON avis.ID_uti = utilisateur.ID_uti
+        JOIN offre ON avis.ID_off = offre.ID_off
+        WHERE offre.libelle_off = ?
+    """, (service_nom,))
+
+    # Si un commentaire est envoyé
+    if request.method == 'POST':
+        commentaire = request.form['commentaire']
+        user_id = session.get('user_id')  # Supposons que l'ID de l'utilisateur est stocké dans la session
+
+        if user_id:
+            db.execute("""
+                INSERT INTO avis (ID_uti, ID_off, commentaire, date)
+                VALUES (?, ?, ?, ?)
+            """, (user_id, service[0]['ID_off'], commentaire, datetime.now()))
+
+            flash("Votre commentaire a été ajouté !", "success")
+            return redirect(url_for('service_details', service_nom=service_nom))
+
+        else:
+            flash("Vous devez être connecté pour ajouter un commentaire.", "warning")
+            return redirect(url_for('login'))  # Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+
+    return render_template('un_service.html', service=service[0], avis=avis)
+
+@app.route('/menu_vendeur')
+def menu_vendeur():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Veuillez vous connecter.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
+    if not user or user[0]['type_uti'] != 'Vendeur':
+        flash('Accès interdit.', 'danger')
+        return redirect(url_for('index'))
+    
+    return render_template('Menu_Vendeur.html')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
+
