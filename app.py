@@ -565,6 +565,131 @@ def menu_vendeur():
     
     return render_template('Menu_Vendeur.html')
 
+@app.route('/profile')
+def profile():
+    user_id = session.get('user_id')  # Récupérer l'ID utilisateur depuis la session
+    if not user_id:
+        flash('Veuillez vous connecter.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Récupérer les informations générales de l'utilisateur
+    user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", user_id)
+    if not user:
+        flash("Utilisateur introuvable.", "danger")
+        return redirect(url_for('connexion'))
+    
+    user = user[0]  # On suppose qu'il y a un seul utilisateur avec cet ID
+    
+    # Charger des informations spécifiques en fonction du type d'utilisateur
+    if user['type_uti'] == 'Vendeur':
+        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", user_id)
+        user['details'] = details[0] if details else {}
+    elif user['type_uti'] == 'Client':
+        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", user_id)
+        user['details'] = details[0] if details else {}
+    
+    return render_template('Profil_User.html', user=user)
+
+
+
+
+@app.route('/profile_vendeur', methods=['GET', 'POST'])
+def profile_vendeur():
+    user_id = session.get('user_id')  # Récupère l'ID utilisateur de la session
+    if not user_id:
+        flash('Veuillez vous connecter pour accéder à votre profil.', 'danger')
+        return redirect(url_for('connexion'))
+
+    # Récupération des données utilisateur
+    user = db.execute(
+        "SELECT * FROM utilisateur WHERE ID_uti = ? AND type_uti = 'Vendeur'",
+        (user_id,)
+    )
+    if not user:
+        flash('Utilisateur non trouvé ou type incorrect.', 'danger')
+        return redirect(url_for('connexion'))
+
+    user = user[0]  # Récupération de l'utilisateur
+
+    # Récupération des détails de la boutique
+    shop_details = db.execute(
+        "SELECT * FROM Details_Vendeur WHERE ID_uti = ?",
+        (user_id,)
+    )
+    shop_details = shop_details[0] if shop_details else {}
+
+    # Ajouter les détails de la boutique à l'utilisateur pour le template
+    user['details'] = shop_details
+
+    # Extraction des horaires, zones de livraison et politique de retour
+    description = shop_details.get("description", "")
+    horaires = {"jourDebut": "", "jourFin": ""}
+    zones_livraison = ""
+    politique_retour = ""
+
+    if description:
+        parts = description.split(", ")
+        for part in parts:
+            if part.startswith("Horaires:"):
+                horaires_data = part.replace("Horaires:", "").strip().split(" - ")
+                horaires["jourDebut"] = horaires_data[0] if len(horaires_data) > 0 else ""
+                horaires["jourFin"] = horaires_data[1] if len(horaires_data) > 1 else ""
+            elif part.startswith("Zone:"):
+                zones_livraison = part.replace("Zone:", "").strip()
+            elif part.startswith("Politique:"):
+                politique_retour = part.replace("Politique:", "").strip()
+
+    if request.method == 'POST':
+        # Récupération des données du formulaire
+        nom = request.form.get('nom')
+        email = request.form.get('email')
+        telephone = request.form.get('telephone')
+        password = request.form.get('password')
+        shop_name = request.form.get('shop_name')
+        shop_description = request.form.get('shop_description')
+        jour_debut = request.form.get('jourDebut', "")
+        jour_fin = request.form.get('jourFin', "")
+        delivery_zone = request.form.get('delivery_zone', "")
+        return_policy = request.form.get('return_policy', "")
+
+       
+
+        # Construire la description complète à partir des sous-champs
+        description = (
+            f"Horaires: {jour_debut} - {jour_fin}, "
+            f"Zone: {delivery_zone}, "
+            f"Politique: {return_policy}, "
+            f"{shop_description}"
+        )
+
+        # Mise à jour des informations utilisateur dans la base de données
+        db.execute(
+         "UPDATE utilisateur SET nom_uti = ?, email_uti = ?, telephone = ?, mot_de_passe = ? WHERE ID_uti = ?",
+           (nom, email, telephone, password, user_id)
+        )
+
+
+        # Mise à jour des détails de la boutique dans la base de données
+        db.execute(
+            "UPDATE Details_Vendeur SET nom_boutique = ?, description = ? WHERE ID_uti = ?",
+            (shop_name, description, user_id)
+        )
+
+        flash('Vos informations ont été mises à jour avec succès.', 'success')
+        return redirect(url_for('profile_vendeur'))
+
+    # Préparation des données pour le template
+    return render_template(
+        'ModifierVendeur.html',
+        user=user,
+        horaires=horaires,
+        zones_livraison=zones_livraison,
+        politique_retour=politique_retour
+    )
+
+
+
+
 @app.route('/admin')
 def admin():
     return render_template('admin.html')

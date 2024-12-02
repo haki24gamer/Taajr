@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,88 +98,78 @@
 <div class="container">
     <div class="info-container card">
         <div class="card-header">Informations Personnelles</div>
-        <form>
+        <form method="POST" action="{{ url_for('profile_vendeur') }}">
             <div class="info-group">
                 <label for="sellerName">Nom du Vendeur</label>
-                <input type="text" id="sellerName" class="form-control" value="John Doe" readonly>
+                <input type="text" id="sellerName" class="form-control" name="nom" value="{{ user['nom'] }}" required>
             </div>
             <div class="info-group">
                 <label for="sellerEmail">Email du Vendeur</label>
-                <input type="email" id="sellerEmail" class="form-control" value="johndoe@example.com" readonly>
+                <input type="email" id="sellerEmail" class="form-control" name="email" value="{{ user['email'] }}" required>
             </div>
             <div class="info-group">
                 <label for="sellerPhone">Numéro de Téléphone</label>
-                <input type="tel" id="sellerPhone" class="form-control" value="0123456789" readonly>
+                <input type="tel" id="sellerPhone" class="form-control" name="telephone" value="{{ user['telephone'] }}" required>
             </div>
             <div class="info-group">
                 <label for="password">Mot de Passe</label>
-                <input type="password" id="password" class="form-control" value="********" readonly>
-            </div>
-            <div class="info-group">
-                <label for="confirmPassword">Confirmez le Mot de Passe</label>
-                <input type="password" id="confirmPassword" class="form-control" value="********" readonly>
+                <input type="password" id="password" class="form-control" name="password" value="{{ user['password'] }}" required>
             </div>
             <div class="info-group">
                 <label for="shopName">Nom de la Boutique</label>
-                <input type="text" id="shopName" class="form-control" value="Ma Boutique" readonly>
+                <input type="text" id="shopName" class="form-control" name="shop_name" value="{{ user['details']['nom_boutique'] }}" required>
             </div>
             <div class="info-group">
                 <label for="shopDescription">Description de la Boutique</label>
-                <textarea id="shopDescription" class="form-control" rows="3" readonly>Une boutique exemplaire</textarea>
+                <textarea id="shopDescription" class="form-control" name="shop_description" rows="3" required>"{{ user['details']['description'] }}"</textarea>
             </div>
-            <div class="info-group">
-                <label for="openingHours">Horaires d'Ouverture</label>
-                <input type="text" id="openingHours" class="form-control" value="Lundi - Vendredi : 9h - 18h" readonly>
+            <!-- Horaires d'Ouverture -->
+            <div class="mb-3">
+                <label for="horaires" class="form-label">Horaires d'Ouverture</label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="jourDebut">De :</label>
+                        <select class="form-select" id="jourDebut" name="jourDebut">
+                            <option value="" {% if horaires.get("jourDebut", "") == "" %}selected{% endif %}>Jour de début</option>
+                            <option value="Lundi" {% if horaires.get("jourDebut", "") == "Lundi" %}selected{% endif %}>Lundi</option>
+                            <option value="Mardi" {% if horaires.get("jourDebut", "") == "Mardi" %}selected{% endif %}>Mardi</option>
+                            <option value="Mercredi" {% if horaires.get("jourDebut", "") == "Mercredi" %}selected{% endif %}>Mercredi</option>
+                            <option value="Jeudi" {% if horaires.get("jourDebut", "") == "Jeudi" %}selected{% endif %}>Jeudi</option>
+                            <option value="Vendredi" {% if horaires.get("jourDebut", "") == "Vendredi" %}selected{% endif %}>Vendredi</option>
+                            <option value="Samedi" {% if horaires.get("jourDebut", "") == "Samedi" %}selected{% endif %}>Samedi</option>
+                            <option value="Dimanche" {% if horaires.get("jourDebut", "") == "Dimanche" %}selected{% endif %}>Dimanche</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="jourFin">À :</label>
+                        <select class="form-select" id="jourFin" name="jourFin">
+                            <option value="" {% if horaires.get("jourFin", "") == "" %}selected{% endif %}>Jour de fin</option>
+                            <option value="Lundi" {% if horaires.get("jourFin", "") == "Lundi" %}selected{% endif %}>Lundi</option>
+                            <option value="Mardi" {% if horaires.get("jourFin", "") == "Mardi" %}selected{% endif %}>Mardi</option>
+                            <option value="Mercredi" {% if horaires.get("jourFin", "") == "Mercredi" %}selected{% endif %}>Mercredi</option>
+                            <option value="Jeudi" {% if horaires.get("jourFin", "") == "Jeudi" %}selected{% endif %}>Jeudi</option>
+                            <option value="Vendredi" {% if horaires.get("jourFin", "") == "Vendredi" %}selected{% endif %}>Vendredi</option>
+                            <option value="Samedi" {% if horaires.get("jourFin", "") == "Samedi" %}selected{% endif %}>Samedi</option>
+                            <option value="Dimanche" {% if horaires.get("jourFin", "") == "Dimanche" %}selected{% endif %}>Dimanche</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
             <div class="info-group">
                 <label for="deliveryZone">Zone de Livraison</label>
-                <input type="text" id="deliveryZone" class="form-control" value="Île-de-France" readonly>
+                <input type="text" id="deliveryZone" class="form-control" name="delivery_zone" value="{{ user['details']['zones_livraison'] }}" required>
             </div>
             <div class="info-group">
                 <label for="returnPolicy">Politique de Retour</label>
-                <textarea id="returnPolicy" class="form-control" rows="3" readonly>Retour sous 30 jours avec remboursement intégral</textarea>
-            </div>
-            <div class="info-group">
-                <label for="shopLogo">Photo ou Logo de la Boutique</label>
-                <input type="text" id="shopLogo" class="form-control" value="Logo.jpg" readonly>
-            </div>
-            <div class="info-group">
-                <label for="verificationDocument">Document de Vérification</label>
-                <input type="text" id="verificationDocument" class="form-control" value="document.pdf" readonly>
+                <textarea id="returnPolicy" class="form-control" name="return_policy" rows="3" required>"{{ user['details']['politique_retour'] }}"</textarea>
             </div>
             <div class="btn-container">
-                <button type="button" class="btn btn-custom" onclick="enableEditing()">Modifier Informations</button>
-                <button type="button" class="btn btn-modify" onclick="saveChanges()">Enregistrer Modifications</button>
-                <button type="button" class="btn btn-custom" onclick="openProductServiceManagement()">Gestion des Produits/Services</button>
+                <button type="submit" class="btn btn-custom">Enregistrer Modifications</button>
             </div>
         </form>
     </div>
 </div>
-
-<script>
-    function enableEditing() {
-        document.querySelectorAll('.form-control').forEach((element) => {
-            element.removeAttribute('readonly');
-            element.style.backgroundColor = '#fff'; // White background for edit mode
-            element.style.border = '1px solid #ced4da'; // Border for edit mode
-            element.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'; // Inner shadow for edit mode
-        });
-    }
-
-    function saveChanges() {
-        document.querySelectorAll('.form-control').forEach((element) => {
-            element.setAttribute('readonly', true);
-            element.style.backgroundColor = '#e9ecef'; // Grey background for readonly mode..
-            element.style.border = 'none'; // Remove border for readonly mode
-            element.style.boxShadow = 'none'; // Remove inner shadow for readonly mode
-        });
-        alert('Modifications enregistrées!');
-    }
-
-    function openProductServiceManagement() {
-        window.location.href = 'product_service_management.html';
-    }
-</script>
 
 <!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -189,5 +177,3 @@
 <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-

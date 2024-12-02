@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Profil de l'utilisateur{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3>Profil de {{ user.nom_uti }} {{ user.prenom_uti }}</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Nom :</strong> {{ user.nom_uti }}</p>
+        <p><strong>Prénom :</strong> {{ user.prenom_uti }}</p>
+        <p><strong>Email :</strong> {{ user.email_uti }}</p>
+        <p><strong>Numéro de téléphone :</strong> {{ user.telephone }}</p>
+        <p><strong>Date de naissance :</strong> {{ user.date_naissance }}</p>
+        <p><strong>Genre :</strong> {{ user.genre }}</p>
+
+        {% if user.type_uti == 'Vendeur' %}
+        <h4>Informations Boutique</h4>
+        <p><strong>Nom de la boutique :</strong> {{ user.details.nom_boutique }}</p>
+        <p><strong>Adresse de la boutique :</strong> {{ user.details.adresse_boutique }}</p>
+        <p><strong>Description :</strong> {{ user.details.description }}</p>
+        <a href="ModifierVendeur.html" class="btn btn-warning">Modifier le profil</a>
+        {% elif user.type_uti == 'Client' %}
+        <h4>Informations Client</h4>
+        <p><strong>Adresse :</strong> {{ user.details.adresse }}</p>
+        <a href="ModifierClient.html" class="btn btn-warning">Modifier le profil</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
