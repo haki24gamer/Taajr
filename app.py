@@ -483,6 +483,9 @@ def service_details(service_nom):
 
     return render_template('un_service.html', service=service[0], avis=avis)
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
