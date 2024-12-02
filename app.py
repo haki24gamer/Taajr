@@ -128,16 +128,17 @@ def Inscription():
         return render_template('inscription.html')
    
 
+
 @app.route('/Inscription_Vendeur', methods=["GET", "POST"])
 def Inscription_Vendeur():
+    errors = {}
+    
     if request.method == "POST":
         # Collect form data
         nom = request.form.get("nom")
         prenom = request.form.get("prenom")
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
-        # Hash the password
-        mot_de_passe = generate_password_hash(mot_de_passe)
         telephone = request.form.get("telephone")
         boutique = request.form.get("boutique")
         adresse_boutique = request.form.get("adresse")
@@ -147,83 +148,150 @@ def Inscription_Vendeur():
         heureDebut = request.form.get("heureDebut")
         heureFin = request.form.get("heureFin")
         politiqueRetour = request.form.get("politiqueRetour")
-        type_uti = 'Vendeur'
+        zonesLivraison =request.form.get("zonesLivraison")
         naissance = request.form.get("birthdate")
         genre = request.form.get("gender")
-        
-        # Handle logo upload
+
+        # Validation des champs
+        if not nom or len(nom)<2:
+            errors['nom'] = "Le nom doit contenir au moins 2 caractère."
+        if not prenom or len(prenom)<2:
+            errors['prenom'] = "Le prénom doit contenir au moins 2 caractère."
+        if not email or '@' not in email:
+            errors['email'] = "Un email valide est requis."
+        if not mot_de_passe or len(mot_de_passe) < 6:
+            errors['password'] = "Le mot de passe doit contenir au moins 6 caractère."
+        if not telephone:
+            errors['telephone'] = "Le numéro de téléphone est requis."
+        if not boutique or len(boutique)<2:
+            errors['boutique'] = "Le nom de la boutique doit contenir au moins 2 caractère."
+        if not description:
+            errors['description'] = "La description de la boutique est requise."
+        if not politiqueRetour:
+            errors['politiqueRetour'] = "La politique de retour est requise."
+        if not zonesLivraison:
+            errors['zonesLivraison'] = "Les zones de livraison sont requises."
+        if not naissance:
+            errors['birthdate'] = "La date de naissance est requise."
+        if not genre:
+            errors['gender'] = "Le genre est requis."
+        if not jourDebut or not jourFin:
+            errors['horaires'] = "Les horaires de début et de fin sont requis."
+
+        # Si des erreurs existent, on renvoie le formulaire avec les erreurs
+        if errors:
+            return render_template('inscription_vendeur.html', errors=errors)
+
+        # Hash le mot de passe
+        mot_de_passe = generate_password_hash(mot_de_passe)
+
+        # Traitement de l'upload du logo
         logo = request.files.get('logo')
         if logo and allowed_file(logo.filename):
             logo_filename = secure_filename(logo.filename)
             logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
             logo_relative_path = os.path.join('Images', logo_filename)
         else:
-            logo_relative_path = None  # Or handle error
+            logo_relative_path = None  # Ou gérer l'erreur
         
-        # Handle document upload
+        # Traitement de l'upload du document
         document = request.files.get('document')
         if document and allowed_file(document.filename):
             document_filename = secure_filename(document.filename)
             document.save(os.path.join(app.config['UPLOAD_FOLDER'], document_filename))
         else:
-            document_filename = None  # Or handle error
-        
-        # Insert into utilisateur
+            document_filename = None  # Ou gérer l'erreur
+
+        # Insérer dans la table utilisateur
         user_id = db.execute("""
             INSERT INTO utilisateur 
             (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, nom, prenom, email, mot_de_passe, telephone, naissance, genre, type_uti)
-        
-        # Combine fields into description
+        """, nom, prenom, email, mot_de_passe, telephone, naissance, genre, 'Vendeur')
+
+        # Créer une description complète de la boutique
         full_description = f"{description}; {jourDebut}; {jourFin}; {heureDebut}; {heureFin}; {politiqueRetour}"
-        
-        # Insert into Details_Vendeur
+
+        # Insérer dans la table Details_Vendeur
         db.execute("""
             INSERT INTO Details_Vendeur 
             (ID_uti, nom_boutique, adresse_boutique, description, logo) 
             VALUES (?, ?, ?, ?, ?)
         """, user_id, boutique, adresse_boutique, full_description, logo_relative_path)
 
-        document = document_filename
-        
+        # Si tout se passe bien, rediriger vers la page de connexion
         return redirect("/connexion")
-    else:
-        return render_template('inscription_vendeur.html')
+    
+    # Si c'est une requête GET, simplement afficher le formulaire
+    return render_template('inscription_vendeur.html', errors=errors)
     
 @app.route('/Inscription_Client', methods=["GET", "POST"])
 def Inscription_Client():
+    error_messages = {}
+
     if request.method == "POST":
         # Collect form data
         nom = request.form.get("nom")
         prenom = request.form.get("prenom")
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
-        # Hash the password
-        mot_de_passe = generate_password_hash(mot_de_passe)
         telephone = request.form.get("telephone")
         adresse = request.form.get("adresse")
         date_naissance = request.form.get("birthdate")
         genre = request.form.get("gender")
         type_uti = 'Client'
-        
+
+        # Validations
+        if not nom or len(nom) < 2:
+            error_messages['nom'] = "Le nom doit contenir au moins 2 caractères."
+        if not prenom or len(prenom) < 2:
+            error_messages['prenom'] = "Le prénom doit contenir au moins 2 caractères."
+        if not email or '@' not in email:
+            error_messages['email'] = "Veuillez entrer une adresse email valide."
+        if not mot_de_passe or len(mot_de_passe) < 6:
+            error_messages['password'] = "Le mot de passe doit contenir au moins 6 caractères."
+        if not telephone  or len(telephone) < 8:
+            error_messages['telephone'] = "Veuillez entrer un numéro de téléphone valide (8 chiffres minimum)."
+        if not adresse or len(adresse) < 5:
+            error_messages['adresse'] = "Veuillez fournir une adresse complète."
+        if not date_naissance:
+            error_messages['birthdate'] = "Veuillez entrer une date de naissance."
+        if not genre or genre not in ["Homme", "Femme"]:
+            error_messages['gender'] = "Veuillez sélectionner un genre valide."
+
+        # Si des erreurs sont détectées
+        if error_messages:
+            return render_template('inscription_client.html', errors=error_messages, data=request.form)
+
+        # Hashage du mot de passe
+        mot_de_passe_hashed = generate_password_hash(mot_de_passe)
+
         # Insert into utilisateur
-        user_id = db.execute("""
-            INSERT INTO utilisateur 
-            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, nom, prenom, email, mot_de_passe, telephone, date_naissance, genre, type_uti)
-        
+        try:
+            user_id = db.execute("""
+                INSERT INTO utilisateur 
+                (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, nom, prenom, email, mot_de_passe_hashed, telephone, date_naissance, genre, type_uti)
+        except Exception as e:
+            error_messages['database'] = "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
+            return render_template('inscription_client.html', errors=error_messages, data=request.form)
+
         # Insert into Details_Client
-        db.execute("""
-            INSERT INTO Details_Client 
-            (ID_uti, adresse) 
-            VALUES (?, ?)
-        """, user_id, adresse)
-        
+        try:
+            db.execute("""
+                INSERT INTO Details_Client 
+                (ID_uti, adresse) 
+                VALUES (?, ?)
+            """, user_id, adresse)
+        except Exception as e:
+            error_messages['database'] = "Une erreur est survenue lors de l'enregistrement des détails. Veuillez réessayer."
+            return render_template('inscription_client.html', errors=error_messages, data=request.form)
+
         return redirect("/connexion")
-    else:
-        return render_template('inscription_client.html')
+
+    return render_template('inscription_client.html', errors={}, data={})
+
 
 @app.route('/Panier')
 def Panier():

@@ -99,64 +99,59 @@
                     </div>
                     <div class="card-body">
                         <form id="clientForm" action="{{ url_for('Inscription_Client') }}" method="POST">
+                            {% for field, placeholder in {
+                                'nom': 'Votre nom',
+                                'prenom': 'Votre prénom',
+                                'telephone': 'Exemple : 77889900',
+                                'adresse': "Exemple : 123 Rue de l'Économie, Djibouti",
+                                'email': 'Votre adresse email',
+                                'password': 'Votre mot de passe'
+                            }.items() %}
                             <div class="mb-3">
-                                <label for="nom" class="form-label"><strong>Nom</strong></label>
-                                <input type="text" class="form-control" id="nom" name="nom" placeholder="Votre nom">
-                                <div class="error-message" id="nomError"></div>
+                                <label for="{{ field }}" class="form-label"><strong>{{ field|capitalize }}</strong></label>
+                                <input 
+                                    type="{{ 'password' if field == 'password' else 'text' }}" 
+                                    class="form-control" 
+                                    id="{{ field }}" 
+                                    name="{{ field }}" 
+                                    placeholder="{{ placeholder }}" 
+                                    value="{{ data.get(field, '') }}"
+                                >
+                                {% if field in errors %}
+                                <div class="error-message">{{ errors[field] }}</div>
+                                {% endif %}
                             </div>
+                            {% endfor %}
 
-                            <div class="mb-3">
-                                <label for="prenom" class="form-label"><strong>Prénom</strong></label>
-                                <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Votre prenom">
-                                <div class="error-message" id="prenomError"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="telephone" class="form-label"><strong>Numéro de Téléphone</strong></label>
-                                <input type="text" class="form-control" id="telephone" name="telephone" placeholder="Exemple : 77889900">
-                                <div class="error-message" id="telephoneError"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="adresse" class="form-label"><strong>Adresse</strong></label>
-                                <input type="text" class="form-control" id="adresse" name="adresse" placeholder="Exemple : 123 Rue de l'Économie, Djibouti">
-                                <div class="error-message" id="adresseError"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label"><strong>Email</strong></label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Votre adresse email">
-                                <div class="error-message" id="emailError"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="password" class="form-label"><strong>Mot de Passe</strong></label>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Votre mot de passe">
-                                <div class="error-message" id="passwordError"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="confirmPassword" class="form-label"><strong>Confirmer le Mot de Passe</strong></label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirmez votre mot de passe">
-                                <div class="error-message" id="confirmPasswordError"></div>
-                            </div>
-
+                            <!-- Date de naissance -->
                             <div class="mb-3">
                                 <label for="birthdate" class="form-label"><strong>Date de Naissance</strong></label>
-                                <input type="date" class="form-control" id="birthdate" name="birthdate">
-                                <div class="error-message" id="birthdateError"></div>
+                                <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ data.get('birthdate', '') }}">
+                                {% if 'birthdate' in errors %}
+                                <div class="error-message">{{ errors['birthdate'] }}</div>
+                                {% endif %}
                             </div>
 
+                            <!-- Genre -->
                             <div class="mb-3">
-                                <label class="form-label"><strong>Genre</strong></label><br>
-                                <input type="radio" id="male" name="gender" value="Male"> Homme
-                                <input type="radio" id="female" name="gender" value="Female"> Femme
-                                <div class="error-message" id="genreError"></div>
+                                <label for="gender" class="form-label"><strong>Genre</strong></label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">Sélectionnez votre genre</option>
+                                    <option value="Homme" {% if data.get('gender') == 'Homme' %}selected{% endif %}>Homme</option>
+                                    <option value="Femme" {% if data.get('gender') == 'Femme' %}selected{% endif %}>Femme</option>
+                                </select>
+                                {% if 'gender' in errors %}
+                                <div class="error-message">{{ errors['gender'] }}</div>
+                                {% endif %}
                             </div>
 
+                            <!-- Terms -->
                             <div class="mb-3">
-                                <input type="checkbox" id="terms" name="terms"> J'accepte les <a href="#">termes et conditions</a>
-                                <div class="error-message" id="termsError"></div>
+                                <input type="checkbox" id="terms" name="terms" {% if data.get('terms') %}checked{% endif %}>
+                                <label for="terms">J'accepte les <a href="#">termes et conditions</a></label>
+                                {% if 'terms' in errors %}
+                                <div class="error-message">{{ errors['terms'] }}</div>
+                                {% endif %}
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
@@ -169,6 +164,5 @@
             </div>
         </div>
     </div>
-
 </body>
 </html>
