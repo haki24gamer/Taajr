@@ -483,6 +483,23 @@ def service_details(service_nom):
 
     return render_template('un_service.html', service=service[0], avis=avis)
 
+@app.route('/menu_vendeur')
+def menu_vendeur():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Veuillez vous connecter.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
+    if not user or user[0]['type_uti'] != 'Vendeur':
+        flash('Accès interdit.', 'danger')
+        return redirect(url_for('index'))
+    
+    return render_template('Menu_Vendeur.html')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
