@@ -8,7 +8,7 @@
     <div class="row">
         {% for offer in favoris %}
         <div class="col-md-4">
-            <a href="{{ url_for('produit_details', produit_nom=offer.libelle_off) }}" class="text-decoration-none text-dark">
+            <a href="{{ url_for('offre_details', offre_id=offer.ID_off) }}" class="text-decoration-none text-dark">
                 <div class="card mb-4">
                     {% if offer.image_off %}
                     <img src="/static/{{ offer.image_off }}" class="card-img-top" alt="Image de l'Offre">

@@ -7,7 +7,7 @@
         <div class="row">
             {% for service in services %}
             <div class="col-md-3">
-                <a href="{{ url_for('service_details', service_nom=service.libelle_off) }}">
+                <a href="{{ url_for('offre_details', offre_id=service.ID_off) }}">
                     <div class="card product-card">
                         <div class="card-img-top">
                             <img src="/static/{{ service.image_off }}" alt="Image de Service" class="card-img-top">
