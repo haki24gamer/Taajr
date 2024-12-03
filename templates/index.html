@@ -49,7 +49,7 @@
     <!-- Categories -->
     <div class="d-flex justify-content-between align-items-center">
       <h2>Catégories</h2>
-      <a href="#" class="btn btn-link btn-lg">Plus...</a>
+      <a href="{{ url_for('Categories') }}" class="btn btn-link btn-lg">Plus...</a>
     </div>
     <div class="row">
       <div class="col-md-4">
@@ -81,105 +81,89 @@
     <!-- Products -->
     <div class="d-flex justify-content-between align-items-center mt-5">
         <h2>Produits</h2>
-        <a href="#" class="btn btn-link btn-lg">Plus...</a>
+        <a href="{{ url_for('Produits') }}" class="btn btn-link btn-lg">Plus...</a>
       </div>
       <div class="row">
+        {% for product in offers_products %}
         <div class="col-md-3">
-          <div class="card product-card">
-            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Smartphone Stellar X">
-            <div class="card-body">
-              <h5 class="card-title">Smartphone Stellar X</h5>
-              <p class="card-text">Puissant smartphone avec écran AMOLED, caméra 108 MP et batterie 5000 mAh.</p>
-              <p class="card-text fw-bold">Prix : 499 €</p>
-              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card product-card">
-            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Pack Bien-être Naturel">
-            <div class="card-body">
-              <h5 class="card-title">Pack Bien-être Naturel</h5>
-              <p class="card-text">Inclut des huiles essentielles et produits bio pour améliorer votre quotidien.</p>
-              <p class="card-text fw-bold">Prix : 39,99 €</p>
-              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card product-card">
-            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Sac à Dos Urbain Pro">
-            <div class="card-body">
-              <h5 class="card-title">Sac à Dos Urbain Pro</h5>
-              <p class="card-text">Design ergonomique, multiples compartiments, idéal pour les professionnels.</p>
-              <p class="card-text fw-bold">Prix : 79,99 €</p>
-              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card product-card">
-            <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Casque Audio BassPro 500">
-            <div class="card-body">
-              <h5 class="card-title">Casque Audio BassPro 500</h5>
-              <p class="card-text">Audio immersif, réduction de bruit active, autonomie de 30h.</p>
-              <p class="card-text fw-bold">Prix : 129,99 €</p>
-              <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-            </div>
-          </div>
-        </div>
+          <a href="{{ url_for('offre_details', offre_id=product.ID_off) }}">
+              <div class="card product-card">
+                  <div class="card-img-top">
+                      <img src="/static/{{ product.image_off }}" alt="Image de Produit" class="card-img-top">
+                  </div>
+                  <div class="card-body">
+                      <h5 class="card-title">{{ product.libelle_off }}</h5>
+                      <p class="card-text">{{ product.description_off }}</p>
+                      <p class="rating">⭐⭐⭐☆☆ ({{ product.reviews_count }} avis)</p>
+                      <p class="card-text fw-bold">Prix : {{ product.prix_off }} fdj</p>
+                      {% if product.ID_off in cart_ids %}
+                          <button class="btn btn-secondary" disabled>Dans le panier</button>
+                      {% else %}
+                          <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
+                              <input type="hidden" name="product_id" value="{{ product.ID_off }}">
+                              <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                          </form>
+                      {% endif %}
+                      {% if product.ID_off in favoris_ids %}
+                          <form method="POST" action="{{ url_for('unlike_offer') }}">
+                              <input type="hidden" name="offer_id" value="{{ product.ID_off }}">
+                              <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
+                          </form>
+                      {% else %}
+                          <form method="POST" action="{{ url_for('like_offer') }}">
+                              <input type="hidden" name="offer_id" value="{{ product.ID_off }}">
+                              <button type="submit" class="btn btn-outline-primary mt-2">Aimer</button>
+                          </form>
+                      {% endif %}
+                  </div>
+              </div>
+          </a>
+      </div>
+        {% endfor %}
       </div>
       
    <!-- Services -->
 <div class="d-flex justify-content-between align-items-center mt-5">
   <h2>Services</h2>
-  <a href="#" class="btn btn-link btn-lg">Plus...</a>
+  <a href="{{ url_for('Services') }}" class="btn btn-link btn-lg">Plus...</a>
 </div>
 <div class="row">
+  {% for service in offers_services %}
   <div class="col-md-3">
-    <div class="card">
-      <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Livraison Express">
-      <div class="card-body">
-        <h5 class="card-title">Livraison Express 24H</h5>
-        <p class="card-text">Recevez vos commandes rapidement en 24 heures partout en France.</p>
-        <p class="card-text fw-bold">Prix : 9,99 €</p>
-        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-      </div>
-    </div>
+    <a href="{{ url_for('offre_details', offre_id=service.ID_off) }}">
+        <div class="card product-card">
+            <div class="card-img-top">
+                <img src="/static/{{ service.image_off }}" alt="Image de Service" class="card-img-top">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ service.libelle_off }}</h5>
+                <p class="card-text">{{ service.description_off }}</p>
+                <p class="rating">⭐⭐⭐☆☆ ({{ service.reviews_count }} avis)</p>
+                <p class="card-text fw-bold">Prix : {{ service.prix_off }} fdj</p>
+                {% if service.ID_off in cart_ids %}
+                    <button class="btn btn-secondary" disabled>Dans le panier</button>
+                {% else %}
+                    <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
+                        <input type="hidden" name="product_id" value="{{ service.ID_off }}">
+                        <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                    </form>
+                {% endif %}
+                {% if service.ID_off in favoris_ids %}
+                    <form method="POST" action="{{ url_for('unlike_offer') }}">
+                        <input type="hidden" name="offer_id" value="{{ service.ID_off }}">
+                        <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
+                    </form>
+                {% else %}
+                    <form method="POST" action="{{ url_for('like_offer') }}">
+                        <input type="hidden" name="offer_id" value="{{ service.ID_off }}">
+                        <button type="submit" class="btn btn-outline-primary mt-2">Aimer</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </a>
   </div>
-  <div class="col-md-3">
-    <div class="card">
-      <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Assurance Produit">
-      <div class="card-body">
-        <h5 class="card-title">Assurance Produit</h5>
-        <p class="card-text">Protégez vos produits contre tout dommage ou dysfonctionnement.</p>
-        <p class="card-text fw-bold">Prix : 4,99 €</p>
-        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card">
-      <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="Service Installation">
-      <div class="card-body">
-        <h5 class="card-title">Service Installation</h5>
-        <p class="card-text">Installation professionnelle de vos produits électroniques et électroménagers.</p>
-        <p class="card-text fw-bold">Prix : 29,99 €</p>
-        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card">
-      <img src="/static/Images/formation-marketing-digital.jpg" class="card-img-top" alt="Formation en Marketing">
-      <div class="card-body">
-        <h5 class="card-title">Formation en Marketing</h5>
-        <p class="card-text">Apprenez les bases et les stratégies avancées pour maîtriser le marketing digital.</p>
-        <p class="card-text fw-bold">Prix : 99,99 €</p>
-        <button class="btn btn-primary" style="background-color: #031B88; border-color: #031B88;">Ajouter au panier</button>
-      </div>
-    </div>
-  </div>
+  {% endfor %}
 </div>
 
   </div>
