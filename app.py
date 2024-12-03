@@ -141,7 +141,7 @@ def Inscription_Vendeur():
         mot_de_passe = request.form.get("password")
         telephone = request.form.get("telephone")
         boutique = request.form.get("boutique")
-        adresse_boutique = request.form.get("adresse")
+        adresse_boutique = request.form.get("Adresse")
         description = request.form.get("description")
         jourDebut = request.form.get("jourDebut")
         jourFin = request.form.get("jourFin")
@@ -165,6 +165,8 @@ def Inscription_Vendeur():
             errors['telephone'] = "Le numéro de téléphone est requis."
         if not boutique or len(boutique)<2:
             errors['boutique'] = "Le nom de la boutique doit contenir au moins 2 caractère."
+        if not adresse_boutique or len(adresse_boutique)<2:
+            errors['adresse_boutique'] = "L'adresse  doit contenir au moins 2 caractère."
         if not description:
             errors['description'] = "La description de la boutique est requise."
         if not politiqueRetour:

@@ -162,6 +162,14 @@
                                     <div class="error-message">{{ errors['boutique'] }}</div>
                                 {% endif %}
                             </div>
+                            <!-- Nom de la Boutique -->
+                            <div class="mb-3">
+                                <label for="boutique" class="form-label">Adresse de la Boutique</label>
+                                <input type="text" class="form-control" id="boutique" name="boutique" placeholder="Adresse de votre boutique" />
+                                {% if 'adresse_boutique' in errors %}
+                                    <div class="error-message">{{ errors['adresse_boutique'] }}</div>
+                                {% endif %}
+                            </div>
                             <!-- Description de la Boutique -->
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description de la Boutique</label>
