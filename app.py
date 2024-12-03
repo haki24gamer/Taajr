@@ -15,5 +15,13 @@ def Panier():
 def Vendeur():
     return render_template("Vendeur.html")
 
+@app.route('/')
+def contacter_Nous():
+    return render_template("contacter_Nous.html")
+
+@app.route('/Vendeur')
+def a_propos():
+    return render_template("a_propos.html")
+
 if __name__ == '__main__':
     app.run(debug=True)
