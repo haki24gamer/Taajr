@@ -81,7 +81,13 @@ def index():
         GROUP BY offre.ID_off
         LIMIT 4
     """)
-    return render_template("index.html", offers_products=offers_products, offers_services=offers_services)
+    # Fetch three categories to display on index page
+    categories = db.execute("""
+        SELECT ID_cat, nom_cat, description, image
+        FROM categorie
+        LIMIT 3
+    """)
+    return render_template("index.html", offers_products=offers_products, offers_services=offers_services, Categories=categories)
 
 # Route pour la connexion
 @app.route('/connexion', methods=['GET', 'POST'])
