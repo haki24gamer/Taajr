@@ -76,33 +76,43 @@
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
             <h4>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="/">Accueil</a></li>
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="/Categories">Catégories</a></li>
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="#">Meilleures Ventes</a></li>
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="/Produits">Produits</a></li>
-                    <li class="nav-item me-3"><a class="nav-link text-black" href="/Services">Services</a></li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link {% if request.path == '/' %}text-white{% else %}text-black{% endif %}" href="/">Accueil</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link {% if request.path == '/Categories' %}text-white{% else %}text-black{% endif %}" href="/Categories">Catégories</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link {% if request.path == '/MeilleuresVentes' %}text-white{% else %}text-black{% endif %}" href="#">Meilleures Ventes</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link {% if request.path == '/Produits' %}text-white{% else %}text-black{% endif %}" href="/Produits">Produits</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link {% if request.path == '/Services' %}text-white{% else %}text-black{% endif %}" href="/Services">Services</a>
+                    </li>
                 </ul>
             </h4>
         </div>
     </div>
 </nav>
 
-  <!-- Sub Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #031B88;">
-    <div class="container-fluid">
-        <div class="collapse navbar-collapse justify-content-center" id="subNavbarNav">
-            <h5>
-                <ul class="navbar-nav mx-auto">
-                    {% for category in categories[:7] %}
-                    <li class="nav-item me-5">
-                      <a class="nav-link text-white" href="{{ url_for('category_offers', category_id=category.ID_cat) }}">{{ category.nom_cat }}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </h5>
+    <!-- Sub Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #031B88;">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse justify-content-center" id="subNavbarNav">
+                <h5>
+                    <ul class="navbar-nav mx-auto">
+                        {% for category in categories[:7] %}
+                        <li class="nav-item me-5">
+                          <a class="nav-link text-white" href="{{ url_for('category_offers', category_id=category.ID_cat) }}">{{ category.nom_cat }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </h5>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
   <!-- Contenu dynamique -->
   <div class="container my-5">
