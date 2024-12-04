@@ -659,7 +659,6 @@ def modifier_profil():
 def termes_and_conditions():
     return render_template('termes_et_conditions.html')
 
-
 if __name__ == '__main__':
     app.run(debug=True)
 
