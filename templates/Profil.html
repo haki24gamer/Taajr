@@ -28,6 +28,11 @@ Profil - {{ user['prenom_uti'] }} {{ user['nom_uti'] }}
             <p><strong>Nom de la boutique:</strong> {{ details[0]['nom_boutique'] }}</p>
             <p><strong>Adresse de la boutique:</strong> {{ details[0]['adresse_boutique'] }}</p>
             <p><strong>Description:</strong> {{ details[0]['description'] }}</p>
+            <div class="button-group mt-3">
+            <a href="{{ url_for('offres_vendeurs') }}" class="btn btn-danger">Offres</a>
+            <a href="{{ url_for('commandes_vendeurs') }}" class="btn btn-danger">Commandes</a>
+</div>
+
         {% endif %}
     </div>
 </div>
@@ -36,9 +41,5 @@ Profil - {{ user['prenom_uti'] }} {{ user['nom_uti'] }}
     <a href="{{ url_for('modifier_profil') }}" class="btn btn-primary">Modifier le Profil</a>
 </div>
 
-<div class="button-group mt-3">
-    <a href="{{ url_for('offres_vendeurs') }}" class="btn btn-danger">Offres</a>
-    <a href="{{ url_for('commandes_vendeurs') }}" class="btn btn-danger">Commandes</a>
-</div>
 
 {% endblock %}
