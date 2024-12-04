@@ -23,5 +23,14 @@ def contacter_Nous():
 def a_propos():
     return render_template("a_propos.html")
 
+@app.route('/Offres_Vendeurs')
+def Offres_Vendeurs():
+    return render_template("Offres_Vendeurs.html")
+
+@app.route('/commandes_vendeurs')
+def commandes_vendeurs():
+    return render_template("commandes_vendeurs.html")
+
+
 if __name__ == '__main__':
     app.run(debug=True)
