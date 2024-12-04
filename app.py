@@ -795,6 +795,35 @@ def ajouter_offre():
     flash('Offre ajoutée avec succès et associée aux catégories sélectionnées.', 'success')
     return redirect(url_for('offres_vendeurs'))
 
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+    category = request.args.get('category')
+
+    if not query or not category:
+        flash('Veuillez entrer une requête de recherche et sélectionner une catégorie.', 'danger')
+        return redirect(url_for('index'))
+
+    if category == 'boutique':
+        boutiques = db.execute("SELECT * FROM Details_Vendeur WHERE nom_boutique LIKE ?", f'%{query}%')
+        return render_template('search_results.html', results=boutiques, category='Boutiques')
+
+    elif category == 'categorie':
+        categories = db.execute("SELECT * FROM categorie WHERE nom_cat LIKE ?", f'%{query}%')
+        return render_template('search_results.html', results=categories, category='Catégories')
+
+    elif category == 'produit':
+        produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit' AND libelle_off LIKE ?", f'%{query}%')
+        return render_template('search_results.html', results=produits, category='Produits')
+
+    elif category == 'service':
+        services = db.execute("SELECT * FROM offre WHERE type_off = 'Service' AND libelle_off LIKE ?", f'%{query}%')
+        return render_template('search_results.html', results=services, category='Services')
+
+    else:
+        flash('Catégorie de recherche invalide.', 'danger')
+        return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True)
 
