@@ -763,10 +763,11 @@ def ajouter_offre():
     quantite_en_stock = request.form.get('quantite_en_stock')
     prix_off = request.form.get('prix_off')
     type_off = request.form.get('type_off')
+    selected_categories = request.form.getlist('categories')  # Récupérer les catégories sélectionnées
 
     # Valider les champs obligatoires
-    if (not libelle_off or not description_off or not quantite_en_stock or not prix_off or not type_off):
-        flash('Veuillez remplir tous les champs obligatoires.', 'danger')
+    if (not libelle_off or not description_off or not quantite_en_stock or not prix_off or not type_off or not selected_categories):
+        flash('Veuillez remplir tous les champs obligatoires et sélectionner au moins une catégorie.', 'danger')
         return redirect(url_for('offres_vendeurs'))
 
     # Gérer le téléchargement de l'image
@@ -779,12 +780,19 @@ def ajouter_offre():
         image_off = 'Images/default.png'  # Image par défaut si aucune image n'est téléchargée
 
     # Insérer la nouvelle offre dans la base de données
-    db.execute("""
+    offre_id = db.execute("""
         INSERT INTO offre (libelle_off, description_off, quantite_en_stock, prix_off, type_off, ID_uti, image_off)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, libelle_off, description_off, quantite_en_stock, prix_off, type_off, session['user_id'], image_off)
 
-    flash('Offre ajoutée avec succès.', 'success')
+    # Associer les catégories sélectionnées à l'offre dans la table appartenir
+    for category_id in selected_categories:
+        db.execute("""
+            INSERT INTO appartenir (ID_off, ID_cat)
+            VALUES (?, ?)
+        """, offre_id, category_id)
+
+    flash('Offre ajoutée avec succès et associée aux catégories sélectionnées.', 'success')
     return redirect(url_for('offres_vendeurs'))
 
 if __name__ == '__main__':

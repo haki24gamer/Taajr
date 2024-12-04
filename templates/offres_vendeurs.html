@@ -121,6 +121,18 @@
               <label for="image_off" class="form-label">Image</label>
               <input class="form-control" type="file" id="image_off" name="image_off" accept="image/*">
             </div>
+
+            <!-- Champ Sélection des Catégories -->
+            <div class="mb-3">
+              <label for="categories" class="form-label">Catégories</label>
+              <select class="form-select" id="categories" name="categories" multiple required>
+                {% for category in categories %}
+                  <option value="{{ category.ID_cat }}">{{ category.nom_cat }}</option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Maintenez la touche Ctrl (Windows) ou Commande (Mac) pour sélectionner plusieurs catégories.</div>
+            </div>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
@@ -143,7 +155,7 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Produit</th>
+              <th>Offre</th>
               <th>Prix</th>
               <th>Quantité</th>
               <th>Actions</th>

@@ -140,7 +140,6 @@ INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, 
 INSERT INTO "categorie" (nom_cat, description, image) VALUES 
     ('Mode et vetements', 'Vêtements et accessoires de mode pour hommes, femmes et enfants', 'Images/Categories/Categorie.png'), 
     ('Chaussures', 'Chaussures pour toutes les occasions et tous les styles', 'Images/Categories/Categorie.png'), 
-    ('Services', 'Services divers pour répondre à vos besoins quotidiens', 'Images/Categories/Categorie.png'),
     ('Electromenager', 'Appareils électroménagers pour la maison', 'Images/Categories/Categorie.png'), 
     ('Informatique', 'Matériel informatique et accessoires', 'Images/Categories/Categorie.png'), 
     ('Jouets', 'Jouets pour enfants de tous âges', 'Images/Categories/Categorie.png'), 
