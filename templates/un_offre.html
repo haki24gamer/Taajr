@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block title %}Détails de l'Offre{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <img src="/static/{{ offre.image_off }}" alt="{{ offre.libelle_off }}" class="img-fluid rounded shadow">
+    </div>
+    <div class="col-md-6">
+        <h1 class="mb-4">{{ offre.libelle_off }}</h1>
+        <p class="lead">{{ offre.description_off }}</p>
+        <p><strong>Prix:</strong> {{ offre.prix_off }}€</p>
+        <p><strong>Quantité en stock:</strong> {{ offre.quantite_en_stock }}</p>
+        <p><strong>Date d'ajout:</strong> {{ offre.date_off }}</p>
+
+        <!-- Affichage des informations du vendeur -->
+        <hr>
+        <div class="row">
+            <div class="col-md-8">
+            <h3>Vendeur</h3>
+                <p><strong>Nom:</strong> {{ seller_info.prenom_uti }} {{ seller_info.nom_uti }}</p>
+                <p><strong>Boutique:</strong> {{ seller_info.nom_boutique }}</p>
+                <p><strong>Adresse:</strong> {{ seller_info.adresse_boutique }}</p>
+            </div>
+            <div class="col-md-4">
+                {% if seller_info.logo %}
+                    <img src="/static/{{ seller_info.logo }}" alt="Logo de la boutique" class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Boutons Ajouter au panier et Retirer du panier -->
+        {% if offre.ID_off in cart_ids %}
+            <form method="POST" action="{{ url_for('remove_from_cart') }}">
+                <input type="hidden" name="product_id" value="{{ offre.ID_off }}">
+                <button type="submit" class="btn btn-warning">Retirer du panier</button>
+            </form>
+        {% else %}
+            <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
+                <input type="hidden" name="product_id" value="{{ offre.ID_off }}">
+                <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+            </form>
+        {% endif %}
+        
+        {% if offre.ID_off in favoris_ids %}
+            <form method="POST" action="{{ url_for('unlike_offer') }}">
+                <input type="hidden" name="offer_id" value="{{ offre.ID_off }}">
+                <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
+            </form>
+        {% else %}
+            <form method="POST" action="{{ url_for('like_offer') }}">
+                <input type="hidden" name="offer_id" value="{{ offre.ID_off }}">
+                <button type="submit" class="btn btn-outline-primary mt-2">Aimer</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<hr>
+
+<!-- Ajout de styles pour les boutons de défilement -->
+<style>
+.scroll-button {
+    background-color: white;
+    color: black;
+    border: none;
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+}
+</style>
+
+<!-- Section des offres similaires avec boutons de défilement -->
+<h2>Offres Similaires</h2>
+<div style="position: relative; display: flex; align-items: center;">
+    <button class="scroll-button left" onclick="scrollOffers(-300)">&#60;</button>
+    <div class="similar-offers-container" style="display: flex; overflow-x: auto; scroll-behavior: smooth;">
+        {% for similar_offer in similar_offers %}
+            <div class="card m-2" style="min-width: 200px;">
+                <img src="/static/{{ similar_offer.image_off }}" class="card-img-top" alt="{{ similar_offer.libelle_off }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ similar_offer.libelle_off }}</h5>
+                    <p class="card-text">{{ similar_offer.prix_off }}€</p>
+                    <a href="{{ url_for('offre_details', offre_id=similar_offer.ID_off) }}" class="btn btn-primary">Voir Détails</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <button class="scroll-button right" onclick="scrollOffers(300)">&#62;</button>
+</div>
+
+<script>
+function scrollOffers(amount) {
+    const container = document.querySelector('.similar-offers-container');
+    container.scrollBy({ left: amount, behavior: 'smooth' });
+}
+</script>
+
+<hr>
+
+<h2>Avis</h2>
+{% for a in avis %}
+    <div class="mb-3 p-3 bg-light rounded shadow-sm">
+        <strong>{{ a.user_name }}</strong> le {{ a.date_avis }}:
+        <p>{{ a.comment_avis }}</p>
+    </div>
+{% else %}
+    <p>Aucun avis pour le moment.</p>
+{% endfor %}
+
+{% if session.user_id %}
+    <form action="{{ url_for('offre_details', offre_id=offre.ID_off) }}" method="post" class="mt-4">
+        <div class="mb-3">
+            <textarea name="commentaire" class="form-control" rows="3" required placeholder="Ajouter un commentaire"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+{% else %}
+    <p><a href="{{ url_for('connexion') }}" class="btn btn-link">Connectez-vous</a> pour ajouter un commentaire.</p>
+{% endif %}
+{% endblock %}

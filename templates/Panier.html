@@ -3,5 +3,44 @@
 {% block title %}Panier - Taajr{% endblock %}
 
 {% block content %}
-
+    <h2>Votre Panier</h2>
+    {% if cart_items %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix Unitaire</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td><a href="{{ url_for('offre_details', offre_id=item.ID_off) }}">{{ item.libelle_off }}</a></td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.prix_off }}fdj</td>
+                    <td>{{ item.quantity * item.prix_off }}fdj</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('increment_quantity') }}" style="display:inline;">
+                            <input type="hidden" name="panier_id" value="{{ item.ID_panier }}">
+                            <button type="submit" class="btn btn-sm btn-success">+</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('decrement_quantity') }}" style="display:inline;">
+                            <input type="hidden" name="panier_id" value="{{ item.ID_panier }}">
+                            <button type="submit" class="btn btn-sm btn-danger">-</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-end">
+            <h4>Total : {{ total_price }}fdj</h4>
+        </div>
+        <a href="/checkout" class="btn btn-success btn-lg mt-3">Passer la commande</a>
+    {% else %}
+        <p>Votre panier est vide.</p>
+    {% endif %}
 {% endblock %}

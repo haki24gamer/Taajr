@@ -1,38 +1,41 @@
 {% extends "layout.html" %}
 
-{% block title %}Services - Taajr{% endblock %}
+{% block title %}{{ category.nom_cat }} - Taajr{% endblock %}
 
 {% block content %}
-    <div class="product-container">
-        <div class="row">
-            {% for service in services %}
+<div class="product-container">
+    <h2>{{ category.nom_cat }}</h2>
+    <div class="row">
+        {% if offers %}
+            {% for offer in offers %}
             <div class="col-md-3">
-                <a href="{{ url_for('offre_details', offre_id=service.ID_off) }}">
+                <a href="{{ url_for('offre_details', offre_id=offer.ID_off) }}">
+            
                     <div class="card product-card">
                         <div class="card-img-top">
-                            <img src="/static/{{ service.image_off }}" alt="Image de Service" class="card-img-top">
+                            <img src="/static/{{ offer.image_off }}" alt="Image de l'Offre" class="card-img-top">
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">{{ service.libelle_off }}</h5>
-                            <p class="card-text">{{ service.description_off }}</p>
-                            <p class="rating">⭐⭐⭐☆☆ ({{ service.reviews_count }} avis)</p>
-                            <p class="card-text fw-bold">Prix : {{ service.prix_off }}fdj</p>
-                            {% if service.ID_off in cart_ids %}
+                            <h5 class="card-title">{{ offer.libelle_off }}</h5>
+                            <p class="card-text">{{ offer.description_off }}</p>
+                            <p class="rating">⭐⭐⭐☆☆ ({{ offer.reviews_count }} avis)</p>
+                            <p class="card-text fw-bold">Prix : {{ offer.prix_off }}fdj</p>
+                            {% if offer.ID_off in cart_ids %}
                                 <button class="btn btn-secondary" disabled>Dans le panier</button>
                             {% else %}
                                 <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
-                                    <input type="hidden" name="product_id" value="{{ service.ID_off }}">
+                                    <input type="hidden" name="product_id" value="{{ offer.ID_off }}">
                                     <button type="submit" class="btn btn-primary">Ajouter au panier</button>
                                 </form>
                             {% endif %}
-                            {% if service.ID_off in favoris_ids %}
+                            {% if offer.ID_off in favoris_ids %}
                                 <form method="POST" action="{{ url_for('unlike_offer') }}">
-                                    <input type="hidden" name="offer_id" value="{{ service.ID_off }}">
+                                    <input type="hidden" name="offer_id" value="{{ offer.ID_off }}">
                                     <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
                                 </form>
                             {% else %}
                                 <form method="POST" action="{{ url_for('like_offer') }}">
-                                    <input type="hidden" name="offer_id" value="{{ service.ID_off }}">
+                                    <input type="hidden" name="offer_id" value="{{ offer.ID_off }}">
                                     <button type="submit" class="btn btn-outline-primary mt-2">Aimer</button>
                                 </form>
                             {% endif %}
@@ -41,7 +44,9 @@
                 </a>
             </div>
             {% endfor %}
-        </div>
+        {% else %}
+            <p>Aucune offre disponible pour cette catégorie.</p>
+        {% endif %}
     </div>
+</div>
 {% endblock %}
-

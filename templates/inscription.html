@@ -25,16 +25,16 @@
                     <div class="card-body text-center">
                         <p class="mb-4">Vous êtes :</p>
                         <!-- Bouton Vendeur -->
-                        <a href="inscription_vendeur.html" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                        <a href="Inscription_Vendeur" class="btn btn-outline-primary btn-lg w-100 mb-3">
                             <i class="bi bi-shop"></i> Je suis un Vendeur
                         </a>
                         <!-- Bouton Client -->
-                        <a href="inscription_client.html" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                        <a href="Inscription_Client" class="btn btn-outline-primary btn-lg w-100 mb-3">
                             <i class="bi bi-shop"></i> Je suis un Client
                         </a>
                     </div>
                     <div class="card-footer text-center">
-                        <small>Vous avez déjà un compte ? <a href="connexion.html" class="text-primary">Connectez-vous ici</a>.</small>
+                        <small>Vous avez déjà un compte ? <a href="{{ url_for('connexion') }}" class="text-primary">Connectez-vous ici</a>.</small>
                     </div>
                 </div>
             </div>
