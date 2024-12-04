@@ -5,53 +5,78 @@
 {% block content %}
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offres Vendeurs - Taajr</title>
+  <title>Offres Vendeur</title>
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      font-family: 'Arial', sans-serif;
       background-color: #f8f9fa;
-      line-height: 1.6;
+      font-family: 'Arial', sans-serif;
     }
+
     header {
       background: linear-gradient(90deg, #28a745, #20c997);
       color: white;
+      padding: 20px 0;
     }
-    .table th, .table td {
+
+    header h1, header p {
+      margin: 0;
+      text-align: center;
+    }
+
+    .table {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .table th {
+      background-color: #17a2b8;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .table td {
       vertical-align: middle;
     }
+
     .btn-modifier {
       background-color: #007bff;
       color: white;
     }
+
     .btn-supprimer {
       background-color: #dc3545;
       color: white;
     }
+
     .btn-modifier:hover {
       background-color: #0056b3;
     }
+
     .btn-supprimer:hover {
       background-color: #c82333;
     }
+
     footer {
       background: #343a40;
       color: white;
-      padding: 20px 0;
       text-align: center;
+      padding: 20px 0;
     }
   </style>
 </head>
 <body>
   <!-- Header -->
-  <header class="py-4 text-center">
+  <header>
     <div class="container">
-      <h1>Offres Vendeurs</h1>
-      <p>Gérez vos produits ajoutés : modifiez ou supprimez vos offres.</p>
+      <h1>Offres Vendeur</h1>
+      <p>Gérez vos produits : ajoutez, modifiez ou supprimez vos offres.</p>
     </div>
   </header>
 
@@ -60,36 +85,37 @@
     <div class="container">
       <h2 class="text-center mb-4">Vos Produits</h2>
       <div class="table-responsive">
-        <table class="table table-bordered text-center align-middle">
-          <thead class="table-dark">
+        <table class="table table-bordered align-middle text-center" id="productTable">
+          <thead>
             <tr>
               <th>#</th>
-              <th>Nom du produit</th>
+              <th>Produit</th>
               <th>Prix</th>
+              <th>Quantité</th>
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Exemple de produits -->
-            <tr>
+          <tbody id="product-list">
+            <tr data-id="1">
               <td>1</td>
               <td>Produit A</td>
-              <td>50.00 €</td>
+              <td>20.00 €</td>
+              <td>10</td>
               <td>
-                <button class="btn btn-modifier btn-sm" onclick="openEditForm(1, 'Produit A', 50)">Modifier</button>
+                <button class="btn btn-modifier btn-sm" onclick="openEditForm(1, 'Produit A', 20, 10)">Modifier</button>
                 <button class="btn btn-supprimer btn-sm" onclick="deleteProduct(1)">Supprimer</button>
               </td>
             </tr>
-            <tr>
+            <tr data-id="2">
               <td>2</td>
               <td>Produit B</td>
-              <td>30.00 €</td>
+              <td>15.00 €</td>
+              <td>5</td>
               <td>
-                <button class="btn btn-modifier btn-sm" onclick="openEditForm(2, 'Produit B', 30)">Modifier</button>
+                <button class="btn btn-modifier btn-sm" onclick="openEditForm(2, 'Produit B', 15, 5)">Modifier</button>
                 <button class="btn btn-supprimer btn-sm" onclick="deleteProduct(2)">Supprimer</button>
               </td>
             </tr>
-            <!-- Ajouter d'autres produits ici -->
           </tbody>
         </table>
       </div>
@@ -114,6 +140,10 @@
               <label for="productPrice" class="form-label">Prix (€)</label>
               <input type="number" class="form-control" id="productPrice" name="productPrice" step="0.01" required>
             </div>
+            <div class="mb-3">
+              <label for="productQuantity" class="form-label">Quantité</label>
+              <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
+            </div>
             <button type="submit" class="btn btn-primary w-100">Enregistrer les modifications</button>
           </form>
         </div>
@@ -121,39 +151,53 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer>
+    <p>© 2024 Taajr. Tous droits réservés.</p>
+  </footer>
 
+  <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     let currentProductId = null;
 
-    // Ouvre le formulaire de modification avec les informations du produit sélectionné
-    function openEditForm(productId, productName, productPrice) {
-      currentProductId = productId; // Stocke l'ID du produit en cours de modification
+    // Ouvre le formulaire de modification
+    function openEditForm(productId, productName, productPrice, productQuantity) {
+      currentProductId = productId; // Stocker l'ID du produit
       document.getElementById('productName').value = productName;
       document.getElementById('productPrice').value = productPrice;
+      document.getElementById('productQuantity').value = productQuantity;
       const editModal = new bootstrap.Modal(document.getElementById('editModal'));
       editModal.show();
     }
 
-    // Simule la suppression d'un produit (peut être connecté à une base de données)
+    // Supprime un produit
     function deleteProduct(productId) {
-      if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-        alert(`Produit avec ID ${productId} supprimé !`);
-        // Ici, vous pouvez ajouter le code pour supprimer le produit de la base de données.
+      if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
+        const row = document.querySelector(`tr[data-id="${productId}"]`);
+        row.remove();
+        alert('Produit supprimé avec succès.');
       }
     }
 
-    // Gère la soumission du formulaire de modification
+    // Gère la soumission du formulaire
     document.getElementById('editForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // Empêche le rechargement de la page
+      event.preventDefault();
       const updatedName = document.getElementById('productName').value;
       const updatedPrice = document.getElementById('productPrice').value;
-      alert(`Produit ID ${currentProductId} mis à jour avec : Nom = ${updatedName}, Prix = ${updatedPrice} €`);
-      // Ici, vous pouvez ajouter le code pour mettre à jour le produit dans la base de données.
+      const updatedQuantity = document.getElementById('productQuantity').value;
+
+      const row = document.querySelector(`tr[data-id="${currentProductId}"]`);
+      row.children[1].textContent = updatedName;
+      row.children[2].textContent = `${parseFloat(updatedPrice).toFixed(2)} €`;
+      row.children[3].textContent = parseInt(updatedQuantity);
+
       const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-      editModal.hide(); // Ferme la fenêtre modale
+      editModal.hide();
+      alert('Produit modifié avec succès.');
     });
   </script>
 </body>
 </html>
+
 {% endblock %}

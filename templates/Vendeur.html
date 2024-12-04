@@ -87,8 +87,7 @@
 
             <!-- Boutons -->
             <button class="btn btn-primary" id="add-product-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">Ajouter un Produit</button>
-            <button class="btn btn-warning" id="edit-product-btn" data-bs-toggle="modal" data-bs-target="#editProductModal">Modifier un Produit</button>
-            <button class="btn btn-danger" id="delete-product-btn" data-bs-toggle="modal" data-bs-target="#deleteProductModal">Supprimer un Produit</button>
+        
             <button class="btn btn-info" id="view-products-btn">Afficher Tous les Produits</button>
             <button class="btn btn-secondary" id="order-list-btn">Liste de Commande</button>
           </div>
@@ -125,56 +124,6 @@
               <input type="number" class="form-control" id="product-price" required>
             </div>
             <button type="submit" class="btn btn-primary">Ajouter</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Modification de Produit -->
-  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editProductModalLabel">Modifier un Produit</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="edit-product-form">
-            <div class="mb-3">
-              <label for="edit-product-id" class="form-label">ID du Produit</label>
-              <input type="text" class="form-control" id="edit-product-id" required>
-            </div>
-            <div class="mb-3">
-              <label for="edit-product-name" class="form-label">Nouveau Nom</label>
-              <input type="text" class="form-control" id="edit-product-name">
-            </div>
-            <div class="mb-3">
-              <label for="edit-product-price" class="form-label">Nouveau Prix (€)</label>
-              <input type="number" class="form-control" id="edit-product-price">
-            </div>
-            <button type="submit" class="btn btn-warning">Modifier</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Suppression -->
-  <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteProductModalLabel">Supprimer un Produit</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="delete-product-form">
-            <div class="mb-3">
-              <label for="delete-product-id" class="form-label">ID du Produit</label>
-              <input type="text" class="form-control" id="delete-product-id" required>
-            </div>
-            <button type="submit" class="btn btn-danger">Supprimer</button>
           </form>
         </div>
       </div>
@@ -234,43 +183,6 @@
       alert(Liste de Commande:\n${orderList});
     });
 
-    // Modifier un produit
-    document.getElementById('edit-product-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('edit-product-id').value);
-      const name = document.getElementById('edit-product-name').value;
-      const price = parseFloat(document.getElementById('edit-product-price').value);
-
-      const product = products.find(p => p.id === id);
-      if (!product) {
-        alert("Produit introuvable.");
-        return;
-      }
-
-      if (name) product.name = name;
-      if (!isNaN(price)) product.price = price;
-
-      alert("Produit modifié avec succès !");
-      const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
-      modal.hide();
-    });
-
-    // Supprimer un produit
-    document.getElementById('delete-product-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('delete-product-id').value);
-
-      const index = products.findIndex(p => p.id === id);
-      if (index === -1) {
-        alert("Produit introuvable.");
-        return;
-      }
-
-      products.splice(index, 1);
-      alert("Produit supprimé avec succès !");
-      const modal = bootstrap.Modal.getInstance(document.getElementById('deleteProductModal'));
-      modal.hide();
-    });
   </script>
 </body>
 
