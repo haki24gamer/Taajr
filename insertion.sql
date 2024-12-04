@@ -17,8 +17,9 @@ CREATE TABLE IF NOT EXISTS "offre" (
     prix_off INTEGER,
     date_off DATE DEFAULT (date('now', 'localtime')),
     type_off CHAR(50),
+    image_off TEXT DEFAULT 'Images/default.png',
     ID_uti INTEGER,
-    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti)
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "categorie" (
     ID_cat INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "appartenir" (
     ID_cat INTEGER,
     PRIMARY KEY (ID_off, ID_cat),
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
-    FOREIGN KEY (ID_cat) REFERENCES "categorie"(ID_cat)
+    FOREIGN KEY (ID_cat) REFERENCES "categorie"(ID_cat) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "avis" (
     ID_avis INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,8 +39,8 @@ CREATE TABLE IF NOT EXISTS "avis" (
     note_avis CHAR(50),
     ID_off INTEGER,
     ID_uti INTEGER,
-    FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
-    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti)
+    FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off) ON DELETE CASCADE,
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "commande" (
     ID_com INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS "commande" (
     ID_pay INTEGER,
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
     FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti),
-    FOREIGN KEY (ID_pay) REFERENCES "paiement"(ID_pay)
+    FOREIGN KEY (ID_pay) REFERENCES "paiement"(ID_pay) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "paiement" (
     ID_pay INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -139,7 +140,6 @@ INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, 
 INSERT INTO "categorie" (nom_cat, description, image) VALUES 
     ('Mode et vetements', 'Vêtements et accessoires de mode pour hommes, femmes et enfants', 'Images/Categories/Categorie.png'), 
     ('Chaussures', 'Chaussures pour toutes les occasions et tous les styles', 'Images/Categories/Categorie.png'), 
-    ('Services', 'Services divers pour répondre à vos besoins quotidiens', 'Images/Categories/Categorie.png'),
     ('Electromenager', 'Appareils électroménagers pour la maison', 'Images/Categories/Categorie.png'), 
     ('Informatique', 'Matériel informatique et accessoires', 'Images/Categories/Categorie.png'), 
     ('Jouets', 'Jouets pour enfants de tous âges', 'Images/Categories/Categorie.png'), 
