@@ -543,6 +543,10 @@ def menu_vendeur():
 def admin():
     return render_template('admin.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/terms-and-conditions')
+def terms_and_conditions():
+    return render_template('termes_et_conditions.html')
+
+if __name__ == '_main_':
+    app.run(debug=True)    
 
