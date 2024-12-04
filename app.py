@@ -659,6 +659,40 @@ def modifier_profil():
 def termes_and_conditions():
     return render_template('termes_et_conditions.html')
 
+@app.route('/offres_vendeurs')
+def offres_vendeurs():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not user or user[0]['type_uti'] != 'Vendeur':
+        flash('Accès interdit.', 'danger')
+        return redirect(url_for('index'))
+    
+    offres = db.execute("SELECT * FROM offre WHERE ID_uti = ?", session['user_id'])
+    return render_template('offres_vendeurs.html', offres=offres)
+
+
+@app.route('/commandes_vendeurs')
+def commandes_vendeurs():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not user or user[0]['type_uti'] != 'Vendeur':
+        flash('Accès interdit.', 'danger')
+        return redirect(url_for('index'))
+    
+    commandes = db.execute("""
+        SELECT commande.*, utilisateur.nom_uti, utilisateur.prenom_uti
+        FROM commande
+        JOIN utilisateur ON commande.ID_uti = utilisateur.ID_uti
+        WHERE commande.ID_uti = ?
+    """, session['user_id'])
+    return render_template('commandes_vendeurs.html', commandes=commandes)
+
 if __name__ == '__main__':
     app.run(debug=True)
 
