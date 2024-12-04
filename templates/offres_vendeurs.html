@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block title %}Accueil - Taajr{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offres Vendeur</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Arial', sans-serif;
+    }
+
+    header {
+      background: linear-gradient(90deg, #28a745, #20c997);
+      color: white;
+      padding: 20px 0;
+    }
+
+    header h1, header p {
+      margin: 0;
+      text-align: center;
+    }
+
+    .table {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .table th {
+      background-color: #17a2b8;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .table td {
+      vertical-align: middle;
+    }
+
+    .btn-modifier {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-supprimer {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-modifier:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-supprimer:hover {
+      background-color: #c82333;
+    }
+
+    footer {
+      background: #343a40;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <h1>Offres Vendeur</h1>
+      <p>Gérez vos produits : ajoutez, modifiez ou supprimez vos offres.</p>
+    </div>
+  </header>
+
+  <!-- Liste des produits -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="text-center mb-4">Vos Produits</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center" id="productTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produit</th>
+              <th>Prix</th>
+              <th>Quantité</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="product-list">
+            <tr data-id="1">
+              <td>1</td>
+              <td>Produit A</td>
+              <td>20.00 €</td>
+              <td>10</td>
+              <td>
+                <button class="btn btn-modifier btn-sm" onclick="openEditForm(1, 'Produit A', 20, 10)">Modifier</button>
+                <button class="btn btn-supprimer btn-sm" onclick="deleteProduct(1)">Supprimer</button>
+              </td>
+            </tr>
+            <tr data-id="2">
+              <td>2</td>
+              <td>Produit B</td>
+              <td>15.00 €</td>
+              <td>5</td>
+              <td>
+                <button class="btn btn-modifier btn-sm" onclick="openEditForm(2, 'Produit B', 15, 5)">Modifier</button>
+                <button class="btn btn-supprimer btn-sm" onclick="deleteProduct(2)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Formulaire Modifier Produit (Popup) -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="editModalLabel">Modifier le Produit</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editForm">
+            <div class="mb-3">
+              <label for="productName" class="form-label">Nom du produit</label>
+              <input type="text" class="form-control" id="productName" name="productName" required>
+            </div>
+            <div class="mb-3">
+              <label for="productPrice" class="form-label">Prix (€)</label>
+              <input type="number" class="form-control" id="productPrice" name="productPrice" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label for="productQuantity" class="form-label">Quantité</label>
+              <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Enregistrer les modifications</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let currentProductId = null;
+
+    // Ouvre le formulaire de modification
+    function openEditForm(productId, productName, productPrice, productQuantity) {
+      currentProductId = productId; // Stocker l'ID du produit
+      document.getElementById('productName').value = productName;
+      document.getElementById('productPrice').value = productPrice;
+      document.getElementById('productQuantity').value = productQuantity;
+      const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+      editModal.show();
+    }
+
+    // Supprime un produit
+    function deleteProduct(productId) {
+      if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
+        const row = document.querySelector(`tr[data-id="${productId}"]`);
+        row.remove();
+        alert('Produit supprimé avec succès.');
+      }
+    }
+
+    // Gère la soumission du formulaire
+    document.getElementById('editForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const updatedName = document.getElementById('productName').value;
+      const updatedPrice = document.getElementById('productPrice').value;
+      const updatedQuantity = document.getElementById('productQuantity').value;
+
+      const row = document.querySelector(`tr[data-id="${currentProductId}"]`);
+      row.children[1].textContent = updatedName;
+      row.children[2].textContent = `${parseFloat(updatedPrice).toFixed(2)} €`;
+      row.children[3].textContent = parseInt(updatedQuantity);
+
+      const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+      editModal.hide();
+      alert('Produit modifié avec succès.');
+    });
+  </script>
+</body>
+</html>
+
+{% endblock %}

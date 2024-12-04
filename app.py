@@ -655,6 +655,7 @@ def modifier_profil():
     
     return render_template('modifier_profil.html', user=user[0], details=details)
 
+
 if __name__ == '__main__':
     app.run(debug=True)
 
