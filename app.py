@@ -543,6 +543,118 @@ def menu_vendeur():
 def admin():
     return render_template('admin.html')
 
+@app.route('/Profil')
+def profil():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à votre profil.', 'danger')
+        return redirect(url_for('connexion'))
+    user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not user:
+        flash('Utilisateur non trouvé.', 'danger')
+        return redirect(url_for('connexion'))
+    details = {}
+    if user[0]['type_uti'] == 'Client':
+        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
+    elif user[0]['type_uti'] == 'Vendeur':
+        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
+    return render_template('Profil.html', user=user[0], details=details)
+
+@app.route('/modifier_profil', methods=['GET', 'POST'])
+def modifier_profil():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour modifier votre profil.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not user:
+        flash('Utilisateur non trouvé.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    if request.method == 'POST':
+        # Collect form data
+        nom = request.form.get('nom')
+        prenom = request.form.get('prenom')
+        email = request.form.get('email')
+        telephone = request.form.get('telephone')
+        date_naissance = request.form.get('birthdate')
+        genre = request.form.get('gender')
+        
+        # Update utilisateur table
+        db.execute("""
+            UPDATE utilisateur 
+            SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+            WHERE ID_uti = ?
+        """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
+        
+        # Update Details_Client or Details_Vendeur based on user type
+        if user[0]['type_uti'] == 'Client':
+            adresse = request.form.get('adresse')  # From adresse_client field
+            db.execute("""
+                UPDATE Details_Client 
+                SET adresse = ?
+                WHERE ID_uti = ?
+            """, adresse, session['user_id'])
+        elif user[0]['type_uti'] == 'Vendeur':
+            nom_boutique = request.form.get('nom_boutique')
+            adresse_boutique = request.form.get('adresse_boutique')
+            description = request.form.get('description')
+            db.execute("""
+                UPDATE Details_Vendeur 
+                SET nom_boutique = ?, adresse_boutique = ?, description = ?
+                WHERE ID_uti = ?
+            """, nom_boutique, adresse_boutique, description, session['user_id'])
+        
+        # Handle password change
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if current_password or new_password or confirm_new_password:
+            # Verify current password
+            if not current_password:
+                flash('Veuillez saisir votre mot de passe actuel pour le changement de mot de passe.', 'danger')
+                return redirect(url_for('modifier_profil'))
+            if not check_password_hash(user[0]['mot_de_passe'], current_password):
+                flash('Mot de passe actuel incorrect.', 'danger')
+                return redirect(url_for('modifier_profil'))
+            if new_password != confirm_new_password:
+                flash('Les nouveaux mots de passe ne correspondent pas.', 'danger')
+                return redirect(url_for('modifier_profil'))
+            if new_password:
+                hashed_password = generate_password_hash(new_password)
+                db.execute("""
+                    UPDATE utilisateur 
+                    SET mot_de_passe = ?
+                    WHERE ID_uti = ?
+                """, hashed_password, session['user_id'])
+                flash('Mot de passe mis à jour avec succès.', 'success')
+        
+        # Handle logo upload for Vendeur
+        if user[0]['type_uti'] == 'Vendeur':
+            new_logo = request.files.get('new_logo')
+            if new_logo and allowed_file(new_logo.filename):
+                logo_filename = secure_filename(new_logo.filename)
+                new_logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
+                logo_relative_path = os.path.join('Images', logo_filename)
+                db.execute("""
+                    UPDATE Details_Vendeur 
+                    SET logo = ?
+                    WHERE ID_uti = ?
+                """, logo_relative_path, session['user_id'])
+                flash('Logo mis à jour avec succès.', 'success')
+        
+        flash('Profil mis à jour avec succès.', 'success')
+        return redirect(url_for('profil'))
+    
+    # Fetch additional details based on user type
+    details = {}
+    if user[0]['type_uti'] == 'Client':
+        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
+    elif user[0]['type_uti'] == 'Vendeur':
+        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
+    
+    return render_template('modifier_profil.html', user=user[0], details=details)
+
 if __name__ == '__main__':
     app.run(debug=True)
 

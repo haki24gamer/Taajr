@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Profil - {{ user['prenom_uti'] }} {{ user['nom_uti'] }}
+{% endblock %}
+
+{% block content %}
+<h1>Profil de {{ user['prenom_uti'] }} {{ user['nom_uti'] }}</h1>
+
+<div style="display: flex; width: 100%; justify-content: space-between;">
+    {% if details[0]['logo'] %}
+        <div>
+            <img src="/static/{{ details[0]['logo'] }}" alt="Logo de la boutique" style="max-width: 400px;">
+        </div>
+    {% endif %}
+    <div style="margin-left: 20px;">
+        <p><strong>Email:</strong> {{ user['email_uti'] }}</p>
+        <p><strong>Téléphone:</strong> {{ user['telephone'] }}</p>
+        <p><strong>Date de naissance:</strong> {{ user['date_naissance'] }}</p>
+        <p><strong>Genre:</strong> {{ user['genre'] }}</p>
+        <p><strong>Date d'inscription:</strong> {{ user['date_inscription'] }}</p>
+
+        {% if user['type_uti'] == 'Client' %}
+            <h2>Informations du client</h2>
+            <p><strong>Adresse:</strong> {{ details[0]['adresse'] }}</p>
+        {% elif user['type_uti'] == 'Vendeur' %}
+            <h2>Informations du vendeur</h2>
+            <p><strong>Nom de la boutique:</strong> {{ details[0]['nom_boutique'] }}</p>
+            <p><strong>Adresse de la boutique:</strong> {{ details[0]['adresse_boutique'] }}</p>
+            <p><strong>Description:</strong> {{ details[0]['description'] }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div>
+    <a href="{{ url_for('modifier_profil') }}" class="btn btn-primary">Modifier le Profil</a>
+</div>
+
+{% endblock %}

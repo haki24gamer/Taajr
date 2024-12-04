@@ -95,7 +95,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3>Inscription Client</h3>
-                        <p class="mb-0">Remplissez les informations pour créer votre compte client.</p>
+                        <p class="mb-0">Créez un compte client pour commencer vos achats.</p>
                     </div>
                     <div class="card-body">
                         <form id="clientForm" action="{{ url_for('Inscription_Client') }}" method="POST">
@@ -118,8 +118,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="adresse" class="form-label"><strong>Adresse</strong></label>
-                                <input type="text" class="form-control" id="adresse" name="adresse" placeholder="Exemple : 123 Rue de l'Économie, Djibouti">
+                                <label for="adresse_client" class="form-label"><strong>Adresse</strong></label>
+                                <input type="text" class="form-control" id="adresse_client" name="adresse" placeholder="Votre adresse" required>
                                 <div class="error-message" id="adresseError"></div>
                             </div>
 

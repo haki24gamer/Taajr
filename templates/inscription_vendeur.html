@@ -154,18 +154,16 @@
 										placeholder="Exemple : 77889900" />
 									<div class="error-message" id="telephoneError"></div>
 								</div>
-								<!-- Adresse -->
+								<!-- Adresse de la Boutique -->
 								<div class="mb-3">
-									<label for="adresse" class="form-label"
-										>Adresse (Lieu de l'entreprise)</label
-									>
+									<label for="adresse_boutique" class="form-label"><strong>Adresse de la Boutique</strong></label>
 									<input
 										type="text"
 										class="form-control"
-										id="adresse"
+										id="adresse_boutique"
 										name="adresse"
-										placeholder="Exemple : 123 Rue de l'Économie, Djibouti" />
-									<div class="error-message" id="adresseError"></div>
+										placeholder="Adresse de votre boutique" />
+									<div class="error-message" id="adresseBoutiqueError"></div>
 								</div>
 								<!-- Email -->
 								<div class="mb-3">
@@ -283,6 +281,22 @@
 										</div>
 									</div>
 									<div class="error-message" id="horairesError"></div>
+								</div>
+									<div class="info-group">
+										<label>Horaires d'Ouverture:</label>
+										<div class="horaires">
+												<div>
+														<label for="lundi_ouverture">Lundi:</label>
+														<input type="time" id="lundi_ouverture" name="lundi_ouverture" required>
+														<input type="time" id="lundi_fermeture" name="lundi_fermeture" required>
+												</div>
+												<div>
+														<label for="mardi_ouverture">Mardi:</label>
+														<input type="time" id="mardi_ouverture" name="mardi_ouverture" required>
+														<input type="time" id="mardi_fermeture" name="mardi_fermeture" required>
+												</div>
+												<!-- Repeat for other days -->
+										</div>
 								</div>
 								<!-- Zones de Livraison -->
 								<div class="mb-3">

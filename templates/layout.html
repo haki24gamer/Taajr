@@ -51,6 +51,7 @@
               </div>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   {% if session.get('user_id') %}
+                      <li><a class="dropdown-item" href="/Profil">Profil</a></li>
                       <li><a class="dropdown-item" href="/Deconnexion">Se déconnecter</a></li>
                   {% else %}
                       <li><a class="dropdown-item" href="/Inscription">S'inscrire</a></li>
