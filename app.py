@@ -655,8 +655,8 @@ def modifier_profil():
     
     return render_template('modifier_profil.html', user=user[0], details=details)
 
-@app.route('/terms-and-conditions')
-def terms_and_conditions():
+@app.route('/termes-and-conditions')
+def termes_and_conditions():
     return render_template('termes_et_conditions.html')
 
 
