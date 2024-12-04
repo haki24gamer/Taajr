@@ -17,8 +17,9 @@ CREATE TABLE IF NOT EXISTS "offre" (
     prix_off INTEGER,
     date_off DATE DEFAULT (date('now', 'localtime')),
     type_off CHAR(50),
+    image_off TEXT DEFAULT 'Images/default.png',
     ID_uti INTEGER,
-    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti)
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "categorie" (
     ID_cat INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "appartenir" (
     ID_cat INTEGER,
     PRIMARY KEY (ID_off, ID_cat),
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
-    FOREIGN KEY (ID_cat) REFERENCES "categorie"(ID_cat)
+    FOREIGN KEY (ID_cat) REFERENCES "categorie"(ID_cat) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "avis" (
     ID_avis INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,8 +39,8 @@ CREATE TABLE IF NOT EXISTS "avis" (
     note_avis CHAR(50),
     ID_off INTEGER,
     ID_uti INTEGER,
-    FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
-    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti)
+    FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off) ON DELETE CASCADE,
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "commande" (
     ID_com INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS "commande" (
     ID_pay INTEGER,
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
     FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti),
-    FOREIGN KEY (ID_pay) REFERENCES "paiement"(ID_pay)
+    FOREIGN KEY (ID_pay) REFERENCES "paiement"(ID_pay) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "paiement" (
     ID_pay INTEGER PRIMARY KEY AUTOINCREMENT,

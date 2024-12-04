@@ -18,7 +18,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configuration for file uploads
-UPLOAD_FOLDER = 'static/Images/'
+UPLOAD_FOLDER = 'static/Images/Offres/'  # Changed from 'static/Images/' to 'static/Images/Offres/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -33,9 +33,9 @@ def inject_user_id():
 @app.context_processor
 def inject_user_info():
     user_id = session.get('user_id')
-    if user_id:
+    if (user_id):
         user = db.execute("SELECT nom_uti, prenom_uti FROM utilisateur WHERE ID_uti = ?", user_id)
-        if user:
+        if (user):
             user_name = f"{user[0]['prenom_uti']} {user[0]['nom_uti']}"
             return dict(user_name=user_name)
     return dict(user_name=None)
@@ -48,7 +48,7 @@ def inject_categories():
 @app.context_processor
 def inject_favoris_ids():
     user_id = session.get('user_id')
-    if user_id:
+    if (user_id):
         favoris = db.execute("SELECT ID_off FROM likes WHERE ID_uti = ?", user_id)
         favoris_ids = [item['ID_off'] for item in favoris]
         return dict(favoris_ids=favoris_ids)
@@ -56,7 +56,7 @@ def inject_favoris_ids():
 
 @app.context_processor
 def inject_cart_ids():
-    if 'user_id' in session:
+    if ('user_id' in session):
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
         cart_ids = [item['ID_off'] for item in cart_items]
     else:
@@ -95,19 +95,19 @@ def connexion():
     # Forget any user_id
     session.clear()
     # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
+    if (request.method == "POST"):
         # Ensure email was submitted
-        if not request.form.get("email"):
+        if (not request.form.get("email")):
             flash('Veuillez saisir votre adresse email', 'danger')
             return render_template('connexion.html')
         # Ensure password was submitted
-        elif not request.form.get("mot_de_passe"):
+        elif (not request.form.get("mot_de_passe")):
             flash('Veuillez saisir votre mot de passe', 'danger')
             return render_template('connexion.html')
         # Query database for email
         rows = db.execute("SELECT * FROM utilisateur WHERE email_uti = ?", request.form.get("email"))
         # Ensure email exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["mot_de_passe"], request.form.get("mot_de_passe")):
+        if (len(rows) != 1 or not check_password_hash(rows[0]["mot_de_passe"], request.form.get("mot_de_passe"))):
             flash('Adresse email ou mot de passe incorrect', 'danger')
             return render_template('connexion.html')
         # Remember which user has logged in
@@ -128,7 +128,7 @@ def Produits():
     
     # Obtenir les IDs des produits dans le panier de l'utilisateur
     cart_ids = []
-    if 'user_id' in session:
+    if ('user_id' in session):
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
         cart_ids = [item['ID_off'] for item in cart_items]
     
@@ -140,7 +140,7 @@ def Services():
     
     # Obtenir les IDs des services dans le panier de l'utilisateur
     cart_ids = []
-    if 'user_id' in session:
+    if ('user_id' in session):
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
         cart_ids = [item['ID_off'] for item in cart_items]
     
@@ -149,7 +149,7 @@ def Services():
 @app.route('/Inscription', methods=["GET", "POST"])
 def Inscription():
     # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
+    if (request.method == "POST"):
 
         # Redirect user to home page
         return redirect("/")
@@ -161,7 +161,7 @@ def Inscription():
 
 @app.route('/Inscription_Vendeur', methods=["GET", "POST"])
 def Inscription_Vendeur():
-    if request.method == "POST":
+    if (request.method == "POST"):
         # Collect form data
         nom = request.form.get("nom")
         prenom = request.form.get("prenom")
@@ -184,7 +184,7 @@ def Inscription_Vendeur():
         
         # Handle logo upload
         logo = request.files.get('logo')
-        if logo and allowed_file(logo.filename):
+        if (logo and allowed_file(logo.filename)):
             logo_filename = secure_filename(logo.filename)
             logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
             logo_relative_path = os.path.join('Images', logo_filename)
@@ -193,7 +193,7 @@ def Inscription_Vendeur():
         
         # Handle document upload
         document = request.files.get('document')
-        if document and allowed_file(document.filename):
+        if (document and allowed_file(document.filename)):
             document_filename = secure_filename(document.filename)
             document.save(os.path.join(app.config['UPLOAD_FOLDER'], document_filename))
         else:
@@ -224,7 +224,7 @@ def Inscription_Vendeur():
     
 @app.route('/Inscription_Client', methods=["GET", "POST"])
 def Inscription_Client():
-    if request.method == "POST":
+    if (request.method == "POST"):
         # Collect form data
         nom = request.form.get("nom")
         prenom = request.form.get("prenom")
@@ -258,7 +258,7 @@ def Inscription_Client():
 
 @app.route('/Panier')
 def Panier():
-    if 'user_id' in session:
+    if ('user_id' in session):
         cart_items = db.execute("""
             SELECT panier.ID_panier, offre.ID_off, offre.libelle_off, panier.quantity, offre.prix_off
             FROM panier
@@ -274,7 +274,7 @@ def Panier():
 @app.route('/increment_quantity', methods=['POST'])
 def increment_quantity():
     panier_id = request.form.get('panier_id')
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour modifier le panier.', 'danger')
         return redirect(url_for('connexion'))
     
@@ -285,15 +285,15 @@ def increment_quantity():
 @app.route('/decrement_quantity', methods=['POST'])
 def decrement_quantity():
     panier_id = request.form.get('panier_id')
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour modifier le panier.', 'danger')
         return redirect(url_for('connexion'))
     
     item = db.execute("SELECT quantity FROM panier WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
-    if item and item[0]['quantity'] > 1:
+    if (item and item[0]['quantity'] > 1):
         db.execute("UPDATE panier SET quantity = quantity - 1 WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
         flash('Quantité diminuée.', 'success')
-    elif item:
+    elif (item):
         db.execute("DELETE FROM panier WHERE ID_panier = ? AND ID_uti = ?", panier_id, session['user_id'])
         flash('Produit retiré du panier.', 'success')
     else:
@@ -302,18 +302,18 @@ def decrement_quantity():
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour modifier le panier.', 'danger')
         return redirect(url_for('connexion'))
     
     product_id = request.form.get('product_id')
-    if not product_id:
+    if (not product_id):
         flash('Produit invalide.', 'danger')
         return redirect(request.referrer)
     
     # Remove the product from the cart
     deleted = db.execute("DELETE FROM panier WHERE ID_uti = ? AND ID_off = ?", session['user_id'], product_id)
-    if deleted:
+    if (deleted):
         flash('Produit retiré du panier.', 'success')
     else:
         flash('Produit non trouvé dans le panier.', 'danger')
@@ -338,13 +338,13 @@ def category_offers(category_id):
     
     category = db.execute("SELECT nom_cat FROM categorie WHERE ID_cat = ?", category_id)
     
-    if not category:
+    if (not category):
         flash('Catégorie non trouvée.', 'danger')
         return redirect(url_for('Categories'))
     
     # Obtenir les IDs des offres dans le panier de l'utilisateur
     cart_ids = []
-    if 'user_id' in session:
+    if ('user_id' in session):
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
         cart_ids = [item['ID_off'] for item in cart_items]
     
@@ -352,24 +352,24 @@ def category_offers(category_id):
 
 @app.route('/add_to_cart', methods=['POST'])
 def Ajouter_au_panier():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour ajouter des articles au panier.', 'danger')
         return redirect(url_for('connexion'))
     
     product_id = request.form.get('product_id')
-    if not product_id:
+    if (not product_id):
         flash('Produit invalide.', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si le produit existe
     produit = db.execute("SELECT * FROM offre WHERE ID_off = ?", product_id)
-    if not produit:
+    if (not produit):
         flash('Produit non trouvé.', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si le produit est déjà dans le panier
     panier_item = db.execute("SELECT * FROM panier WHERE ID_uti = ? AND ID_off = ?", session['user_id'], product_id)
-    if panier_item:
+    if (panier_item):
         # Incrémenter la quantité
         db.execute("UPDATE panier SET quantity = quantity + 1 WHERE ID_panier = ?", panier_item[0]['ID_panier'])
     else:
@@ -379,29 +379,29 @@ def Ajouter_au_panier():
 
 @app.route('/like_offer', methods=['POST'])
 def like_offer():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour aimer des articles.', 'danger')
         return redirect(url_for('connexion'))
     
     offer_id = request.form.get('offer_id')
-    if not offer_id:
+    if (not offer_id):
         flash('Offre invalide.', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si l'offre existe
     offer = db.execute("SELECT * FROM offre WHERE ID_off = ?", offer_id)
-    if not offer:
+    if (not offer):
         flash('Offre non trouvée.', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si l'offre est déjà aimée
     liked = db.execute("SELECT * FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
-    if liked:
+    if (liked):
         flash('Offre déjà aimée.', 'info')
         print(f"User {session['user_id']} already liked offer {offer_id}.")
     else:
         db.execute("INSERT INTO likes (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], offer_id)
-        flash('Offre ajout��e à vos favoris.', 'success')
+        flash('Offre ajoutée à vos favoris.', 'success')
         # Debugging: Confirm insertion
         print(f"User {session['user_id']} liked offer {offer_id}.")
 
@@ -409,18 +409,18 @@ def like_offer():
 
 @app.route('/unlike_offer', methods=['POST'])
 def unlike_offer():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour enlever des articles de vos favoris.', 'danger')
         return redirect(url_for('connexion'))
     
     offer_id = request.form.get('offer_id')
-    if not offer_id:
+    if (not offer_id):
         flash('Offre invalide.', 'danger')
         return redirect(request.referrer)
     
     # Supprimer l'offre des favoris
     deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
-    if deleted:
+    if (deleted):
         flash('Offre retirée de vos favoris.', 'success')
         # Debugging: Confirm deletion
         print(f"User {session['user_id']} unliked offer {offer_id}.")
@@ -432,7 +432,7 @@ def unlike_offer():
 
 @app.route('/Favoris')
 def Favoris():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour voir vos favoris.', 'danger')
         return redirect(url_for('connexion'))
     
@@ -448,7 +448,7 @@ def Favoris():
     print(f"User ID: {user_id}")
     print(f"Favoris Retrieved: {favoris}")
     
-    if not favoris:
+    if (not favoris):
         flash('Vous n\'avez aucun favori.', 'info')
         print("Aucune offre trouvée dans les favoris de l'utilisateur.")
     
@@ -470,7 +470,7 @@ def Favoris():
 def offre_details(offre_id):
     # Fetch the offer based on ID
     offre = db.execute("SELECT * FROM offre WHERE ID_off = ?", offre_id)
-    if not offre:
+    if (not offre):
         flash("Offre non trouvée.", "danger")
         return redirect(url_for('index'))
     offre = offre[0]
@@ -482,7 +482,7 @@ def offre_details(offre_id):
     category_ids = [cat['ID_cat'] for cat in categories]
 
     # Récupérer les autres offres dans les mêmes catégories
-    if category_ids:
+    if (category_ids):
         similar_offers = db.execute(f"""
             SELECT DISTINCT offre.*
             FROM offre
@@ -503,9 +503,9 @@ def offre_details(offre_id):
     """, offre['ID_uti'])
     seller_info = seller[0] if seller else None
 
-    if request.method == 'POST':
+    if (request.method == 'POST'):
         commentaire = request.form.get('commentaire')
-        if 'user_id' in session:
+        if ('user_id' in session):
             db.execute("""
                 INSERT INTO avis (ID_off, ID_uti, comment_avis, date_avis)
                 VALUES (?, ?, ?, date('now', 'localtime'))
@@ -528,12 +528,12 @@ def offre_details(offre_id):
 @app.route('/menu_vendeur')
 def menu_vendeur():
     user_id = session.get('user_id')
-    if not user_id:
+    if (not user_id):
         flash('Veuillez vous connecter.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
-    if not user or user[0]['type_uti'] != 'Vendeur':
+    if (not user or user[0]['type_uti'] != 'Vendeur'):
         flash('Accès interdit.', 'danger')
         return redirect(url_for('index'))
     
@@ -545,32 +545,32 @@ def admin():
 
 @app.route('/Profil')
 def profil():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour accéder à votre profil.', 'danger')
         return redirect(url_for('connexion'))
     user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if not user:
+    if (not user):
         flash('Utilisateur non trouvé.', 'danger')
         return redirect(url_for('connexion'))
     details = {}
-    if user[0]['type_uti'] == 'Client':
+    if (user[0]['type_uti'] == 'Client'):
         details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
-    elif user[0]['type_uti'] == 'Vendeur':
+    elif (user[0]['type_uti'] == 'Vendeur'):
         details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
     return render_template('Profil.html', user=user[0], details=details)
 
 @app.route('/modifier_profil', methods=['GET', 'POST'])
 def modifier_profil():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour modifier votre profil.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if not user:
+    if (not user):
         flash('Utilisateur non trouvé.', 'danger')
         return redirect(url_for('connexion'))
     
-    if request.method == 'POST':
+    if (request.method == 'POST'):
         # Collect form data
         nom = request.form.get('nom')
         prenom = request.form.get('prenom')
@@ -587,14 +587,14 @@ def modifier_profil():
         """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
         
         # Update Details_Client or Details_Vendeur based on user type
-        if user[0]['type_uti'] == 'Client':
+        if (user[0]['type_uti'] == 'Client'):
             adresse = request.form.get('adresse')  # From adresse_client field
             db.execute("""
                 UPDATE Details_Client 
                 SET adresse = ?
                 WHERE ID_uti = ?
             """, adresse, session['user_id'])
-        elif user[0]['type_uti'] == 'Vendeur':
+        elif (user[0]['type_uti'] == 'Vendeur'):
             nom_boutique = request.form.get('nom_boutique')
             adresse_boutique = request.form.get('adresse_boutique')
             description = request.form.get('description')
@@ -609,18 +609,18 @@ def modifier_profil():
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
 
-        if current_password or new_password or confirm_new_password:
+        if (current_password or new_password or confirm_new_password):
             # Verify current password
-            if not current_password:
+            if (not current_password):
                 flash('Veuillez saisir votre mot de passe actuel pour le changement de mot de passe.', 'danger')
                 return redirect(url_for('modifier_profil'))
-            if not check_password_hash(user[0]['mot_de_passe'], current_password):
+            if (not check_password_hash(user[0]['mot_de_passe'], current_password)):
                 flash('Mot de passe actuel incorrect.', 'danger')
                 return redirect(url_for('modifier_profil'))
-            if new_password != confirm_new_password:
+            if (new_password != confirm_new_password):
                 flash('Les nouveaux mots de passe ne correspondent pas.', 'danger')
                 return redirect(url_for('modifier_profil'))
-            if new_password:
+            if (new_password):
                 hashed_password = generate_password_hash(new_password)
                 db.execute("""
                     UPDATE utilisateur 
@@ -630,9 +630,9 @@ def modifier_profil():
                 flash('Mot de passe mis à jour avec succès.', 'success')
         
         # Handle logo upload for Vendeur
-        if user[0]['type_uti'] == 'Vendeur':
+        if (user[0]['type_uti'] == 'Vendeur'):
             new_logo = request.files.get('new_logo')
-            if new_logo and allowed_file(new_logo.filename):
+            if (new_logo and allowed_file(new_logo.filename)):
                 logo_filename = secure_filename(new_logo.filename)
                 new_logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
                 logo_relative_path = os.path.join('Images', logo_filename)
@@ -648,9 +648,9 @@ def modifier_profil():
     
     # Fetch additional details based on user type
     details = {}
-    if user[0]['type_uti'] == 'Client':
+    if (user[0]['type_uti'] == 'Client'):
         details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
-    elif user[0]['type_uti'] == 'Vendeur':
+    elif (user[0]['type_uti'] == 'Vendeur'):
         details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
     
     return render_template('modifier_profil.html', user=user[0], details=details)
@@ -661,27 +661,28 @@ def termes_and_conditions():
 
 @app.route('/offres_vendeurs')
 def offres_vendeurs():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if not user or user[0]['type_uti'] != 'Vendeur':
+    if (not user or user[0]['type_uti'] != 'Vendeur'):
         flash('Accès interdit.', 'danger')
         return redirect(url_for('index'))
     
+    # Récupérer les offres de l'utilisateur connecté
     offres = db.execute("SELECT * FROM offre WHERE ID_uti = ?", session['user_id'])
+    
     return render_template('offres_vendeurs.html', offres=offres)
-
 
 @app.route('/commandes_vendeurs')
 def commandes_vendeurs():
-    if 'user_id' not in session:
+    if ('user_id' not in session):
         flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if not user or user[0]['type_uti'] != 'Vendeur':
+    if (not user or user[0]['type_uti'] != 'Vendeur'):
         flash('Accès interdit.', 'danger')
         return redirect(url_for('index'))
     
@@ -692,6 +693,99 @@ def commandes_vendeurs():
         WHERE commande.ID_uti = ?
     """, session['user_id'])
     return render_template('commandes_vendeurs.html', commandes=commandes)
+
+@app.route('/modifier_offre', methods=['POST'])
+def modifier_offre():
+    if ('user_id' not in session):
+        flash('Veuillez vous connecter pour modifier une offre.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Retrieve form data
+    offre_id = request.form.get('productId')
+    libelle_off = request.form.get('productName')
+    prix_off = request.form.get('productPrice')
+    quantite = request.form.get('productQuantity')
+    
+    # Validate input
+    if (not offre_id or not libelle_off or not prix_off or not quantite):
+        flash('Données invalides pour la modification de l\'offre.', 'danger')
+        return redirect(url_for('offres_vendeurs'))
+    
+    # Update the offer in the database
+    db.execute("""
+        UPDATE offre 
+        SET libelle_off = ?, prix_off = ?, quantite_en_stock = ?
+        WHERE ID_off = ? AND ID_uti = ?
+    """, libelle_off, prix_off, quantite, offre_id, session['user_id'])
+    
+    flash('Produit modifié avec succès.', 'success')
+    return redirect(url_for('offres_vendeurs'))
+
+@app.route('/supprimer_offre/<int:offre_id>', methods=['POST'])
+def supprimer_offre(offre_id):
+    if ('user_id' not in session):
+        flash('Veuillez vous connecter pour supprimer une offre.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify that the offer belongs to the logged-in user
+    offre = db.execute("SELECT * FROM offre WHERE ID_off = ? AND ID_uti = ?", offre_id, session['user_id'])
+    if (not offre):
+        flash('Offre non trouvée ou accès interdit.', 'danger')
+        return redirect(url_for('offres_vendeurs'))
+    
+    # Retrieve the image path before deletion
+    image_path = offre[0]['image_off']
+    if (image_path and image_path != 'Images/default.png'):
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(image_path)))
+        except FileNotFoundError:
+            pass  # Optionally log this event
+    
+    # Delete related records
+    db.execute("DELETE FROM likes WHERE ID_off = ?", offre_id)
+    db.execute("DELETE FROM appartenir WHERE ID_off = ?", offre_id)
+    db.execute("DELETE FROM panier WHERE ID_off = ?", offre_id)
+    db.execute("DELETE FROM avis WHERE ID_off = ?", offre_id)  # Supprimer les avis associés
+    db.execute("DELETE FROM offre WHERE ID_off = ?", offre_id)
+    
+    flash('Produit et enregistrements associés supprimés avec succès.', 'success')
+    return redirect(url_for('offres_vendeurs'))
+
+@app.route('/ajouter_offre', methods=['POST'])
+def ajouter_offre():
+    if ('user_id' not in session):
+        flash('Veuillez vous connecter pour ajouter une offre.', 'danger')
+        return redirect(url_for('connexion'))
+
+    # Récupérer les données du formulaire
+    libelle_off = request.form.get('libelle_off')
+    description_off = request.form.get('description_off')
+    quantite_en_stock = request.form.get('quantite_en_stock')
+    prix_off = request.form.get('prix_off')
+    type_off = request.form.get('type_off')
+
+    # Valider les champs obligatoires
+    if (not libelle_off or not description_off or not quantite_en_stock or not prix_off or not type_off):
+        flash('Veuillez remplir tous les champs obligatoires.', 'danger')
+        return redirect(url_for('offres_vendeurs'))
+
+    # Gérer le téléchargement de l'image
+    image = request.files.get('image_off')
+    if (image and allowed_file(image.filename)):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+        image_off = os.path.join('Images/Offres', image_filename)  # Updated path
+    else:
+        image_off = 'Images/default.png'  # Image par défaut si aucune image n'est téléchargée
+
+    # Insérer la nouvelle offre dans la base de données
+    db.execute("""
+        INSERT INTO offre (libelle_off, description_off, quantite_en_stock, prix_off, type_off, ID_uti, image_off)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, libelle_off, description_off, quantite_en_stock, prix_off, type_off, session['user_id'], image_off)
+
+    flash('Offre ajoutée avec succès.', 'success')
+    return redirect(url_for('offres_vendeurs'))
 
 if __name__ == '__main__':
     app.run(debug=True)
