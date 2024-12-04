@@ -15,11 +15,11 @@ def Panier():
 def Vendeur():
     return render_template("Vendeur.html")
 
-@app.route('/')
+@app.route('/contacter_Nous')
 def contacter_Nous():
     return render_template("contacter_Nous.html")
 
-@app.route('/Vendeur')
+@app.route('/a_propos')
 def a_propos():
     return render_template("a_propos.html")
 
