@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Accueil - Taajr{% endblock %}
+{% block title %}À propos de nous - Taajr{% endblock %}
 
 {% block content %}
 
@@ -17,7 +17,7 @@
       line-height: 1.6;
     }
     header {
-      background: linear-gradient(90deg, #28a745, #20c997);
+      background: linear-gradient(120deg, #2980b9, #6dd5fa, #ffffff);
       color: white;
     }
     section {
@@ -47,33 +47,35 @@
     </div>
   </header>
 
-  <!-- Section À propos -->
-  <section class="bg-light">
-    <div class="container">
-      <h2 class="text-center mb-5">Qui sommes-nous ?</h2>
-      <p class="text-center mb-5">
-        Bienvenue sur **Taajr**, une plateforme innovante conçue pour connecter les vendeurs et les acheteurs dans un environnement numérique moderne et sûr.
-      </p>
+ <!-- Section À propos -->
+ <section class="bg-light">
+  <div class="container">
+    <h2 class="text-center mb-5">Qui sommes-nous ?</h2>
+    <p class="text-center mb-5">
+      Bienvenue sur <strong>Taajr</strong>, une plateforme innovante conçue pour connecter les vendeurs et les acheteurs dans un environnement numérique moderne et sûr.
+    </p>
 
-      <div class="row">
-        <div class="col-md-6">
-          <h3>Notre mission</h3>
-          <p>
-            Notre mission est de permettre aux vendeurs de proposer leurs produits en ligne et aux clients de trouver tout ce dont ils ont besoin en un seul endroit.
-            Nous croyons en un commerce équitable et accessible pour tous.
-          </p>
-        </div>
-        <div class="col-md-6">
-          <h3>Pourquoi Taajr ?</h3>
-          <p>
-            Taajr a été conçu pour répondre aux besoins croissants des commerçants et des consommateurs dans un monde numérique.
-            Nous offrons une plateforme simple, efficace et sécurisée, adaptée à tous.
-          </p>
-        </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Notre mission</h3>
+        <p>
+          Notre mission est de permettre aux vendeurs de proposer leurs produits en ligne et aux clients de trouver tout ce dont ils ont besoin en un seul endroit.
+          Nous croyons en un commerce équitable et accessible pour tous.
+        </p>
+        <p>
+          Nous avons développé une application web permettant à toute personne ayant un commerce d’avoir une plateforme de vente en ligne pour leur business, ainsi qu’à toute personne souhaitant faire des achats en ligne ici à Djibouti.
+        </p>
+      </div>
+      <div class="col-md-6">
+        <h3>Pourquoi Taajr ?</h3>
+        <p>
+          Taajr a été conçu pour répondre aux besoins croissants des commerçants et des consommateurs dans un monde numérique.
+          Nous offrons une plateforme simple, efficace et sécurisée, adaptée à tous.
+        </p>
       </div>
     </div>
-  </section>
-
+  </div>
+</section>
   <!-- Section Équipe -->
   <section>
     <div class="container">
@@ -82,32 +84,32 @@
         <div class="col-md-4">
           <img src="{{ url_for('static', filename='Images/Maquette Taajr/person-circle.svg') }}" alt="Développeur 1" class="rounded-circle mb-3">
           <h5>Développeur 1</h5>
-          <p>Expert en backend et gestion de bases de données.</p>
+          <p>Fathia Abdourahman Mohamed.</p>
         </div>
         <div class="col-md-4">
           <img src="{{ url_for('static', filename='Images/Maquette Taajr/person-circle.svg') }}" alt="Développeur 2" class="rounded-circle mb-3">
           <h5>Développeur 2</h5>
-          <p>Spécialiste du design et de l'expérience utilisateur.</p>
+          <p>Hagui Mohamed Hagui-salem.</p>
         </div>
         <div class="col-md-4">
           <img src="{{ url_for('static', filename='Images/Maquette Taajr/person-circle.svg') }}" alt="Développeur 3" class="rounded-circle mb-3">
           <h5>Développeur 3</h5>
-          <p>Responsable des intégrations API et fonctionnalités avancées.</p>
+          <p>Fardoussa Omar Samireh.</p>
         </div>
         <div class="col-md-4">
           <img src="{{ url_for('static', filename='Images/Maquette Taajr/person-circle.svg') }}" alt="Développeur 4" class="rounded-circle mb-3">
           <h5>Développeur 4</h5>
-          <p>Spécialiste en sécurité informatique.</p>
+          <p>Halima Mohamed Ali.</p>
         </div>
         <div class="col-md-4">
           <img src="{{ url_for('static', filename='Images/Maquette Taajr/person-circle.svg') }}" alt="Développeur 5" class="rounded-circle mb-3">
           <h5>Développeur 5</h5>
-          <p>Expert en développement mobile.</p>
+          <p>Habib Ali Mohamed.</p>
         </div>
         <div class="col-md-4">
           <img src="{{ url_for('static', filename='Images/Maquette Taajr/person-circle.svg') }}" alt="Développeur 6" class="rounded-circle mb-3">
           <h5>Développeur 6</h5>
-          <p>Responsable du support et de la maintenance.</p>
+          <p>Arafo Elmi Wais.</p>
         </div>
       </div>
     </div>

@@ -823,6 +823,15 @@ def search():
     else:
         flash('Catégorie de recherche invalide.', 'danger')
         return redirect(url_for('index'))
+    
+@app.route("/a_propos")
+def a_propos():
+    return render_template("a_propos.html")
+
+@app.route("/Contactez-nous")
+def Contactez_nous():
+    return render_template("contacter_nous.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
