@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+
+{% block title %}Résultats de la recherche - {{ category }}{% endblock %}
+
+{% block content %}
+    <h2 class="search-results">Résultats pour "{{ request.args.get('query') }}" dans {{ category }}</h2>
+
+    {% if results %}
+        <div class="product-container">
+            <div class="row">
+                {% for item in results %}
+                <div class="col-md-3">
+                    <a href="{% if category == 'Boutiques' %}{{ url_for('menu_vendeur', user_id=item.ID_uti) }}{% elif category == 'Catégories' %}{{ url_for('category_offers', category_id=item.ID_cat) }}{% else %}{{ url_for('offre_details', offre_id=item.ID_off) }}{% endif %}">
+                        <div class="card product-card">
+                            <div class="card-img-top">
+                                {% if category == 'Boutiques' %}
+                                <img src="{{ url_for('static', filename=item.logo) }}" alt="Logo de {{ item.nom_boutique }}" class="card-img-top">>
+                                {% elif category == 'Catégories' %}
+                                    <img src="/static/{{ item.image }}" alt="Image de Catégorie" class="card-img-top">
+                                {% else %}
+                                    <img src="/static/{{ item.image_off }}" alt="Image de {{ category }}" class="card-img-top">
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    {% if category == 'Boutiques' %}
+                                        {{ item.nom_boutique }}
+                                    {% elif category == 'Catégories' %}
+                                        {{ item.nom_cat }}
+                                    {% else %}
+                                        {{ item.libelle_off }}
+                                    {% endif %}
+                                </h5>
+
+                                {% if category == 'Catégories' %}
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <a href="{{ url_for('category_offers', category_id=item.ID_cat) }}">{{ category.nom_cat }}</a>
+                                                </h5>
+                                                <p class="card-text">{{ item.description }}</p>
+                                            </div>
+                                {% endif %}
+                                {% if category != 'Boutiques' %}
+                                {% if category != 'Catégories' %}
+                                    <p class="card-text">{{ item.description_off }}</p>
+                                    <p class="rating">⭐⭐⭐☆☆ ({{ item.reviews_count }} avis)</p>
+                                    <p class="card-text fw-bold">Prix : {{ item.prix_off }}fdj</p>
+                                    {% if item.ID_off in cart_ids %}
+                                        <button class="btn btn-secondary" disabled>Dans le panier</button>
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('Ajouter_au_panier') }}">
+                                            <input type="hidden" name="product_id" value="{{ item.ID_off }}">
+                                            <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if item.ID_off in favoris_ids %}
+                                        <form method="POST" action="{{ url_for('unlike_offer') }}">
+                                            <input type="hidden" name="offer_id" value="{{ item.ID_off }}">
+                                            <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('like_offer') }}">
+                                            <input type="hidden" name="offer_id" value="{{ item.ID_off }}">
+                                            <button type="submit" class="btn btn-outline-primary mt-2">Aimer</button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>Aucun résultat trouvé.</p>
+    {% endif %}
+{% endblock %}

@@ -7,6 +7,13 @@
   <link href="/static/bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
   <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: 'Arial', sans-serif;
+    }
+
     .carousel-item img {
       height: 300px;
       object-fit: cover;
@@ -23,24 +30,31 @@
       background-color: #6096FD;
       color: white;
       padding: 20px 0;
+      margin-top: auto;
     }
   </style>
 </head>
 <body>
 
-  <!-- Barre de recherche -->
-
 <div style="background-color: #6096FD;">
     <div class="container-fluid d-flex align-items-center">
-      <a href="/"><img src="/static/Images/Taajr(1).png" width="100px" class="me-3"></a>
-      <form class="d-flex flex-grow-1" style="max-width: 65%;">
-          <input type="text" class="form-control me-2" placeholder="Search">
-          <div class="input-group-btn">
-              <button class="btn-primary btn" type="submit" style="background-color: #031B88; border-color: #031B88;">
-                  <img src="/static/Images/search.svg" width="25px" height="25px">
-              </button>
-          </div>
+      <a href="/"><img src="/static/Images/Taajr(1).png" width="100px" class="me-5"></a>
+      <!-- Search Form -->
+      <form action="{{ url_for('search') }}" method="GET" class="d-flex justify-content-center my-3" style="width: 65%;">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control" placeholder="Rechercher..." required>
+            <select name="category" class="form-select" style="max-width: 15%;">
+                <option value="boutique">Boutiques</option>
+                <option value="categorie">Catégories</option>
+                <option value="produit">Produits</option>
+                <option value="service">Services</option>
+            </select>
+            <button type="submit" class="btn btn-primary"  style="background-color: #031B88; border-color: #031B88;">
+                <img src="/static/Images/search.svg" width="25px" height="25px">
+            </button>
+        </div>
       </form>
+
       <div class="d-flex align-items-center ms-auto">
           <div class="dropdown">
               <div class="dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
