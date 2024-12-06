@@ -1,0 +1,5 @@
+svix: Un service de webhook qui vous permet d'envoyer des webhooks facilement.
+kroki: Un service pour créer des diagrammes à partir de descriptions textuelles.
+http Status Dogs: Une API amusante qui renvoie des images de chiens pour différents codes de statut HTTP.
+Stripe: Une plateforme de traitement des paiements pour les entreprises en ligne.
+Resend: Une API d'email pour envoyer des emails transactionnels.
