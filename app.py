@@ -19,7 +19,7 @@ Session(app)
 
 # Configuration for file uploads
 UPLOAD_FOLDER = 'static/Images/Offres/'  # Changed from 'static/Images/' to 'static/Images/Offres/'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif', 'webp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
