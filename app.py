@@ -162,12 +162,19 @@ def Inscription():
 @app.route('/Inscription_Vendeur', methods=["GET", "POST"])
 def Inscription_Vendeur():
     if (request.method == "POST"):
+        errors = []
         # Collect form data
         nom = request.form.get("nom")
         prenom = request.form.get("prenom")
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
-        # Hash the password
+        confirm_password = request.form.get("confirmPassword")
+        
+        if not mot_de_passe:
+            errors.append("Le mot de passe ne peut pas être vide.")
+        elif mot_de_passe != confirm_password:
+            errors.append("Les mots de passe ne correspondent pas.")
+        
         mot_de_passe = generate_password_hash(mot_de_passe)
         telephone = request.form.get("telephone")
         boutique = request.form.get("boutique")
@@ -181,6 +188,54 @@ def Inscription_Vendeur():
         type_uti = 'Vendeur'
         naissance = request.form.get("birthdate")
         genre = request.form.get("gender")
+        
+
+        # Verify required fields are not empty
+        if not nom:
+            errors.append("Le nom est obligatoire.")
+        if not prenom:
+            errors.append("Le prénom est obligatoire.")
+        if not email:
+            errors.append("L'email est obligatoire.")
+        if not mot_de_passe:
+            errors.append("Le mot de passe est obligatoire.")
+        if not boutique:
+            errors.append("Le nom de la boutique est obligatoire.")
+        if not adresse_boutique:
+            errors.append("L'adresse de la boutique est obligatoire.")
+        if not naissance:
+            errors.append("La date de naissance est obligatoire.")
+        if not genre:
+            errors.append("Le genre est obligatoire.")
+        if not description:
+            errors.append("La description est obligatoire.")
+        if not jourDebut:
+            errors.append("Le jour de début est obligatoire.")
+        if not jourFin:
+            errors.append("Le jour de fin est obligatoire.")
+        if not heureDebut:
+            errors.append("L'heure de début est obligatoire.")
+        if not heureFin:
+            errors.append("L'heure de fin est obligatoire.")
+        if not politiqueRetour:
+            errors.append("La politique de retour est obligatoire.")
+
+        # Verify age is 18+
+        if naissance:
+            birthdate = datetime.datetime.strptime(naissance, '%Y-%m-%d')
+            today = datetime.datetime.today()
+            age = (today - birthdate).days // 365
+            if age < 18:
+                errors.append("Vous devez avoir au moins 18 ans.")
+
+        # Verify phone number
+        if not (telephone.startswith('77') and len(telephone) == 8 and telephone.isdigit()):
+            errors.append("Le numéro de téléphone doit commencer par 77 et contenir 8 chiffres.")
+
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('inscription_vendeur.html')
         
         # Handle logo upload
         logo = request.files.get('logo')
@@ -225,18 +280,59 @@ def Inscription_Vendeur():
 @app.route('/Inscription_Client', methods=["GET", "POST"])
 def Inscription_Client():
     if (request.method == "POST"):
+        errors = []
         # Collect form data
         nom = request.form.get("nom")
         prenom = request.form.get("prenom")
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
-        # Hash the password
+        confirm_password = request.form.get("confirmPassword")
+        
+        if not mot_de_passe:
+            errors.append("Le mot de passe ne peut pas être vide.")
+        elif mot_de_passe != confirm_password:
+            errors.append("Les mots de passe ne correspondent pas.")
+        
         mot_de_passe = generate_password_hash(mot_de_passe)
         telephone = request.form.get("telephone")
         adresse = request.form.get("adresse")
         date_naissance = request.form.get("birthdate")
         genre = request.form.get("gender")
         type_uti = 'Client'
+        
+
+        # Verify required fields are not empty
+        if not nom:
+            errors.append("Le nom est obligatoire.")
+        if not prenom:
+            errors.append("Le prénom est obligatoire.")
+        if not email:
+            errors.append("L'email est obligatoire.")
+        if not mot_de_passe:
+            errors.append("Le mot de passe est obligatoire.")
+        if not adresse:
+            errors.append("L'adresse est obligatoire.")
+        if not date_naissance:
+            errors.append("La date de naissance est obligatoire.")
+        if not genre:
+            errors.append("Le genre est obligatoire.")
+
+        # Verify age is 18+
+        if date_naissance:
+            birthdate = datetime.datetime.strptime(date_naissance, '%Y-%m-%d')
+            today = datetime.datetime.today()
+            age = (today - birthdate).days // 365
+            if age < 18:
+                errors.append("Vous devez avoir au moins 18 ans.")
+
+        # Verify phone number
+        if not (telephone.startswith('77') and len(telephone) == 8 and telephone.isdigit()):
+            errors.append("Le numéro de téléphone doit commencer par 77 et contenir 8 chiffres.")
+
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('inscription_client.html')
         
         # Insert into utilisateur
         user_id = db.execute("""
