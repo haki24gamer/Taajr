@@ -92,103 +92,90 @@
                         <p class="mb-0">Mettez à jour vos informations personnelles.</p>
                     </div>
                     <div class="card-body">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                          {% if messages %}
+                            {% for category, message in messages %}
+                              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                              </div>
+                            {% endfor %}
+                          {% endif %}
+                        {% endwith %}
                         <form action="{{ url_for('modifier_profil') }}" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
-                                <label for="nom" class="form-label"><strong>Nom</strong></label>
+                                <label for="nom" class="form-label">Nom</label>
                                 <input type="text" class="form-control" id="nom" name="nom" value="{{ user.nom_uti }}" required>
-                                <div class="error-message" id="nomError"></div>
                             </div>
-
                             <div class="mb-3">
-                                <label for="prenom" class="form-label"><strong>Prénom</strong></label>
+                                <label for="prenom" class="form-label">Prénom</label>
                                 <input type="text" class="form-control" id="prenom" name="prenom" value="{{ user.prenom_uti }}" required>
-                                <div class="error-message" id="prenomError"></div>
                             </div>
-
                             <div class="mb-3">
-                                <label for="telephone" class="form-label"><strong>Numéro de Téléphone</strong></label>
-                                <input type="text" class="form-control" id="telephone" name="telephone" value="{{ user.telephone }}" required>
-                                <div class="error-message" id="telephoneError"></div>
-                            </div>
-
-                            {% if user.type_uti == 'Client' %}
-                                <div class="mb-3">
-                                    <label for="adresse_client" class="form-label"><strong>Adresse</strong></label>
-                                    <input type="text" class="form-control" id="adresse_client" name="adresse" value="{{ details[0].adresse }}" required>
-                                    <div class="error-message" id="adresseError"></div>
-                                </div>
-                            {% endif %}
-
-                            {% if user.type_uti == 'Vendeur' %}
-                                <div class="mb-3">
-                                    <label for="nom_boutique" class="form-label"><strong>Nom de la Boutique</strong></label>
-                                    <input type="text" class="form-control" id="nom_boutique" name="nom_boutique" value="{{ details[0].nom_boutique }}" required>
-                                    <div class="error-message" id="nomBoutiqueError"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="adresse_boutique" class="form-label"><strong>Adresse de la Boutique</strong></label>
-                                    <input type="text" class="form-control" id="adresse_boutique" name="adresse_boutique" value="{{ details[0].adresse_boutique }}" required>
-                                    <div class="error-message" id="adresseBoutiqueError"></div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="description" class="form-label"><strong>Description</strong></label>
-                                    <textarea class="form-control" id="description" name="description" rows="3" required>{{ details[0].description }}</textarea>
-                                    <div class="error-message" id="descriptionError"></div>
-                                </div>
-
-                                <!-- Upload New Logo -->
-                                <h4>Modifier le Logo de la Boutique</h4>
-                                <div class="mb-3">
-                                    <label for="new_logo" class="form-label">Nouveau Logo</label>
-                                    <input type="file" class="form-control" id="new_logo" name="new_logo" accept="image/*">
-                                    <div class="error-message" id="newLogoError"></div>
-                                </div>
-                            {% endif %}
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label"><strong>Email</strong></label>
+                                <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email" value="{{ user.email_uti }}" required>
-                                <div class="error-message" id="emailError"></div>
                             </div>
-
+                            
+                            {% if user.type_uti == 'Client' %}
                             <div class="mb-3">
-                                <label for="birthdate" class="form-label"><strong>Date de Naissance</strong></label>
+                                <label for="adresse" class="form-label">Adresse</label>
+                                <input type="text" class="form-control" id="adresse" name="adresse" value="{{ details[0].adresse }}" required>
+                            </div>
+                            {% endif %}
+                            
+                            {% if user.type_uti == 'Vendeur' %}
+                            <div class="mb-3">
+                                <label for="nom_boutique" class="form-label">Nom de la Boutique</label>
+                                <input type="text" class="form-control" id="nom_boutique" name="nom_boutique" value="{{ details[0].nom_boutique }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="adresse_boutique" class="form-label">Adresse de la Boutique</label>
+                                <input type="text" class="form-control" id="adresse_boutique" name="adresse_boutique" value="{{ details[0].adresse_boutique }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" required>{{ details[0].description }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new_logo" class="form-label">Nouveau Logo</label>
+                                <input type="file" class="form-control" id="new_logo" name="new_logo">
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="text" class="form-control" id="telephone" name="telephone" value="{{ user.telephone }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="birthdate" class="form-label">Date de Naissance</label>
                                 <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ user.date_naissance }}" required>
-                                <div class="error-message" id="birthdateError"></div>
                             </div>
-
                             <div class="mb-3">
-                                <label class="form-label"><strong>Genre</strong></label><br>
-                                <input type="radio" id="male" name="gender" value="Male" {% if user.genre == 'Male' %}checked{% endif %}> Homme
-                                <input type="radio" id="female" name="gender" value="Female" {% if user.genre == 'Female' %}checked{% endif %}> Femme
-                                <div class="error-message" id="genreError"></div>
+                                <label for="gender" class="form-label">Genre</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="Masculin" {% if user.genre == 'Masculin' %}selected{% endif %}>Masculin</option>
+                                    <option value="Féminin" {% if user.genre == 'Féminin' %}selected{% endif %}>Féminin</option>
+                                    <option value="Autre" {% if user.genre == 'Autre' %}selected{% endif %}>Autre</option>
+                                </select>
                             </div>
-
+                            
                             <!-- Change Password Section -->
                             <br>
                             <h4>Changer le Mot de Passe</h4>
                             <div class="mb-3">
                                 <label for="current_password" class="form-label">Mot de Passe Actuel</label>
-                                <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Votre mot de passe actuel">
-                                <div class="error-message" id="currentPasswordError"></div>
+                                <input type="password" class="form-control" id="current_password" name="current_password">
                             </div>
                             <div class="mb-3">
                                 <label for="new_password" class="form-label">Nouveau Mot de Passe</label>
-                                <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Votre nouveau mot de passe">
-                                <div class="error-message" id="newPasswordError"></div>
+                                <input type="password" class="form-control" id="new_password" name="new_password">
                             </div>
                             <div class="mb-3">
                                 <label for="confirm_new_password" class="form-label">Confirmer le Nouveau Mot de Passe</label>
-                                <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="Confirmez votre nouveau mot de passe">
-                                <div class="error-message" id="confirmNewPasswordError"></div>
+                                <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password">
                             </div>
-
-                            <button type="submit" class="btn btn-primary w-100">Enregistrer les Modifications</button>
-                            <div class="form-footer mt-3">
-                                <p><a href="{{ url_for('profil') }}">Retour au Profil</a></p>
-                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Mettre à Jour</button>
                         </form>
                     </div>
                 </div>

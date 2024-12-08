@@ -666,7 +666,14 @@ def modifier_profil():
         flash('Utilisateur non trouvé.', 'danger')
         return redirect(url_for('connexion'))
     
+    details = {}
+    if (user[0]['type_uti'] == 'Client'):
+        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
+    elif (user[0]['type_uti'] == 'Vendeur'):
+        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
+    
     if (request.method == 'POST'):
+        errors = []
         # Collect form data
         nom = request.form.get('nom')
         prenom = request.form.get('prenom')
@@ -675,55 +682,75 @@ def modifier_profil():
         date_naissance = request.form.get('birthdate')
         genre = request.form.get('gender')
         
-        # Update utilisateur table
-        db.execute("""
-            UPDATE utilisateur 
-            SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
-            WHERE ID_uti = ?
-        """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
+        # Verify required fields are not empty
+        if not nom:
+            errors.append("Le nom est obligatoire.")
+        if not prenom:
+            errors.append("Le prénom est obligatoire.")
+        if not email:
+            errors.append("L'email est obligatoire.")
+        if not telephone:
+            errors.append("Le numéro de téléphone est obligatoire.")
+        if not date_naissance:
+            errors.append("La date de naissance est obligatoire.")
+        if not genre:
+            errors.append("Le genre est obligatoire.")
+        
+        # Verify age is 18+
+        if date_naissance:
+            try:
+                birthdate = datetime.datetime.strptime(date_naissance, '%Y-%m-%d')
+                today = datetime.datetime.today()
+                age = (today - birthdate).days // 365
+                if age < 18:
+                    errors.append("Vous devez avoir au moins 18 ans.")
+            except ValueError:
+                errors.append("Format de date de naissance invalide.")
+        
+        # Verify phone number
+        if not (telephone.startswith('77') and len(telephone) == 8 and telephone.isdigit()):
+            errors.append("Le numéro de téléphone doit commencer par 77 et contenir 8 chiffres.")
         
         # Update Details_Client or Details_Vendeur based on user type
         if (user[0]['type_uti'] == 'Client'):
             adresse = request.form.get('adresse')  # From adresse_client field
-            db.execute("""
-                UPDATE Details_Client 
-                SET adresse = ?
-                WHERE ID_uti = ?
-            """, adresse, session['user_id'])
+            if adresse:
+                db.execute("""
+                    UPDATE Details_Client 
+                    SET adresse = ?
+                    WHERE ID_uti = ?
+                """, adresse, session['user_id'])
         elif (user[0]['type_uti'] == 'Vendeur'):
             nom_boutique = request.form.get('nom_boutique')
             adresse_boutique = request.form.get('adresse_boutique')
             description = request.form.get('description')
-            db.execute("""
-                UPDATE Details_Vendeur 
-                SET nom_boutique = ?, adresse_boutique = ?, description = ?
-                WHERE ID_uti = ?
-            """, nom_boutique, adresse_boutique, description, session['user_id'])
+            if nom_boutique and adresse_boutique and description:
+                db.execute("""
+                    UPDATE Details_Vendeur 
+                    SET nom_boutique = ?, adresse_boutique = ?, description = ?
+                    WHERE ID_uti = ?
+                """, nom_boutique, adresse_boutique, description, session['user_id'])
         
         # Handle password change
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
-
+        
         if (current_password or new_password or confirm_new_password):
-            # Verify current password
-            if (not current_password):
-                flash('Veuillez saisir votre mot de passe actuel pour le changement de mot de passe.', 'danger')
-                return redirect(url_for('modifier_profil'))
-            if (not check_password_hash(user[0]['mot_de_passe'], current_password)):
-                flash('Mot de passe actuel incorrect.', 'danger')
-                return redirect(url_for('modifier_profil'))
-            if (new_password != confirm_new_password):
-                flash('Les nouveaux mots de passe ne correspondent pas.', 'danger')
-                return redirect(url_for('modifier_profil'))
-            if (new_password):
-                hashed_password = generate_password_hash(new_password)
+            if not current_password:
+                errors.append('Veuillez saisir votre mot de passe actuel pour le changement de mot de passe.')
+            elif not check_password_hash(user[0]['mot_de_passe'], current_password):
+                errors.append('Mot de passe actuel incorrect.')
+            elif new_password != confirm_new_password:
+                errors.append('Les nouveaux mots de passe ne correspondent pas.')
+            
+            if new_password and not errors:
+                hashed_new_password = generate_password_hash(new_password)
                 db.execute("""
                     UPDATE utilisateur 
                     SET mot_de_passe = ?
                     WHERE ID_uti = ?
-                """, hashed_password, session['user_id'])
-                flash('Mot de passe mis à jour avec succès.', 'success')
+                """, hashed_new_password, session['user_id'])
         
         # Handle logo upload for Vendeur
         if (user[0]['type_uti'] == 'Vendeur'):
@@ -737,17 +764,21 @@ def modifier_profil():
                     SET logo = ?
                     WHERE ID_uti = ?
                 """, logo_relative_path, session['user_id'])
-                flash('Logo mis à jour avec succès.', 'success')
+        
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('modifier_profil.html', user=user[0], details=details)
+        
+        # Update utilisateur table
+        db.execute("""
+            UPDATE utilisateur 
+            SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+            WHERE ID_uti = ?
+        """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
         
         flash('Profil mis à jour avec succès.', 'success')
         return redirect(url_for('profil'))
-    
-    # Fetch additional details based on user type
-    details = {}
-    if (user[0]['type_uti'] == 'Client'):
-        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
-    elif (user[0]['type_uti'] == 'Vendeur'):
-        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
     
     return render_template('modifier_profil.html', user=user[0], details=details)
 
