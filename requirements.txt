@@ -5,3 +5,5 @@ flask_bootstrap
 flask-Session
 pytz
 requests
+validate-email-address
+pyDNS
