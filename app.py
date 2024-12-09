@@ -404,6 +404,8 @@ def Favoris():
     return render_template('Favoris.html', favoris=favoris)
     return render_template('Favoris.html', favoris=favoris)
 
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

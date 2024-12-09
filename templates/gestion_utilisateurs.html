@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des utilisateurs - Taajr</title>
+    <!-- Lien Bootstrap et FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .header {
+            background-color: #0056b3;
+            color: white;
+            text-align: center;
+            padding: 20px 10px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+        }
+        .header .subtitle {
+            font-size: 1rem;
+        }
+        .btn-primary, .btn-info {
+            background-color: #0056b3;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #d63384;
+            border: none;
+        }
+        .btn-primary:hover, .btn-info:hover {
+            background-color: #003d80;
+        }
+        .btn-danger:hover {
+            background-color: #a82867;
+        }
+        .stats-card {
+            background-color: #fff;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stats-card h4 {
+            font-size: 1.5rem;
+            color: #0056b3;
+        }
+        .stats-card p {
+            font-size: 1rem;
+        }
+        .table th {
+            background-color: #0056b3;
+            color: white;
+        }
+        .table thead th {
+            border-bottom: 2px solid #d63384; /* Séparateur rose */
+        }
+        .divider {
+            height: 4px;
+            background: linear-gradient(to right, #0056b3, #d63384); /* Dégradé bleu-rose */
+            border: none;
+            margin: 20px 0;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+        }
+        .filter-container select,
+        .filter-container input {
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête -->
+    <header class="header">
+        <h1>Gestion des utilisateurs</h1>
+        <p class="subtitle">Surveillez, administrez et optimisez la gestion des utilisateurs de Taajr</p>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>500</h4>
+                    <p>Total des utilisateurs</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>150</h4>
+                    <p>Vendeurs actifs</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>350</h4>
+                    <p>Clients actifs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et barre de recherche -->
+        <div class="filter-container d-flex justify-content-between">
+            <!-- Barre de recherche -->
+            <div class="w-50">
+                <input type="text" class="form-control" placeholder="Rechercher un utilisateur...">
+            </div>
+            <!-- Filtres -->
+            <div class="d-flex gap-3 w-50">
+                <!-- Filtrage par rôle -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par rôle</option>
+                    <option value="vendeur">Vendeur</option>
+                    <option value="client">Client</option>
+                </select>
+                <!-- Filtrage par statut -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par statut</option>
+                    <option value="actif">Actif</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="banni">Banni</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tableau des utilisateurs -->
+        <h2 class="mb-3 text-primary">Liste des utilisateurs</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Dernière connexion</th>
+                    <th>Transactions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>John Doe</td>
+                    <td>john.doe@example.com</td>
+                    <td>Vendeur</td>
+                    <td><span class="badge bg-success">Actif</span></td>
+                    <td>2024-12-01</td>
+                    <td>20</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fa fa-eye"></i></button>
+                        <button class="btn btn-warning btn-sm"><i class="fa fa-ban"></i></button>
+                        <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>Jane Smith</td>
+                    <td>jane.smith@example.com</td>
+                    <td>Client</td>
+                    <td><span class="badge bg-danger">Banni</span></td>
+                    <td>2024-11-28</td>
+                    <td>5</td>
+                    <td>
+                        <button class="btn btn-info btn-sm"><i class="fa fa-eye"></i></button>
+                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">Détails de l'utilisateur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Nom :</strong> John Doe</p>
+                    <p><strong>Email :</strong> john.doe@example.com</p>
+                    <p><strong>Rôle :</strong> Vendeur</p>
+                    <p><strong>Statut :</strong> Actif</p>
+                    <p><strong>Dernière connexion :</strong> 2024-12-01</p>
+                    <p><strong>Transactions :</strong> 20</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 bg-primary text-white">
+        <p>&copy; 2024 Taajr. Tous droits réservés.</p>
+    </footer>
+
+    <!-- Scripts Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
