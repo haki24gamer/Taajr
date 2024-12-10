@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 # from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
+import re
 
 app = Flask(__name__)
 
@@ -25,6 +26,18 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def is_valid_email(email):
+    pattern = r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+    if re.match(pattern, email, re.IGNORECASE):  # Added re.IGNORECASE to make the regex case-insensitive
+        domain = email.split('@')[1]
+        allowed_domains = [
+            'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com',
+            'icloud.com', 'mail.com', 'zoho.com', 'protonmail.com'
+        ]
+        if domain in allowed_domains:
+            return True
+    return False
 
 @app.context_processor
 def inject_user_id():
@@ -220,6 +233,9 @@ def Inscription_Vendeur():
         if not politiqueRetour:
             errors.append("La politique de retour est obligatoire.")
 
+        if not is_valid_email(email):
+            errors.append("L'adresse email n'est pas valide ou le domaine n'est pas autorisé.")
+
         # Verify age is 18+
         if naissance:
             birthdate = datetime.datetime.strptime(naissance, '%Y-%m-%d')
@@ -316,6 +332,9 @@ def Inscription_Client():
             errors.append("La date de naissance est obligatoire.")
         if not genre:
             errors.append("Le genre est obligatoire.")
+
+        if not is_valid_email(email):
+            errors.append("L'adresse email n'est pas valide ou le domaine n'est pas autorisé.")
 
         # Verify age is 18+
         if date_naissance:
@@ -696,6 +715,9 @@ def modifier_profil():
         if not genre:
             errors.append("Le genre est obligatoire.")
         
+        if not is_valid_email(email):
+            errors.append("L'adresse email n'est pas valide ou le domaine n'est pas autorisé.")
+
         # Verify age is 18+
         if date_naissance:
             try:
