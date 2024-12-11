@@ -1,4 +1,5 @@
 import datetime
+from email import errors
 from flask import Flask, render_template, request, redirect,url_for,flash, session
 from cs50 import SQL
 import os
@@ -1006,11 +1007,84 @@ def search():
         flash('Catégorie de recherche invalide.', 'danger')
         return redirect(url_for('index'))
     
+@app.route("/meilleure_offre",methods=["GET", "POST"])
+def meilleure_offre():
+    k = 1  # Define the constant k for weighting
+    offres = db.execute("""
+        SELECT offre.*, 
+               COUNT(DISTINCT likes.ID_like) AS total_likes, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars,
+               (COUNT(DISTINCT likes.ID_like) + ? * COALESCE(AVG(avis.Etoiles), 0)) AS weighted_rating
+        FROM offre
+        LEFT JOIN likes ON offre.ID_off = likes.ID_off
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
+        GROUP BY offre.ID_off
+        ORDER BY weighted_rating DESC
+    """, k)
+    # Ensure the template receives the sorted offers
+    cart_ids = []
+    if ('user_id' in session):
+        cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
+        cart_ids = [item['ID_off'] for item in cart_items]
+    return render_template("meilleure_offre.html", offres=offres, cart_ids=cart_ids)
+
+
+# Route pour la réinitialisation du mot de passe
+@app.route('/reset_password', methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        # Obtenir les valeurs du formulaire
+        username = request.form.get("username")
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+        
+        # Liste pour stocker les erreurs
+        errors = []
+        
+        # Vérifier si les mots de passe correspondent
+        if new_password or confirm_new_password:
+            if new_password != confirm_new_password:
+                errors.append('Les nouveaux mots de passe ne correspondent pas.')
+            
+            # Vérifier si le mot de passe est bien renseigné et qu'aucune autre erreur n'est présente
+            if new_password and not errors:
+                hashed_new_password = generate_password_hash(new_password)
+                
+                try:
+                    # Exécution de la requête pour mettre à jour le mot de passe
+                    rows_affected = db.execute("""
+                        UPDATE utilisateur 
+                        SET mot_de_passe = ?
+                        WHERE nom_uti = ?
+                    """, hashed_new_password, username)
+                    
+                    # Vérification si l'utilisateur existe
+                    if rows_affected == 0:
+                        errors.append("Utilisateur introuvable ou mot de passe non mis à jour.")
+                        return render_template("error.html", errors=errors)
+
+                except Exception as e:
+                    # Gestion des erreurs SQL
+                    errors.append(f"Une erreur est survenue : {str(e)}")
+                    return render_template("error.html", errors=errors)
+
+            # Si succès
+            if not errors:
+                return render_template("success.html")
+        
+        # Si échec ou présence d'erreurs
+        return render_template("error.html", errors=errors)
+    
+    # Afficher le formulaire par défaut
+    return render_template("reset_password.html")
+
+
+    
 @app.route("/a_propos")
 def a_propos():
     return render_template("a_propos.html")
 
-@app.route("/Contactez-nous")
+@app.route("/Contactez-nous", methods=['GET', 'POST'])
 def Contactez_nous():
     return render_template("contacter_nous.html")
 
