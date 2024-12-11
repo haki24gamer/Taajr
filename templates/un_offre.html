@@ -14,8 +14,8 @@
         <p><strong>Quantité en stock:</strong> {{ offre.quantite_en_stock }}</p>
         <p><strong>Date d'ajout:</strong> {{ offre.date_off }}</p>
         <p><strong>Catégories:</strong>
-            {% for category in categories %}
-                <a href="{{ url_for('category_offers', category_id=category.ID_cat) }}">{{ category.nom_cat }}</a>{% if not loop.last %}, {% endif %}
+            {% for categor in category %}
+                <a href="{{ url_for('category_offers', category_id=categor.ID_cat) }}">{{ categor.nom_cat }}</a>{% if not loop.last %}, {% endif %}
             {% endfor %}
         </p>
 

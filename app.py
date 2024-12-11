@@ -457,6 +457,7 @@ def category_offers(category_id):
         flash('Catégorie non trouvée.', 'danger')
         return redirect(url_for('Categories'))
     
+    
     # Obtenir les IDs des offres dans le panier de l'utilisateur
     cart_ids = []
     if ('user_id' in session):
@@ -570,15 +571,6 @@ def Favoris():
     return render_template('Favoris.html', favoris=favoris)
     return render_template('Favoris.html', favoris=favoris)
 
-# Remove the produit_details route
-# @app.route('/produit_details/<string:produit_nom>', methods=['GET', 'POST'])
-# def produit_details(produit_nom):
-#     # ...existing code...
-
-# Remove the service_details route
-# @app.route('/service_details/<string:service_nom>', methods=['GET', 'POST'])
-# def service_details(service_nom):
-#     # ...existing code...
 
 # Add the unified offre_details route
 @app.route('/offre_details/<int:offre_id>', methods=['GET', 'POST'])
@@ -591,12 +583,12 @@ def offre_details(offre_id):
     offre = offre[0]
 
     # Récupérer les catégories de l'offre actuelle
-    categories = db.execute("""
+    category = db.execute("""
         SELECT c.ID_cat, c.nom_cat FROM appartenir a
         JOIN categorie c ON a.ID_cat = c.ID_cat
         WHERE a.ID_off = ?
     """, offre_id)
-    category_ids = [cat['ID_cat'] for cat in categories]
+    category_ids = [cat['ID_cat'] for cat in category]
 
     # Récupérer les autres offres dans les mêmes catégories
     if (category_ids):
@@ -641,7 +633,7 @@ def offre_details(offre_id):
         WHERE avis.ID_off = ?
     """, offre_id)
 
-    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, categories=categories)
+    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category)
 
 @app.route('/menu_vendeur')
 def menu_vendeur():
