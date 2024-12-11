@@ -451,7 +451,7 @@ def category_offers(category_id):
         GROUP BY offre.ID_off
     """, category_id)
     
-    category = db.execute("SELECT nom_cat FROM categorie WHERE ID_cat = ?", category_id)
+    category = db.execute("SELECT nom_cat, description FROM categorie WHERE ID_cat = ?", category_id)
     
     if (not category):
         flash('Catégorie non trouvée.', 'danger')

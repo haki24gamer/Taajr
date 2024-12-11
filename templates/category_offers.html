@@ -5,6 +5,7 @@
 {% block content %}
 <div class="product-container">
     <h2>{{ category.nom_cat }}</h2>
+    <p>{{ category.description }}</p>
     <div class="row">
         {% if offers %}
             {% for offer in offers %}
