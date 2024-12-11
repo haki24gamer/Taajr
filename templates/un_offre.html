@@ -18,6 +18,20 @@
                 <a href="{{ url_for('category_offers', category_id=categor.ID_cat) }}">{{ categor.nom_cat }}</a>{% if not loop.last %}, {% endif %}
             {% endfor %}
         </p>
+        <p>❤️: {{ likes_count }}</p>
+        <p>
+            {{ avg_stars | round(1) }} étoiles :
+            {% for i in range(1,6) %}
+                {% if avg_stars >= i %}
+                    ⭐
+                {% elif avg_stars >= i - 0.5 %}
+                    ☆
+                {% else %}
+                    ☆
+                {% endif %}
+            {% endfor %}
+            ({{ ratings_count }} avis)
+        </p>
 
         <!-- Affichage des informations du vendeur -->
         <hr>

@@ -79,7 +79,9 @@ def inject_cart_ids():
 @app.route('/')
 def index():
     offers_products = db.execute("""
-        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
         FROM offre
         LEFT JOIN avis ON offre.ID_off = avis.ID_off
         WHERE type_off = 'Produit'
@@ -87,7 +89,9 @@ def index():
         LIMIT 4
     """)
     offers_services = db.execute("""
-        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
         FROM offre
         LEFT JOIN avis ON offre.ID_off = avis.ID_off
         WHERE type_off = 'Service'
@@ -137,7 +141,15 @@ def deconnexion():
 
 @app.route('/Produits')
 def Produits():
-    products = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Produit' GROUP BY offre.ID_off")
+    products = db.execute("""
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
+        FROM offre
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
+        WHERE type_off = 'Produit'
+        GROUP BY offre.ID_off
+    """)
     
     # Obtenir les IDs des produits dans le panier de l'utilisateur
     cart_ids = []
@@ -149,7 +161,15 @@ def Produits():
 
 @app.route('/Services')
 def Services():
-    services = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Service' GROUP BY offre.ID_off")
+    services = db.execute("""
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
+        FROM offre
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
+        WHERE type_off = 'Service'
+        GROUP BY offre.ID_off
+    """)
     
     # Obtenir les IDs des services dans le panier de l'utilisateur
     cart_ids = []
@@ -443,7 +463,9 @@ def Categories():
 def category_offers(category_id):
     # Update the SQL query to include reviews_count
     offers = db.execute("""
-        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
         FROM offre
         LEFT JOIN avis ON offre.ID_off = avis.ID_off
         JOIN appartenir ON offre.ID_off = appartenir.ID_off
@@ -496,53 +518,53 @@ def Ajouter_au_panier():
 @app.route('/like_offer', methods=['POST'])
 def like_offer():
     if ('user_id' not in session):
-        flash('Veuillez vous connecter pour aimer des articles.', 'danger')
+        flash('Veuillez vous connecter pour aimer des articles. ❤️', 'danger')
         return redirect(url_for('connexion'))
     
     offer_id = request.form.get('offer_id')
     if (not offer_id):
-        flash('Offre invalide.', 'danger')
+        flash('Offre invalide. ❤️', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si l'offre existe
     offer = db.execute("SELECT * FROM offre WHERE ID_off = ?", offer_id)
     if (not offer):
-        flash('Offre non trouvée.', 'danger')
+        flash('Offre non trouvée. ❤️', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si l'offre est déjà aimée
     liked = db.execute("SELECT * FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
     if (liked):
-        flash('Offre déjà aimée.', 'info')
-        print(f"User {session['user_id']} already liked offer {offer_id}.")
+        flash('Offre déjà aimée. ❤️', 'info')
+        print(f"User {session['user_id']} already liked offer {offer_id}. ❤️")
     else:
         db.execute("INSERT INTO likes (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], offer_id)
-        flash('Offre ajoutée à vos favoris.', 'success')
+        flash('Offre ajoutée à vos favoris. ❤️', 'success')
         # Debugging: Confirm insertion
-        print(f"User {session['user_id']} liked offer {offer_id}.")
+        print(f"User {session['user_id']} liked offer {offer_id}. ❤️")
 
     return redirect(request.referrer)
 
 @app.route('/unlike_offer', methods=['POST'])
 def unlike_offer():
     if ('user_id' not in session):
-        flash('Veuillez vous connecter pour enlever des articles de vos favoris.', 'danger')
+        flash('Veuillez vous connecter pour enlever des articles de vos favoris. ❤️', 'danger')
         return redirect(url_for('connexion'))
     
     offer_id = request.form.get('offer_id')
     if (not offer_id):
-        flash('Offre invalide.', 'danger')
+        flash('Offre invalide. ❤️', 'danger')
         return redirect(request.referrer)
     
     # Supprimer l'offre des favoris
     deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
     if (deleted):
-        flash('Offre retirée de vos favoris.', 'success')
+        flash('Offre retirée de vos favoris. ❤️', 'success')
         # Debugging: Confirm deletion
-        print(f"User {session['user_id']} unliked offer {offer_id}.")
+        print(f"User {session['user_id']} unliked offer {offer_id}. ❤️")
     else:
-        flash('Aucune modification effectuée.', 'info')
-        print(f"User {session['user_id']} tried to unlike offer {offer_id} but it was not found.")
+        flash('Aucune modification effectuée. ❤️', 'info')
+        print(f"User {session['user_id']} tried to unlike offer {offer_id} but it was not found. ❤️")
 
     return redirect(request.referrer)
 
@@ -633,7 +655,16 @@ def offre_details(offre_id):
         WHERE avis.ID_off = ?
     """, offre_id)
 
-    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category)
+    # Calculate number of likes
+    likes_count = db.execute("SELECT COUNT(*) AS count FROM likes WHERE ID_off = ?", offre_id)[0]['count']
+    
+    # Calculate average stars with COALESCE to handle no ratings
+    avg_stars = db.execute("SELECT COALESCE(AVG(Etoiles), 0) AS average FROM avis WHERE ID_off = ?", offre_id)[0]['average']
+    
+    # Calculate the number of ratings
+    ratings_count = db.execute("SELECT COUNT(*) AS count FROM avis WHERE ID_off = ?", offre_id)[0]['count']
+
+    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category, likes_count=likes_count, avg_stars=avg_stars, ratings_count=ratings_count)
 
 @app.route('/menu_vendeur')
 def menu_vendeur():
