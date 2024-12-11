@@ -83,7 +83,19 @@
                   <div class="card-body">
                       <h5 class="card-title">{{ product.libelle_off }}</h5>
                       <p class="card-text">{{ product.description_off }}</p>
-                      <p class="rating">⭐⭐⭐☆☆ ({{ product.reviews_count }} avis)</p>
+                      <!-- Changed rating display -->
+                      <p class="rating">
+                          {% for i in range(1,6) %}
+                              {% if product.avg_stars >= i %}
+                                  ⭐
+                              {% elif product.avg_stars >= i - 0.5 %}
+                                  ☆
+                              {% else %}
+                                  ☆
+                              {% endif %}
+                          {% endfor %}
+                          ({{ product.reviews_count }} avis)
+                      </p>
                       <p class="card-text fw-bold">Prix : {{ product.prix_off }} fdj</p>
                       {% if product.ID_off in cart_ids %}
                           <button class="btn btn-secondary" disabled>Dans le panier</button>
@@ -126,8 +138,20 @@
             </div>
             <div class="card-body">
                 <h5 class="card-title">{{ service.libelle_off }}</h5>
-                <p class="card-text">{{ service.description_off }}</p>
-                <p class="rating">⭐⭐⭐☆☆ ({{ service.reviews_count }} avis)</p>
+                <p class="card-text">{{ service.description_off }}</p>                            
+                <!-- Changed rating display -->
+                <p class="rating">
+                    {% for i in range(1, 6) %}
+                        {% if service.avg_stars >= i %}
+                            ⭐ 
+                        {% elif service.avg_stars >= i - 0.5 %}
+                            ☆
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                    ({{ service.reviews_count }} avis)
+                </p>
                 <p class="card-text fw-bold">Prix : {{ service.prix_off }} fdj</p>
                 {% if service.ID_off in cart_ids %}
                     <button class="btn btn-secondary" disabled>Dans le panier</button>
