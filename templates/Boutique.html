@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block title %}Boutique - {{ vendeur.nom_boutique }}{% endblock %}
+
+{% block content %}
+<div class="boutique-info">
+    <h1>{{ vendeur.nom_boutique }}</h1>
+    <img src="{{ url_for('static', filename=vendeur.logo) }}" alt="Logo de la Boutique">
+    <p><strong>Propriétaire:</strong> {{ vendeur.prenom_uti }} {{ vendeur.nom_uti }}</p>
+    <p><strong>Adresse:</strong> {{ vendeur.adresse_boutique }}</p>
+    <p><strong>Description:</strong> {{ vendeur.description }}</p>
+</div>
+
+<div class="offres">
+    <h2>Offres de la boutique</h2>
+    <div class="similar-offers-container">
+        {% for offre in offres %}
+            <a href="{{ url_for('offre_details', offre_id=offre.ID_off) }}" class="card-link">
+                <div class="card m-2">
+                    <img src="{{ url_for('static', filename=offre.image_off) }}" class="card-img-top" alt="{{ offre.libelle_off }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ offre.libelle_off }}</h5>
+                        <p class="card-text">{{ offre.prix_off }}€</p>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

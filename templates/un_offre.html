@@ -44,7 +44,9 @@
             </div>
             <div class="col-md-4">
                 {% if seller_info.logo %}
-                    <img src="/static/{{ seller_info.logo }}" alt="Logo de la boutique" class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;">
+                    <a href="{{ url_for('boutique', vendeur_id=offre.ID_uti) }}">
+                        <img src="/static/{{ seller_info.logo }}" alt="Logo de la boutique" class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;">
+                    </a>
                 {% endif %}
             </div>
         </div>
