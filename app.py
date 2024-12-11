@@ -19,9 +19,11 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configuration for file uploads
-UPLOAD_FOLDER = 'static/Images/Offres/'  # Changed from 'static/Images/' to 'static/Images/Offres/'
+UPLOAD_FOLDER_OFFRES = 'static/Images/Offres/'
+UPLOAD_FOLDER_LOGO = 'static/Images/Logo_Boutique/'  # New upload folder for boutique logos
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif', 'webp'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
+app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -277,8 +279,8 @@ def Inscription_Vendeur():
         logo = request.files.get('logo')
         if (logo and allowed_file(logo.filename)):
             logo_filename = secure_filename(logo.filename)
-            logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
-            logo_relative_path = os.path.join('Images', logo_filename)
+            logo.save(os.path.join(app.config['UPLOAD_FOLDER_LOGO'], logo_filename))  # Save to Logo_Boutique
+            logo_relative_path = os.path.join('Images/Logo_Boutique', logo_filename)  # Update path
         else:
             logo_relative_path = None  # Or handle error
         
@@ -393,6 +395,9 @@ def Inscription_Client():
 
 @app.route('/Panier')
 def Panier():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder au panier.', 'danger')
+        return redirect(url_for('connexion'))
     if ('user_id' in session):
         cart_items = db.execute("""
             SELECT panier.ID_panier, offre.ID_off, offre.libelle_off, panier.quantity, offre.prix_off
@@ -802,16 +807,18 @@ def modifier_profil():
         
         # Handle logo upload for Vendeur
         if (user[0]['type_uti'] == 'Vendeur'):
-            new_logo = request.files.get('new_logo')
-            if (new_logo and allowed_file(new_logo.filename)):
-                logo_filename = secure_filename(new_logo.filename)
-                new_logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
-                logo_relative_path = os.path.join('Images', logo_filename)
+            logo = request.files.get('logo')
+            if (logo and allowed_file(logo.filename)):
+                logo_filename = secure_filename(logo.filename)
+                logo.save(os.path.join(app.config['UPLOAD_FOLDER_LOGO'], logo_filename))  # Save to Logo_Boutique
+                logo_relative_path = os.path.join('Images/Logo_Boutique', logo_filename)  # Update path
+                # Update the logo path in Details_Vendeur
                 db.execute("""
                     UPDATE Details_Vendeur 
                     SET logo = ?
                     WHERE ID_uti = ?
                 """, logo_relative_path, session['user_id'])
+            # ...handle else case if needed...
         
         if errors:
             for error in errors:
@@ -1006,6 +1013,7 @@ def a_propos():
 @app.route("/Contactez-nous")
 def Contactez_nous():
     return render_template("contacter_nous.html")
+
 
 
 if __name__ == '__main__':
