@@ -181,7 +181,8 @@
 										class="form-control"
 										id="email"
 										name="email"
-										placeholder="Votre adresse email" />
+										placeholder="Votre adresse email"
+										pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
 									<div class="error-message" id="emailError"></div>
 								</div>
 								<!-- Mot de Passe -->
@@ -329,18 +330,7 @@
 										name="logo" />
 									<div class="error-message" id="logoError"></div>
 								</div>
-								<!-- Document de Vérification -->
-								<div class="mb-3">
-									<label for="document" class="form-label"
-										>Document de Vérification</label
-									>
-									<input
-										type="file"
-										class="form-control"
-										id="document"
-										name="document" />
-									<div class="error-message" id="documentError"></div>
-								</div>
+
 								<!-- Submit -->
 								<button type="submit" class="btn btn-primary w-100">
 									S'inscrire
