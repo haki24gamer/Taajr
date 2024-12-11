@@ -592,7 +592,9 @@ def offre_details(offre_id):
 
     # Récupérer les catégories de l'offre actuelle
     categories = db.execute("""
-        SELECT ID_cat FROM appartenir WHERE ID_off = ?
+        SELECT c.ID_cat, c.nom_cat FROM appartenir a
+        JOIN categorie c ON a.ID_cat = c.ID_cat
+        WHERE a.ID_off = ?
     """, offre_id)
     category_ids = [cat['ID_cat'] for cat in categories]
 
@@ -639,7 +641,7 @@ def offre_details(offre_id):
         WHERE avis.ID_off = ?
     """, offre_id)
 
-    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info)
+    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, categories=categories)
 
 @app.route('/menu_vendeur')
 def menu_vendeur():

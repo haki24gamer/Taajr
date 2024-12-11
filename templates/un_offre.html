@@ -13,6 +13,11 @@
         <p><strong>Prix:</strong> {{ offre.prix_off }} fjd</p>
         <p><strong>Quantité en stock:</strong> {{ offre.quantite_en_stock }}</p>
         <p><strong>Date d'ajout:</strong> {{ offre.date_off }}</p>
+        <p><strong>Catégories:</strong>
+            {% for category in categories %}
+                <a href="{{ url_for('category_offers', category_id=category.ID_cat) }}">{{ category.nom_cat }}</a>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </p>
 
         <!-- Affichage des informations du vendeur -->
         <hr>
@@ -73,29 +78,18 @@
 
 <!-- Section des offres similaires avec boutons de défilement -->
 <h2>Offres Similaires</h2>
-<div style="position: relative; display: flex; align-items: center;">
-    <button class="scroll-button left" onclick="scrollOffers(-300)">&#60;</button>
-    <div class="similar-offers-container" style="display: flex; overflow-x: auto; scroll-behavior: smooth;">
-        {% for similar_offer in similar_offers %}
-            <div class="card m-2" style="min-width: 200px;">
-                <img src="/static/{{ similar_offer.image_off }}" class="card-img-top" alt="{{ similar_offer.libelle_off }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ similar_offer.libelle_off }}</h5>
-                    <p class="card-text">{{ similar_offer.prix_off }}€</p>
-                    <a href="{{ url_for('offre_details', offre_id=similar_offer.ID_off) }}" class="btn btn-primary">Voir Détails</a>
-                </div>
+<div class="similar-offers-container">
+    {% for similar_offer in similar_offers %}
+        <div class="card m-2">
+            <img src="/static/{{ similar_offer.image_off }}" class="card-img-top" alt="{{ similar_offer.libelle_off }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ similar_offer.libelle_off }}</h5>
+                <p class="card-text">{{ similar_offer.prix_off }}€</p>
+                <a href="{{ url_for('offre_details', offre_id=similar_offer.ID_off) }}" class="btn btn-primary">Voir Détails</a>
             </div>
-        {% endfor %}
-    </div>
-    <button class="scroll-button right" onclick="scrollOffers(300)">&#62;</button>
+        </div>
+    {% endfor %}
 </div>
-
-<script>
-function scrollOffers(amount) {
-    const container = document.querySelector('.similar-offers-container');
-    container.scrollBy({ left: amount, behavior: 'smooth' });
-}
-</script>
 
 <hr>
 
@@ -103,8 +97,15 @@ function scrollOffers(amount) {
 {% for avis_item in avis %}
     <div class="review">
         <p>{{ avis_item.user_name }} - {{ avis_item.date_avis }}</p>
-        <div class="stars">
-            {{ avis_item.Etoiles }} {{ 'étoile' if avis_item.Etoiles == 1 else 'étoiles' }}
+
+        <div class="star-rating">
+            {% for star in range(1, 6) %}
+                {% if star <= avis_item.Etoiles %}
+                    ⭐
+                {% else %}
+                    ☆
+                {% endif %}
+            {% endfor %}
         </div>
         <p>{{ avis_item.comment_avis }}</p>
     </div>
@@ -112,12 +113,15 @@ function scrollOffers(amount) {
 
 {% if session.user_id %}
     <form action="{{ url_for('offre_details', offre_id=offre.ID_off) }}" method="post" class="mt-4">
-        <div class="star-rating">
-            {% for star in range(1, 6) %}
-                <img src="{{ 'static/Images/Star.svg' }}" data-value="{{ star }}" class="star" id="star-{{ star }}" alt="{{ star }}">
-            {% endfor %}
-        </div>
         <input type="hidden" name="etoiles" id="etoiles" value="0">
+        <div class="star-rating-input">
+            <span class="star" data-value="1">☆</span>
+            <span class="star" data-value="2">☆</span>
+            <span class="star" data-value="3">☆</span>
+            <span class="star" data-value="4">☆</span>
+            <span class="star" data-value="5">☆</span>
+            <input type="hidden" name="etoiles" id="etoiles" value="0">
+        </div>
         <div class="mb-3">
             <textarea name="commentaire" class="form-control" rows="3" required placeholder="Ajouter un commentaire"></textarea>
         </div>
@@ -137,6 +141,25 @@ function scrollOffers(amount) {
                     } else {
                         s.src = 'static/Images/Star.svg';
                     }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star-rating-input .star');
+            const etoilesInput = document.getElementById('etoiles');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = this.getAttribute('data-value');
+                    etoilesInput.value = rating;
+                    stars.forEach(s => {
+                        if (s.getAttribute('data-value') <= rating) {
+                            s.textContent = '⭐';
+                        } else {
+                            s.textContent = '☆';
+                        }
+                    });
                 });
             });
         });
