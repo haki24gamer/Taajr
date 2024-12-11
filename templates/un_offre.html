@@ -100,22 +100,47 @@ function scrollOffers(amount) {
 <hr>
 
 <h2>Avis</h2>
-{% for a in avis %}
-    <div class="mb-3 p-3 bg-light rounded shadow-sm">
-        <strong>{{ a.user_name }}</strong> le {{ a.date_avis }}:
-        <p>{{ a.comment_avis }}</p>
+{% for avis_item in avis %}
+    <div class="review">
+        <p>{{ avis_item.user_name }} - {{ avis_item.date_avis }}</p>
+        <div class="stars">
+            {{ avis_item.Etoiles }} {{ 'étoile' if avis_item.Etoiles == 1 else 'étoiles' }}
+        </div>
+        <p>{{ avis_item.comment_avis }}</p>
     </div>
-{% else %}
-    <p>Aucun avis pour le moment.</p>
 {% endfor %}
 
 {% if session.user_id %}
     <form action="{{ url_for('offre_details', offre_id=offre.ID_off) }}" method="post" class="mt-4">
+        <div class="star-rating">
+            {% for star in range(1, 6) %}
+                <img src="{{ 'static/Images/Star.svg' }}" data-value="{{ star }}" class="star" id="star-{{ star }}" alt="{{ star }}">
+            {% endfor %}
+        </div>
+        <input type="hidden" name="etoiles" id="etoiles" value="0">
         <div class="mb-3">
             <textarea name="commentaire" class="form-control" rows="3" required placeholder="Ajouter un commentaire"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Soumettre</button>
     </form>
+    <script>
+        const stars = document.querySelectorAll('.star');
+        const etoilesInput = document.getElementById('etoiles');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.getAttribute('data-value');
+                etoilesInput.value = rating;
+                stars.forEach(s => {
+                    if(s.getAttribute('data-value') <= rating){
+                        s.src = 'static/Images/StarS.svg';
+                    } else {
+                        s.src = 'static/Images/Star.svg';
+                    }
+                });
+            });
+        });
+    </script>
 {% else %}
     <p><a href="{{ url_for('connexion') }}" class="btn btn-link">Connectez-vous</a> pour ajouter un commentaire.</p>
 {% endif %}
