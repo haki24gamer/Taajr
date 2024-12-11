@@ -32,6 +32,20 @@
       padding: 20px 0;
       margin-top: auto;
     }
+    .cart-icon {
+        position: relative;
+        display: inline-block;
+    }
+    .cart-count {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-100%, -55%);
+        color: black;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -77,7 +91,10 @@
           <a href="/Favoris" class="ms-3">
             <img src="/static/Images/Maquette Taajr/heart.svg" width="50px" class="me-4">
           </a>
-          <a href="/Panier"><img src="/static/Images/Maquette Taajr/cart.svg" width="50px" class="me-4"></a>
+          <a href="{{ url_for('Panier') }}" class="cart-icon">
+              <img src="/static/Images/Maquette Taajr/cart.svg" width="50px" class="me-4">
+              <span class="cart-count">{{ cart_ids|length }}</span>
+          </a>
       </div>
     </div>
 </div>
