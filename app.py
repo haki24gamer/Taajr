@@ -620,11 +620,12 @@ def offre_details(offre_id):
 
     if (request.method == 'POST'):
         commentaire = request.form.get('commentaire')
+        etoiles = request.form.get('etoiles')  # Added to capture the rating
         if ('user_id' in session):
             db.execute("""
-                INSERT INTO avis (ID_off, ID_uti, comment_avis, date_avis)
-                VALUES (?, ?, ?, date('now', 'localtime'))
-            """, offre_id, session['user_id'], commentaire)
+                INSERT INTO avis (ID_off, ID_uti, comment_avis, Etoiles, date_avis)
+                VALUES (?, ?, ?, ?, date('now', 'localtime'))
+            """, offre_id, session['user_id'], commentaire, etoiles)
             flash("Votre commentaire a été ajouté avec succès.", "success")
         else:
             flash("Vous devez être connecté pour ajouter un commentaire.", "danger")
@@ -632,7 +633,7 @@ def offre_details(offre_id):
 
     # Retrieve reviews for the offer
     avis = db.execute("""
-        SELECT avis.comment_avis, avis.date_avis, utilisateur.nom_uti AS user_name
+        SELECT avis.comment_avis, avis.date_avis, avis.Etoiles, utilisateur.nom_uti AS user_name
         FROM avis
         JOIN utilisateur ON avis.ID_uti = utilisateur.ID_uti
         WHERE avis.ID_off = ?

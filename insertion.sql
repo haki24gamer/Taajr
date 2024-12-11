@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS "avis" (
     ID_off INTEGER,
     ID_uti INTEGER,
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
-    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti)
+    FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti),
+    Etoiles INTEGER CHECK(Etoiles BETWEEN 1 AND 5)
 );
 CREATE TABLE IF NOT EXISTS "commande" (
     ID_com INTEGER PRIMARY KEY AUTOINCREMENT,
