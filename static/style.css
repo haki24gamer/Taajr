@@ -15,6 +15,12 @@ a {
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 10px; /* Add margin to create horizontal space */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Espaces réservés pour l'image */
@@ -53,10 +59,12 @@ a {
     color: white;
     width: 100%;
     padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 .product-card .btn:hover {
-    background-color: #0250A0;
+    background-color: #0284A0;
 }
 
 @media (max-width: 768px) {
@@ -116,6 +124,12 @@ a {
     flex-direction: column;
     height: 350px; /* Set desired fixed height */
     cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.similar-offers-container .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .similar-offers-container .card-img-top {
@@ -130,9 +144,14 @@ a {
     flex-direction: column;
 }
 
-
 .similar-offers-container .card-body .btn {
     margin-top: auto;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.similar-offers-container .card-body .btn:hover {
+    background-color: #0284A0;
 }
 
 .similar-offers-container .card-link {
