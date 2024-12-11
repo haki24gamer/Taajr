@@ -80,14 +80,16 @@
 <h2>Offres Similaires</h2>
 <div class="similar-offers-container">
     {% for similar_offer in similar_offers %}
-        <div class="card m-2">
-            <img src="/static/{{ similar_offer.image_off }}" class="card-img-top" alt="{{ similar_offer.libelle_off }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ similar_offer.libelle_off }}</h5>
-                <p class="card-text">{{ similar_offer.prix_off }}€</p>
-                <a href="{{ url_for('offre_details', offre_id=similar_offer.ID_off) }}" class="btn btn-primary">Voir Détails</a>
+        <a href="{{ url_for('offre_details', offre_id=similar_offer.ID_off) }}" class="card-link">
+            <div class="card m-2">
+                <img src="/static/{{ similar_offer.image_off }}" class="card-img-top" alt="{{ similar_offer.libelle_off }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ similar_offer.libelle_off }}</h5>
+                    <p class="card-text">{{ similar_offer.prix_off }}€</p>
+                    <!-- Removed "Voir Détails" button -->
+                </div>
             </div>
-        </div>
+        </a>
     {% endfor %}
 </div>
 
