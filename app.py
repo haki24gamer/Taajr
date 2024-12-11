@@ -20,9 +20,11 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configuration for file uploads
-UPLOAD_FOLDER = 'static/Images/Offres/'  # Changed from 'static/Images/' to 'static/Images/Offres/'
+UPLOAD_FOLDER_OFFRES = 'static/Images/Offres/'
+UPLOAD_FOLDER_LOGO = 'static/Images/Logo_Boutique/'  # New upload folder for boutique logos
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif', 'webp'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
+app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -80,7 +82,9 @@ def inject_cart_ids():
 @app.route('/')
 def index():
     offers_products = db.execute("""
-        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
         FROM offre
         LEFT JOIN avis ON offre.ID_off = avis.ID_off
         WHERE type_off = 'Produit'
@@ -88,7 +92,9 @@ def index():
         LIMIT 4
     """)
     offers_services = db.execute("""
-        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
         FROM offre
         LEFT JOIN avis ON offre.ID_off = avis.ID_off
         WHERE type_off = 'Service'
@@ -138,7 +144,15 @@ def deconnexion():
 
 @app.route('/Produits')
 def Produits():
-    products = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Produit' GROUP BY offre.ID_off")
+    products = db.execute("""
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
+        FROM offre
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
+        WHERE type_off = 'Produit'
+        GROUP BY offre.ID_off
+    """)
     
     # Obtenir les IDs des produits dans le panier de l'utilisateur
     cart_ids = []
@@ -150,7 +164,15 @@ def Produits():
 
 @app.route('/Services')
 def Services():
-    services = db.execute("SELECT offre.*, COUNT(avis.ID_avis) as reviews_count FROM offre LEFT JOIN avis ON offre.ID_off = avis.ID_off WHERE type_off = 'Service' GROUP BY offre.ID_off")
+    services = db.execute("""
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
+        FROM offre
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
+        WHERE type_off = 'Service'
+        GROUP BY offre.ID_off
+    """)
     
     # Obtenir les IDs des services dans le panier de l'utilisateur
     cart_ids = []
@@ -258,8 +280,8 @@ def Inscription_Vendeur():
         logo = request.files.get('logo')
         if (logo and allowed_file(logo.filename)):
             logo_filename = secure_filename(logo.filename)
-            logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
-            logo_relative_path = os.path.join('Images', logo_filename)
+            logo.save(os.path.join(app.config['UPLOAD_FOLDER_LOGO'], logo_filename))  # Save to Logo_Boutique
+            logo_relative_path = os.path.join('Images/Logo_Boutique', logo_filename)  # Update path
         else:
             logo_relative_path = None  # Or handle error
         
@@ -374,6 +396,9 @@ def Inscription_Client():
 
 @app.route('/Panier')
 def Panier():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder au panier.', 'danger')
+        return redirect(url_for('connexion'))
     if ('user_id' in session):
         cart_items = db.execute("""
             SELECT panier.ID_panier, offre.ID_off, offre.libelle_off, panier.quantity, offre.prix_off
@@ -444,7 +469,9 @@ def Categories():
 def category_offers(category_id):
     # Update the SQL query to include reviews_count
     offers = db.execute("""
-        SELECT offre.*, COUNT(avis.ID_avis) as reviews_count
+        SELECT offre.*, 
+               COUNT(avis.ID_avis) AS reviews_count, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars
         FROM offre
         LEFT JOIN avis ON offre.ID_off = avis.ID_off
         JOIN appartenir ON offre.ID_off = appartenir.ID_off
@@ -497,53 +524,53 @@ def Ajouter_au_panier():
 @app.route('/like_offer', methods=['POST'])
 def like_offer():
     if ('user_id' not in session):
-        flash('Veuillez vous connecter pour aimer des articles.', 'danger')
+        flash('Veuillez vous connecter pour aimer des articles. ❤️', 'danger')
         return redirect(url_for('connexion'))
     
     offer_id = request.form.get('offer_id')
     if (not offer_id):
-        flash('Offre invalide.', 'danger')
+        flash('Offre invalide. ❤️', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si l'offre existe
     offer = db.execute("SELECT * FROM offre WHERE ID_off = ?", offer_id)
     if (not offer):
-        flash('Offre non trouvée.', 'danger')
+        flash('Offre non trouvée. ❤️', 'danger')
         return redirect(request.referrer)
     
     # Vérifier si l'offre est déjà aimée
     liked = db.execute("SELECT * FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
     if (liked):
-        flash('Offre déjà aimée.', 'info')
-        print(f"User {session['user_id']} already liked offer {offer_id}.")
+        flash('Offre déjà aimée. ❤️', 'info')
+        print(f"User {session['user_id']} already liked offer {offer_id}. ❤️")
     else:
         db.execute("INSERT INTO likes (ID_uti, ID_off) VALUES (?, ?)", session['user_id'], offer_id)
-        flash('Offre ajoutée à vos favoris.', 'success')
+        flash('Offre ajoutée à vos favoris. ❤️', 'success')
         # Debugging: Confirm insertion
-        print(f"User {session['user_id']} liked offer {offer_id}.")
+        print(f"User {session['user_id']} liked offer {offer_id}. ❤️")
 
     return redirect(request.referrer)
 
 @app.route('/unlike_offer', methods=['POST'])
 def unlike_offer():
     if ('user_id' not in session):
-        flash('Veuillez vous connecter pour enlever des articles de vos favoris.', 'danger')
+        flash('Veuillez vous connecter pour enlever des articles de vos favoris. ❤️', 'danger')
         return redirect(url_for('connexion'))
     
     offer_id = request.form.get('offer_id')
     if (not offer_id):
-        flash('Offre invalide.', 'danger')
+        flash('Offre invalide. ❤️', 'danger')
         return redirect(request.referrer)
     
     # Supprimer l'offre des favoris
     deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
     if (deleted):
-        flash('Offre retirée de vos favoris.', 'success')
+        flash('Offre retirée de vos favoris. ❤️', 'success')
         # Debugging: Confirm deletion
-        print(f"User {session['user_id']} unliked offer {offer_id}.")
+        print(f"User {session['user_id']} unliked offer {offer_id}. ❤️")
     else:
-        flash('Aucune modification effectuée.', 'info')
-        print(f"User {session['user_id']} tried to unlike offer {offer_id} but it was not found.")
+        flash('Aucune modification effectuée. ❤️', 'info')
+        print(f"User {session['user_id']} tried to unlike offer {offer_id} but it was not found. ❤️")
 
     return redirect(request.referrer)
 
@@ -634,7 +661,16 @@ def offre_details(offre_id):
         WHERE avis.ID_off = ?
     """, offre_id)
 
-    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category)
+    # Calculate number of likes
+    likes_count = db.execute("SELECT COUNT(*) AS count FROM likes WHERE ID_off = ?", offre_id)[0]['count']
+    
+    # Calculate average stars with COALESCE to handle no ratings
+    avg_stars = db.execute("SELECT COALESCE(AVG(Etoiles), 0) AS average FROM avis WHERE ID_off = ?", offre_id)[0]['average']
+    
+    # Calculate the number of ratings
+    ratings_count = db.execute("SELECT COUNT(*) AS count FROM avis WHERE ID_off = ?", offre_id)[0]['count']
+
+    return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category, likes_count=likes_count, avg_stars=avg_stars, ratings_count=ratings_count)
 
 @app.route('/menu_vendeur')
 def menu_vendeur():
@@ -772,16 +808,18 @@ def modifier_profil():
         
         # Handle logo upload for Vendeur
         if (user[0]['type_uti'] == 'Vendeur'):
-            new_logo = request.files.get('new_logo')
-            if (new_logo and allowed_file(new_logo.filename)):
-                logo_filename = secure_filename(new_logo.filename)
-                new_logo.save(os.path.join(app.config['UPLOAD_FOLDER'], logo_filename))
-                logo_relative_path = os.path.join('Images', logo_filename)
+            logo = request.files.get('logo')
+            if (logo and allowed_file(logo.filename)):
+                logo_filename = secure_filename(logo.filename)
+                logo.save(os.path.join(app.config['UPLOAD_FOLDER_LOGO'], logo_filename))  # Save to Logo_Boutique
+                logo_relative_path = os.path.join('Images/Logo_Boutique', logo_filename)  # Update path
+                # Update the logo path in Details_Vendeur
                 db.execute("""
                     UPDATE Details_Vendeur 
                     SET logo = ?
                     WHERE ID_uti = ?
                 """, logo_relative_path, session['user_id'])
+            # ...handle else case if needed...
         
         if errors:
             for error in errors:
@@ -1038,6 +1076,7 @@ def a_propos():
 @app.route("/Contactez-nous", methods=['GET', 'POST'])
 def Contactez_nous():
     return render_template("contacter_nous.html")
+
 
 
 if __name__ == '__main__':
