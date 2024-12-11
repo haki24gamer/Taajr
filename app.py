@@ -672,20 +672,6 @@ def offre_details(offre_id):
 
     return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category, likes_count=likes_count, avg_stars=avg_stars, ratings_count=ratings_count)
 
-@app.route('/menu_vendeur')
-def menu_vendeur():
-    user_id = session.get('user_id')
-    if (not user_id):
-        flash('Veuillez vous connecter.', 'danger')
-        return redirect(url_for('connexion'))
-    
-    user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
-    if (not user or user[0]['type_uti'] != 'Vendeur'):
-        flash('Accès interdit.', 'danger')
-        return redirect(url_for('index'))
-    
-    return render_template('Menu_Vendeur.html')
-
 @app.route('/admin')
 def admin():
     return render_template('admin.html')
@@ -1079,7 +1065,6 @@ def reset_password():
     return render_template("reset_password.html")
 
 
-    
 @app.route("/a_propos")
 def a_propos():
     return render_template("a_propos.html")
@@ -1088,7 +1073,30 @@ def a_propos():
 def Contactez_nous():
     return render_template("contacter_nous.html")
 
-
+@app.route('/boutique/<int:vendeur_id>')
+def boutique(vendeur_id):
+    # Fetch vendeur details
+    vendeur = db.execute("""
+        SELECT utilisateur.nom_uti, utilisateur.prenom_uti, Details_Vendeur.nom_boutique,
+               Details_Vendeur.adresse_boutique, Details_Vendeur.description, Details_Vendeur.logo
+        FROM utilisateur
+        JOIN Details_Vendeur ON utilisateur.ID_uti = Details_Vendeur.ID_uti
+        WHERE utilisateur.ID_uti = ?
+    """, vendeur_id)
+    
+    if not vendeur:
+        flash('Vendeur non trouvé.', 'danger')
+        return redirect(url_for('index'))
+    
+    vendeur = vendeur[0]
+    
+    # Fetch offres made by the vendeur
+    offres = db.execute("""
+        SELECT * FROM offre
+        WHERE ID_uti = ?
+    """, vendeur_id)
+    
+    return render_template('Boutique.html', vendeur=vendeur, offres=offres)
 
 if __name__ == '__main__':
     app.run(debug=True)
