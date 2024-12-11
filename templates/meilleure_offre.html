@@ -7,7 +7,7 @@
         <div class="row">
             {% for offre in offres %}
             <div class="col-md-3">
-                <a href="{{ url_for('meilleure_offre', offre_id=offre.ID_off) }}">
+                <a href="{{ url_for('offre_details', offre_id=offre.ID_off) }}">
                     <div class="card product-card">
                         <div class="card-img-top">
                             <img src="/static/{{ offre.image_off }}" alt="Image de Service" class="card-img-top">
@@ -15,10 +15,22 @@
                         
                         <div class="card-body">
                             <h5 class="card-title">{{ offre.libelle_off }}</h5>
-                            <p class="card-text">{{ offre.description_off }}</p>
-                            <p class="rating">⭐⭐⭐☆☆ ({{ offre.reviews_count }} avis)</p>
+                            <p class="card-text">{{ offre.description_off }}</p>                
+                            <!-- Changed rating display -->
+                            <p class="rating">
+                                {% for i in range(1, 6) %}
+                                    {% if offre.avg_stars >= i %}
+                                        ⭐ 
+                                    {% elif offre.avg_stars >= i - 0.5 %}
+                                        ☆
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                                ({{ offre.reviews_count }} avis)
+                            </p>
                             <p class="card-text fw-bold">Prix : {{ offre.prix_off }}fdj</p>
-                            <p class="card-text fw-bold">Nombre de likes : {{ offre.reviews_count }} likes</p>
+                            <p class="card-text fw-bold">{{ offre.total_likes }} ❤️</p>
 
                            
 

@@ -1009,13 +1009,24 @@ def search():
     
 @app.route("/meilleure_offre",methods=["GET", "POST"])
 def meilleure_offre():
-    offre =  db.execute("SELECT offre.*, COUNT(likes.ID_like) as reviews_count FROM offre LEFT JOIN likes ON offre.ID_off = likes.ID_off  ORDER BY offre.ID_off  DESC")
-    # Obtenir les IDs des produits dans le panier de l'utilisateur
+    k = 1  # Define the constant k for weighting
+    offres = db.execute("""
+        SELECT offre.*, 
+               COUNT(DISTINCT likes.ID_like) AS total_likes, 
+               COALESCE(AVG(avis.Etoiles), 0) AS avg_stars,
+               (COUNT(DISTINCT likes.ID_like) + ? * COALESCE(AVG(avis.Etoiles), 0)) AS weighted_rating
+        FROM offre
+        LEFT JOIN likes ON offre.ID_off = likes.ID_off
+        LEFT JOIN avis ON offre.ID_off = avis.ID_off
+        GROUP BY offre.ID_off
+        ORDER BY weighted_rating DESC
+    """, k)
+    # Ensure the template receives the sorted offers
     cart_ids = []
     if ('user_id' in session):
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
         cart_ids = [item['ID_off'] for item in cart_items]
-    return render_template("meilleure_offre.html",offres=offre, cart_ids=cart_ids)
+    return render_template("meilleure_offre.html", offres=offres, cart_ids=cart_ids)
 
 
 # Route pour la réinitialisation du mot de passe
