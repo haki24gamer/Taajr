@@ -1000,6 +1000,7 @@ def meilleure_offre():
         SELECT offre.*, 
                COUNT(DISTINCT likes.ID_like) AS total_likes, 
                COALESCE(AVG(avis.Etoiles), 0) AS avg_stars,
+               COUNT(DISTINCT avis.ID_avis) AS reviews_count,  # Added reviews_count
                (COUNT(DISTINCT likes.ID_like) + ? * COALESCE(AVG(avis.Etoiles), 0)) AS weighted_rating
         FROM offre
         LEFT JOIN likes ON offre.ID_off = likes.ID_off
