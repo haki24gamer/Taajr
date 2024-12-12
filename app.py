@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import re
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -78,6 +79,19 @@ def inject_cart_ids():
     else:
         cart_ids = []
     return dict(cart_ids=cart_ids)
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Veuillez vous connecter en tant qu\'admin.', 'danger')
+            return redirect(url_for('connexion'))
+        user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+        if not user or user[0]['type_uti'] != 'Admin':
+            flash('Accès réservé aux administrateurs.', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
@@ -1217,6 +1231,51 @@ def gestion_produits():
 def gestion_services():
     services = db.execute("SELECT * FROM offre WHERE type_off = 'Service'")
     return render_template('gestion_services.html', services=services)
+
+@app.route('/gestion_categories')
+def gestion_categories():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à la gestion des catégories.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify the logged-in user is an admin
+    current_user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not current_user or current_user[0]['type_uti'] != 'Admin':
+        flash('Accès refusé. Vous devez être un administrateur.', 'danger')
+        return redirect(url_for('index'))
+    
+    categories = db.execute("SELECT * FROM categorie")
+    return render_template('gestion_categories.html', categories=categories)
+
+@app.route('/gestion_commandes')
+@admin_required
+def gestion_commandes():
+    commandes = db.execute("SELECT * FROM commande")
+    return render_template('gestion_commandes.html', commandes=commandes)
+
+@app.route('/gestion_messages')
+@admin_required
+def gestion_messages():
+    messages = db.execute("SELECT * FROM messages")  # Adjust table name as needed
+    return render_template('gestion_messages.html', messages=messages)
+
+@app.route('/gestion_comptes_admin')
+@admin_required
+def gestion_comptes_admin():
+    admins = db.execute("SELECT * FROM utilisateur WHERE type_uti = 'Admin'")
+    return render_template('gestion_comptes_admin.html', admins=admins)
+
+@app.route('/gestion_parametres')
+@admin_required
+def gestion_parametres():
+    parametres = db.execute("SELECT * FROM parametres")  # Adjust table name as needed
+    return render_template('gestion_parametres.html', parametres=parametres)
+
+@app.route('/gestion_notifications')
+@admin_required
+def gestion_notifications():
+    notifications = db.execute("SELECT * FROM notifications")  # Adjust table name as needed
+    return render_template('gestion_notifications.html', notifications=notifications)
 
 if __name__ == '__main__':
 
