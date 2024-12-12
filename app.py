@@ -677,7 +677,33 @@ def offre_details(offre_id):
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    # Calculate counts
+    num_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur")[0]['count']
+    num_offers = db.execute("SELECT COUNT(*) AS count FROM offre")[0]['count']
+    num_pending = db.execute("SELECT COUNT(*) AS count FROM commande WHERE status_com='pending'")[0]['count']
+    num_orders = db.execute("SELECT COUNT(*) AS count FROM commande")[0]['count']
+    
+    # Fetch detailed data with owner information, limited to 5
+    users = db.execute("SELECT ID_uti, nom_uti, prenom_uti, email_uti FROM utilisateur LIMIT 5")
+    offers = db.execute("""
+        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
+        FROM offre
+        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
+        LIMIT 5
+    """)
+    pending_orders = db.execute("SELECT * FROM commande WHERE status_com='pending' LIMIT 5")
+    orders = db.execute("SELECT * FROM commande LIMIT 5")
+    
+    # Pass the counts and detailed data to the template
+    return render_template('admin.html',
+                           num_users=num_users,
+                           num_offers=num_offers,
+                           num_pending=num_pending,
+                           num_orders=num_orders,
+                           users=users,
+                           offers=offers,
+                           pending_orders=pending_orders,
+                           orders=orders)
 
 @app.route('/Profil')
 def profil():
