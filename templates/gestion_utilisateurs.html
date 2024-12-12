@@ -1,0 +1,166 @@
+{% extends "admin_layout.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    .header {
+        background-color: #0056b3;
+        color: white;
+        text-align: center;
+        padding: 20px 10px;
+    }
+    .header h1 {
+        font-size: 2.5rem;
+    }
+    .header .subtitle {
+        font-size: 1rem;
+    }
+    .btn-primary, .btn-info {
+        background-color: #0056b3;
+        border: none;
+    }
+    .btn-danger {
+        background-color: #d63384;
+        border: none;
+    }
+    .btn-primary:hover, .btn-info:hover {
+        background-color: #003d80;
+    }
+    .btn-danger:hover {
+        background-color: #a82867;
+    }
+    .stats-card {
+        background-color: #fff;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stats-card h4 {
+        font-size: 1.5rem;
+        color: #0056b3;
+    }
+    .stats-card p {
+        font-size: 1rem;
+    }
+    .table th {
+        background-color: #0056b3;
+        color: white;
+    }
+    .table thead th {
+        border-bottom: 2px solid #d63384; /* Séparateur rose */
+    }
+    .divider {
+        height: 4px;
+        background: linear-gradient(to right, #0056b3, #d63384); /* Dégradé bleu-rose */
+        border: none;
+        margin: 20px 0;
+    }
+    .filter-container {
+        margin-bottom: 20px;
+    }
+    .filter-container select,
+    .filter-container input {
+        border-radius: 8px;
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+</style>
+    <!-- En-tête -->
+    <header class="header">
+        <h1>Gestion des utilisateurs</h1>
+        <p class="subtitle">Surveillez, administrez et optimisez la gestion des utilisateurs de Taajr</p>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques -->
+        <div class="row text-center mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ total_users }}</h4>
+                    <p>Total des utilisateurs</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ active_sellers }}</h4>
+                    <p>Vendeurs</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ active_clients }}</h4>
+                    <p>Clients</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ total_admins }}</h4>
+                    <p>Admins</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Filtres et barre de recherche -->
+        <div class="filter-container d-flex justify-content-between">
+            <!-- Barre de recherche -->
+            <div class="w-50">
+                <input type="text" class="form-control" placeholder="Rechercher un utilisateur...">
+            </div>
+            <!-- Filtres -->
+            <div class="d-flex gap-3 w-50">
+                <!-- Filtrage par rôle -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par rôle</option>
+                    <option value="vendeur">Vendeur</option>
+                    <option value="client">Client</option>
+                </select>
+                <!-- Filtrage par statut -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par statut</option>
+                    <option value="actif">Actif</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="banni">Banni</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tableau des utilisateurs -->
+        <h2 class="mb-3 text-primary">Liste des utilisateurs</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.ID_uti }}</td>
+                    <td>{{ user.nom_uti }}</td>
+                    <td>{{ user.prenom_uti }}</td>
+                    <td>{{ user.email_uti }}</td>
+                    <td>{{ user.type_uti }}</td>
+                    <td>
+                        <a href="/edit_user/{{ user.ID_uti }}" class="btn btn-warning btn-sm">Éditer</a>
+                        <form action="/delete_user/{{ user.ID_uti }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+{% endblock %}

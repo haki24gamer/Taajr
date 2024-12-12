@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import re
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -78,6 +79,19 @@ def inject_cart_ids():
     else:
         cart_ids = []
     return dict(cart_ids=cart_ids)
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Veuillez vous connecter en tant qu\'admin.', 'danger')
+            return redirect(url_for('connexion'))
+        user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+        if not user or user[0]['type_uti'] != 'Admin':
+            flash('Accès réservé aux administrateurs.', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
@@ -1155,6 +1169,113 @@ def reset_password():
     # Afficher le formulaire par défaut
     return render_template("reset_password.html")
 
+@app.route('/gestion_utilisateurs')
+def gestion_utilisateurs():
+    users = db.execute("SELECT * FROM utilisateur")
+    
+    # Calculate total users
+    total_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur")[0]['count']
+    
+    # Calculate active sellers
+    active_sellers = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Vendeur'")[0]['count']
+    
+    # Calculate active clients
+    active_clients = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Client'")[0]['count']
+    
+    # Calculate total admins
+    total_admins = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Admin'")[0]['count']
+
+    # Pass the counts to the template
+    return render_template('gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify the logged-in user is an admin
+    current_user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not current_user or current_user[0]['type_uti'] != 'Admin':
+        flash('Vous n\'avez pas les permissions nécessaires pour effectuer cette action.', 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Prevent admin from deleting themselves
+    if user_id == session['user_id']:
+        flash('Vous ne pouvez pas vous supprimer vous-même.', 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Check if the user exists
+    user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", user_id)
+    if not user:
+        flash('Utilisateur non trouvé.', 'warning')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Delete related records (e.g., favoris, panier, likes, etc.)
+    db.execute("DELETE FROM likes WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
+    # Add more deletions as necessary based on your database schema
+    
+    # Finally, delete the user
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
+    
+    flash('Utilisateur supprimé avec succès.', 'success')
+    return redirect(url_for('gestion_utilisateurs'))
+
+@app.route('/gestion_produits')
+def gestion_produits():
+    produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit'")
+    return render_template('gestion_produits.html', produits=produits)
+
+@app.route('/gestion_services')
+def gestion_services():
+    services = db.execute("SELECT * FROM offre WHERE type_off = 'Service'")
+    return render_template('gestion_services.html', services=services)
+
+@app.route('/gestion_categories')
+def gestion_categories():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à la gestion des catégories.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify the logged-in user is an admin
+    current_user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not current_user or current_user[0]['type_uti'] != 'Admin':
+        flash('Accès refusé. Vous devez être un administrateur.', 'danger')
+        return redirect(url_for('index'))
+    
+    categories = db.execute("SELECT * FROM categorie")
+    return render_template('gestion_categories.html', categories=categories)
+
+@app.route('/gestion_commandes')
+@admin_required
+def gestion_commandes():
+    commandes = db.execute("SELECT * FROM commande")
+    return render_template('gestion_commandes.html', commandes=commandes)
+
+@app.route('/gestion_messages')
+@admin_required
+def gestion_messages():
+    messages = db.execute("SELECT * FROM messages")  # Adjust table name as needed
+    return render_template('gestion_messages.html', messages=messages)
+
+@app.route('/gestion_comptes_admin')
+@admin_required
+def gestion_comptes_admin():
+    admins = db.execute("SELECT * FROM utilisateur WHERE type_uti = 'Admin'")
+    return render_template('gestion_comptes_admin.html', admins=admins)
+
+@app.route('/gestion_parametres')
+@admin_required
+def gestion_parametres():
+    parametres = db.execute("SELECT * FROM parametres")  # Adjust table name as needed
+    return render_template('gestion_parametres.html', parametres=parametres)
+
+@app.route('/gestion_notifications')
+@admin_required
+def gestion_notifications():
+    notifications = db.execute("SELECT * FROM notifications")  # Adjust table name as needed
+    return render_template('gestion_notifications.html', notifications=notifications)
 
 if __name__ == '__main__':
 
