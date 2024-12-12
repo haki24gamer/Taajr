@@ -1155,6 +1155,68 @@ def reset_password():
     # Afficher le formulaire par défaut
     return render_template("reset_password.html")
 
+@app.route('/gestion_utilisateurs')
+def gestion_utilisateurs():
+    users = db.execute("SELECT * FROM utilisateur")
+    
+    # Calculate total users
+    total_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur")[0]['count']
+    
+    # Calculate active sellers
+    active_sellers = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Vendeur'")[0]['count']
+    
+    # Calculate active clients
+    active_clients = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Client'")[0]['count']
+    
+    # Calculate total admins
+    total_admins = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Admin'")[0]['count']
+
+    # Pass the counts to the template
+    return render_template('gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify the logged-in user is an admin
+    current_user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not current_user or current_user[0]['type_uti'] != 'Admin':
+        flash('Vous n\'avez pas les permissions nécessaires pour effectuer cette action.', 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Prevent admin from deleting themselves
+    if user_id == session['user_id']:
+        flash('Vous ne pouvez pas vous supprimer vous-même.', 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Check if the user exists
+    user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", user_id)
+    if not user:
+        flash('Utilisateur non trouvé.', 'warning')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Delete related records (e.g., favoris, panier, likes, etc.)
+    db.execute("DELETE FROM likes WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
+    # Add more deletions as necessary based on your database schema
+    
+    # Finally, delete the user
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
+    
+    flash('Utilisateur supprimé avec succès.', 'success')
+    return redirect(url_for('gestion_utilisateurs'))
+
+@app.route('/gestion_produits')
+def gestion_produits():
+    produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit'")
+    return render_template('gestion_produits.html', produits=produits)
+
+@app.route('/gestion_services')
+def gestion_services():
+    services = db.execute("SELECT * FROM offre WHERE type_off = 'Service'")
+    return render_template('gestion_services.html', services=services)
 
 if __name__ == '__main__':
 

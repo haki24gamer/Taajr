@@ -1,0 +1,116 @@
+{% extends "admin_layout.html" %}
+
+{% block content %}
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques produits -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>1200</h4>
+                    <p>Total des produits</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>800</h4>
+                    <p>Produits en vente</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>400</h4>
+                    <p>Produits suspendus</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et barre de recherche -->
+        <div class="filter-container d-flex justify-content-between">
+            <!-- Barre de recherche -->
+            <div class="w-50">
+                <input type="text" class="form-control" placeholder="Rechercher un produit...">
+            </div>
+            <!-- Filtres -->
+            <div class="d-flex gap-3 w-50">
+                <!-- Filtrage par catégorie -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par catégorie</option>
+                    <option value="electronique">Électronique</option>
+                    <option value="vêtements">Vêtements</option>
+                    <option value="maison">Maison</option>
+                    <option value="alimentation">Alimentation</option>
+                </select>
+                <!-- Filtrage par statut -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par statut</option>
+                    <option value="en-vente">En vente</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="retiré">Retiré</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tableau des produits -->
+        <h2 class="mb-3 text-primary">Liste des produits</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th>Date d'ajout</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produit in produits %}
+                <tr>
+                    <td>{{ produit.ID_off }}</td>
+                    <td>{{ produit.libelle_off }}</td>
+                    <td>{{ produit.description_off }}</td>
+                    <td>{{ produit.quantite_en_stock }}</td>
+                    <td>{{ produit.prix_off }}</td>
+                    <td>{{ produit.date_off }}</td>                    
+                    <td>
+                        <!-- Editer Button -->
+                        <a href="" class="btn btn-primary btn-sm">Editer</a>
+                        
+                        <!-- Supprimer Button -->
+                        <form action="" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">Détails du produit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Nom du produit :</strong> Smartphone XYZ</p>
+                    <p><strong>Catégorie :</strong> Électronique</p>
+                    <p><strong>Prix :</strong> 499€</p>
+                    <p><strong>Quantité disponible :</strong> 25</p>
+                    <p><strong>Statut :</strong> En vente</p>
+                    <p><strong>Date d'ajout :</strong> 2024-11-15</p>
+                    <p><strong>Description :</strong> Smartphone haut de gamme avec écran OLED, caméra 108 MP, et batterie longue durée.</p>
+                    <p><strong>Évaluations :</strong> 4.5/5 (120 avis)</p>
+                    <p><strong>Commentaires :</strong> Ce produit est l'un des plus populaires de notre boutique.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

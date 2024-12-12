@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Notifications - Taajr</title>
+    <!-- Lien Bootstrap et FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .header {
+            background-color: #0056b3;
+            color: white;
+            text-align: center;
+            padding: 20px 10px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+        }
+        .btn-primary {
+            background-color: #0056b3;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #d63384;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #003d80;
+        }
+        .btn-danger:hover {
+            background-color: #a82867;
+        }
+        .stats-card {
+            background-color: #fff;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stats-card h4 {
+            font-size: 1.5rem;
+            color: #0056b3;
+        }
+        .stats-card p {
+            font-size: 1rem;
+        }
+        .table th {
+            background-color: #0056b3;
+            color: white;
+        }
+        .divider {
+            height: 4px;
+            background: linear-gradient(to right, #0056b3, #d63384);
+            border: none;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête -->
+    <header class="header">
+        <h1>Gestion des Notifications</h1>
+        <p>Administrez et configurez toutes les notifications pour vos utilisateurs</p>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>200</h4>
+                    <p>Total Notifications</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>150</h4>
+                    <p>Envoyées</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>50</h4>
+                    <p>Programmées</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="d-flex justify-content-between mb-3">
+            <!-- Recherche -->
+            <input type="text" class="form-control w-50" placeholder="Rechercher par titre ou utilisateur...">
+            <!-- Filtres -->
+            <div class="d-flex gap-2">
+                <select class="form-select w-auto">
+                    <option value="">Filtrer par type</option>
+                    <option value="info">Information</option>
+                    <option value="alert">Alerte</option>
+                    <option value="reminder">Rappel</option>
+                </select>
+                <select class="form-select w-auto">
+                    <option value="">Filtrer par statut</option>
+                    <option value="sent">Envoyée</option>
+                    <option value="scheduled">Programmée</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Liste des notifications -->
+        <h2 class="mb-3 text-primary">Liste des Notifications</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Type</th>
+                    <th>Destinataire(s)</th>
+                    <th>Statut</th>
+                    <th>Date/Heure d’envoi</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>201</td>
+                    <td>Mise à jour du service</td>
+                    <td>Information</td>
+                    <td>Tous</td>
+                    <td><span class="badge bg-success">Envoyée</span></td>
+                    <td>2024-12-01 10:00</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewNotificationModal"><i class="fa fa-eye"></i></button>
+                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>202</td>
+                    <td>Offre spéciale</td>
+                    <td>Alerte</td>
+                    <td>Vendeurs</td>
+                    <td><span class="badge bg-warning">Programmée</span></td>
+                    <td>2024-12-05 15:00</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewNotificationModal"><i class="fa fa-eye"></i></button>
+                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Modal pour voir les détails -->
+    <div class="modal fade" id="viewNotificationModal" tabindex="-1" aria-labelledby="viewNotificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewNotificationModalLabel">Détails de la Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID :</strong> 201</p>
+                    <p><strong>Titre :</strong> Mise à jour du service</p>
+                    <p><strong>Type :</strong> Information</p>
+                    <p><strong>Destinataires :</strong> Tous</p>
+                    <p><strong>Statut :</strong> Envoyée</p>
+                    <p><strong>Message :</strong> Une nouvelle version de notre service sera disponible à partir du 05 décembre.</p>
+                    <p><strong>Date/Heure d’envoi :</strong> 2024-12-01 10:00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 bg-primary text-white">
+        <p>&copy; 2024 Taajr. Tous droits réservés.</p>
+    </footer>
+
+    <!-- Scripts Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
