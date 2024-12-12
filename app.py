@@ -483,9 +483,97 @@ def service_details(service_nom):
     return render_template('un_service.html', service=service[0], avis=avis)
 
 
+
+# Modèles de base de données
+class Offre(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100))
+    description = db.Column(db.Text)
+
+class Categorie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100))
+
+class Commande(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    details = db.Column(db.Text)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contenu = db.Column(db.Text)
+
+class Compte(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom_utilisateur = db.Column(db.String(100))
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(200))
+
+class Utilisateur(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+
+# Routes
+@app.route('/admin')
+def admin_dashboard():
+    return render_template('layout_admin.html')
+
+@app.route('/admin/offres')
+def gestion_offres():
+    offres = Offre.query.all()
+    return render_template('offres.html', offres=offres)
+
+@app.route('/admin/categories')
+def gestion_categories():
+    categories = Categorie.query.all()
+    return render_template('categories.html', categories=categories)
+
+@app.route('/admin/commandes')
+def gestion_commandes():
+    commandes = Commande.query.all()
+    return render_template('commandes.html', commandes=commandes)
+
+@app.route('/admin/messages')
+def gestion_messages():
+    messages = Message.query.all()
+    return render_template('messages.html', messages=messages)
+
+@app.route('/admin/comptes')
+def gestion_comptes():
+    comptes = Compte.query.all()
+    return render_template('comptes.html', comptes=comptes)
+
+@app.route('/admin/notifications')
+def gestion_notifications():
+    notifications = Notification.query.all()
+    return render_template('notifications.html', notifications=notifications)
+
+@app.route('/admin/utilisateurs')
+def gestion_utilisateurs():
+    utilisateurs = Utilisateur.query.all()
+    return render_template('utilisateurs.html', utilisateurs=utilisateurs)
+
+@app.route('/admin/connexion', methods=['GET', 'POST'])
+def connexion():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        # Logique de vérification de l'utilisateur
+        return redirect(url_for('admin_dashboard'))
+    return render_template('connexion.html')
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
 
 if __name__ == '__main__':
     app.run(debug=True)
+
