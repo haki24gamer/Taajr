@@ -132,6 +132,9 @@ def connexion():
             return render_template('connexion.html')
         # Remember which user has logged in
         session["user_id"] = rows[0]["ID_uti"]
+        # Redirect user to admin page if they are an admin
+        if rows[0]["type_uti"] == "Admin":
+            return redirect("/admin")
         # Redirect user to home page
         return redirect("/")
 
@@ -1015,6 +1018,67 @@ def meilleure_offre():
         cart_ids = [item['ID_off'] for item in cart_items]
     return render_template("meilleure_offre.html", offres=offres, cart_ids=cart_ids)
 
+def create_admin(email, password):
+    errors = []
+    
+    # Validate email
+    if not is_valid_email(email):
+        errors.append("L'adresse email n'est pas valide ou le domaine n'est pas autorisé.")
+    
+    # Validate password
+    if not password:
+        errors.append("Le mot de passe est obligatoire.")
+    
+    if errors:
+        for error in errors:
+            flash(error, 'danger')
+        return
+    
+    # Hash the password
+    hashed_password = generate_password_hash(password)
+    
+    # Insert into utilisateur as admin
+    try:
+        db.execute("""
+            INSERT INTO utilisateur (email_uti, mot_de_passe, type_uti)
+            VALUES (?, ?, 'Admin')
+        """, email, hashed_password)
+        flash('Admin créé avec succès.', 'success')
+    except Exception as e:
+        flash(f"Une erreur est survenue : {str(e)}", 'danger')
+
+@app.route("/a_propos")
+def a_propos():
+    return render_template("a_propos.html")
+
+@app.route('/boutique/<int:vendeur_id>')
+def boutique(vendeur_id):
+    # Fetch vendeur details
+    vendeur = db.execute("""
+        SELECT utilisateur.nom_uti, utilisateur.prenom_uti, Details_Vendeur.nom_boutique,
+               Details_Vendeur.adresse_boutique, Details_Vendeur.description, Details_Vendeur.logo
+        FROM utilisateur
+        JOIN Details_Vendeur ON utilisateur.ID_uti = Details_Vendeur.ID_uti
+        WHERE utilisateur.ID_uti = ?
+    """, vendeur_id)
+    
+    if not vendeur:
+        flash('Vendeur non trouvé.', 'danger')
+        return redirect(url_for('index'))
+    
+    vendeur = vendeur[0]
+    
+    # Fetch offres made by the vendeur
+    offres = db.execute("""
+        SELECT * FROM offre
+        WHERE ID_uti = ?
+    """, vendeur_id)
+    
+    return render_template('Boutique.html', vendeur=vendeur, offres=offres)
+
+@app.route("/Contactez-nous", methods=['GET', 'POST'])
+def Contactez_nous():
+    return render_template("contacter_nous.html")
 
 # Route pour la réinitialisation du mot de passe
 @app.route('/reset_password', methods=["GET", "POST"])
@@ -1066,39 +1130,7 @@ def reset_password():
     return render_template("reset_password.html")
 
 
-@app.route("/a_propos")
-def a_propos():
-    return render_template("a_propos.html")
-
-@app.route("/Contactez-nous", methods=['GET', 'POST'])
-def Contactez_nous():
-    return render_template("contacter_nous.html")
-
-@app.route('/boutique/<int:vendeur_id>')
-def boutique(vendeur_id):
-    # Fetch vendeur details
-    vendeur = db.execute("""
-        SELECT utilisateur.nom_uti, utilisateur.prenom_uti, Details_Vendeur.nom_boutique,
-               Details_Vendeur.adresse_boutique, Details_Vendeur.description, Details_Vendeur.logo
-        FROM utilisateur
-        JOIN Details_Vendeur ON utilisateur.ID_uti = Details_Vendeur.ID_uti
-        WHERE utilisateur.ID_uti = ?
-    """, vendeur_id)
-    
-    if not vendeur:
-        flash('Vendeur non trouvé.', 'danger')
-        return redirect(url_for('index'))
-    
-    vendeur = vendeur[0]
-    
-    # Fetch offres made by the vendeur
-    offres = db.execute("""
-        SELECT * FROM offre
-        WHERE ID_uti = ?
-    """, vendeur_id)
-    
-    return render_template('Boutique.html', vendeur=vendeur, offres=offres)
-
 if __name__ == '__main__':
+
     app.run(debug=True)
 
