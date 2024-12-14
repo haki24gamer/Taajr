@@ -690,6 +690,7 @@ def offre_details(offre_id):
     return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category, likes_count=likes_count, avg_stars=avg_stars, ratings_count=ratings_count)
 
 @app.route('/admin')
+@admin_required
 def admin():
     # Calculate counts
     num_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur")[0]['count']
@@ -1223,6 +1224,7 @@ def delete_user(user_id):
     return redirect(url_for('gestion_utilisateurs'))
 
 @app.route('/gestion_produits')
+@admin_required
 def gestion_produits():
     produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit'")
     return render_template('gestion_produits.html', produits=produits)
@@ -1233,6 +1235,7 @@ def gestion_services():
     return render_template('gestion_services.html', services=services)
 
 @app.route('/gestion_categories')
+@admin_required
 def gestion_categories():
     if 'user_id' not in session:
         flash('Veuillez vous connecter pour accéder à la gestion des catégories.', 'danger')
@@ -1256,26 +1259,22 @@ def gestion_commandes():
 @app.route('/gestion_messages')
 @admin_required
 def gestion_messages():
-    messages = db.execute("SELECT * FROM messages")  # Adjust table name as needed
-    return render_template('gestion_messages.html', messages=messages)
+    return render_template('gestion_messages.html')
 
 @app.route('/gestion_comptes_admin')
 @admin_required
 def gestion_comptes_admin():
-    admins = db.execute("SELECT * FROM utilisateur WHERE type_uti = 'Admin'")
-    return render_template('gestion_comptes_admin.html', admins=admins)
+    return render_template('gestion_comptes_admin.html')
 
 @app.route('/gestion_parametres')
 @admin_required
 def gestion_parametres():
-    parametres = db.execute("SELECT * FROM parametres")  # Adjust table name as needed
-    return render_template('gestion_parametres.html', parametres=parametres)
+    return render_template('gestion_parametres.html')
 
 @app.route('/gestion_notifications')
 @admin_required
 def gestion_notifications():
-    notifications = db.execute("SELECT * FROM notifications")  # Adjust table name as needed
-    return render_template('gestion_notifications.html', notifications=notifications)
+    return render_template('gestion_notifications.html')
 
 if __name__ == '__main__':
 
