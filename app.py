@@ -25,8 +25,7 @@ UPLOAD_FOLDER_OFFRES = 'static/Images/Offres/'
 UPLOAD_FOLDER_LOGO = 'static/Images/Logo_Boutique/'  # New upload folder for boutique logos
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif', 'webp'}
 app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
-app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
-
+app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folde
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -935,7 +934,7 @@ def ajouter_offre():
     image = request.files.get('image_off')
     if (image and allowed_file(image.filename)):
         image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+        image.save(os.path.join(app.config['UPLOAD_FOLDER_OFFRES'], image_filename))
         image_off = os.path.join('Images/Offres', image_filename)  # Updated path
     else:
         image_off = 'Images/default.png'  # Image par défaut si aucune image n'est téléchargée
