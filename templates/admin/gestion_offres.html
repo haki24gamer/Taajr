@@ -71,24 +71,24 @@
 </style>
     <!-- Contenu principal -->
     <main class="container my-5">
-        <!-- Section des statistiques services -->
+        <!-- Section des statistiques offres -->
         <div class="row text-center mb-4">
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h4>350</h4>
+                    <h4>{{ total_offres }}</h4>
+                    <p>Total des offres</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>{{ total_produits }}</h4>
+                    <p>Total des produits</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>{{ total_services }}</h4>
                     <p>Total des services</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>250</h4>
-                    <p>Services actifs</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>100</h4>
-                    <p>Services suspendus</p>
                 </div>
             </div>
         </div>
@@ -97,7 +97,7 @@
         <div class="filter-container d-flex justify-content-between">
             <!-- Barre de recherche -->
             <div class="w-50">
-                <input type="text" class="form-control" placeholder="Rechercher un service...">
+                <input type="text" class="form-control" placeholder="Rechercher une offre...">
             </div>
             <!-- Filtres -->
             <div class="d-flex gap-3 w-50">
@@ -108,19 +108,21 @@
                     <option value="formation">Formation</option>
                     <option value="réparation">Réparation</option>
                     <option value="livraison">Livraison</option>
+                    <option value="electronique">Électronique</option>
+                    <option value="vêtements">Vêtements</option>
+                    <option value="maison">Maison</option>
+                    <option value="alimentation">Alimentation</option>
                 </select>
-                <!-- Filtrage par statut -->
+                <!-- Filtrage par type -->
                 <select class="form-select w-50">
-                    <option value="">Filtrer par statut</option>
-                    <option value="actif">Actif</option>
-                    <option value="suspendu">Suspendu</option>
-                    <option value="retiré">Retiré</option>
+                    <option value="">Filtrer par type</option>
+                    <option value="Produit">Produit</option>
+                    <option value="Service">Service</option>
                 </select>
             </div>
         </div>
 
-        <!-- Tableau des services -->
-        <h2 class="mb-3 text-primary">Liste des services (Total: {{ total_services }})</h2>
+        <!-- Tableau des offres -->
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
@@ -131,26 +133,28 @@
                     <th>Prix</th>
                     <th>Quantité</th>
                     <th>Date d'ajout</th>
+                    <th>Type</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for service in services %}
+                {% for offre in offres %}
                 <tr>
-                    <td>{{ service.ID_off }}</td>
-                    <td>{{ service.libelle_off }}</td>
-                    <td>{{ service.categorie }}</td>
-                    <td>{{ service.description_off }}</td>
-                    <td>{{ service.prix_off }}</td>
-                    <td>{{ service.quantite_en_stock }}</td>
-                    <td>{{ service.date_off }}</td>
+                    <td>{{ offre.ID_off }}</td>
+                    <td>{{ offre.libelle_off }}</td>
+                    <td>{{ offre.categorie }}</td>
+                    <td>{{ offre.description_off }}</td>
+                    <td>{{ offre.prix_off }}</td>
+                    <td>{{ offre.quantite_en_stock }}</td>
+                    <td>{{ offre.date_off }}</td>
+                    <td>{{ offre.type_off }}</td>
                     <td>
                         <!-- Editer Button -->
-                        <button class="btn btn-primary btn-sm" onclick="openEditForm('{{ service.ID_off }}', '{{ service.libelle_off }}', '{{ service.prix_off }}', '{{ service.quantite_en_stock }}')">Editer</button>
+                        <button class="btn btn-primary btn-sm" onclick="openEditForm('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}')">Editer</button>
                         
                         <!-- Supprimer Button -->
-                        <form action="{{ url_for('supprimer_offre', offre_id=service.ID_off) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">Supprimer</button>
+                        <form action="{{ url_for('supprimer_offre', offre_id=offre.ID_off) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre?');">Supprimer</button>
                         </form>
                     </td>
                 </tr>
@@ -159,49 +163,49 @@
         </table>
     </main>
 
-    <!-- Modal de consultation des détails d'un service -->
-    <div class="modal fade" id="viewServiceModal" tabindex="-1" aria-labelledby="viewServiceModalLabel" aria-hidden="true">
+    <!-- Modal de consultation des détails d'une offre -->
+    <div class="modal fade" id="viewOfferModal" tabindex="-1" aria-labelledby="viewOfferModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewServiceModalLabel">Détails du service</h5>
+                    <h5 class="modal-title" id="viewOfferModalLabel">Détails de l'offre</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Nom du service :</strong> Consultation médicale</p>
-                    <p><strong>Catégorie :</strong> Consultation</p>
-                    <p><strong>Description :</strong> Consultation avec un médecin spécialiste pour une évaluation complète de votre santé.</p>
-                    <p><strong>Prix :</strong> 80€</p>
-                    <p><strong>Statut :</strong> Actif</p>
-                    <p><strong>Date d'ajout :</strong> 2024-11-20</p>
-                    <p><strong>Commentaires :</strong> Ce service est très populaire parmi nos utilisateurs.</p>
+                    <p><strong>Nom de l'offre :</strong> Nom de l'offre</p>
+                    <p><strong>Catégorie :</strong> Catégorie</p>
+                    <p><strong>Description :</strong> Description de l'offre</p>
+                    <p><strong>Prix :</strong> Prix de l'offre</p>
+                    <p><strong>Quantité disponible :</strong> Quantité</p>
+                    <p><strong>Type :</strong> Type de l'offre</p>
+                    <p><strong>Date d'ajout :</strong> Date d'ajout</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de modification du service -->
-    <div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel" aria-hidden="true">
+    <!-- Modal de modification de l'offre -->
+    <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="editServiceForm" method="POST" action="{{ url_for('update_offre') }}">
+                <form id="editOfferForm" method="POST" action="{{ url_for('update_offre') }}">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editServiceModalLabel">Modifier le service</h5>
+                        <h5 class="modal-title" id="editOfferModalLabel">Modifier l'offre</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" name="offerId" id="serviceId">
+                        <input type="hidden" name="offerId" id="offerId">
                         <div class="mb-3">
                             <label for="offerName" class="form-label">Nom</label>
-                            <input type="text" class="form-control" name="offerName" id="serviceName" required>
+                            <input type="text" class="form-control" name="offerName" id="offerName" required>
                         </div>
                         <div class="mb-3">
                             <label for="offerPrice" class="form-label">Prix</label>
-                            <input type="text" class="form-control" name="offerPrice" id="servicePrice" required>
+                            <input type="text" class="form-control" name="offerPrice" id="offerPrice" required>
                         </div>
                         <div class="mb-3">
                             <label for="offerQuantity" class="form-label">Quantité</label>
-                            <input type="text" class="form-control" name="offerQuantity" id="serviceQuantity" required>
+                            <input type="text" class="form-control" name="offerQuantity" id="offerQuantity" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -215,12 +219,12 @@
 
     <!-- JavaScript to Handle Edit Button Click -->
     <script>
-        function openEditForm(serviceId, serviceName, servicePrice, serviceQuantity) {
-            document.getElementById('serviceId').value = serviceId;
-            document.getElementById('serviceName').value = serviceName;
-            document.getElementById('servicePrice').value = servicePrice;
-            document.getElementById('serviceQuantity').value = serviceQuantity;
-            const editModal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+        function openEditForm(offerId, offerName, offerPrice, offerQuantity) {
+            document.getElementById('offerId').value = offerId;
+            document.getElementById('offerName').value = offerName;
+            document.getElementById('offerPrice').value = offerPrice;
+            document.getElementById('offerQuantity').value = offerQuantity;
+            const editModal = new bootstrap.Modal(document.getElementById('editOfferModal'));
             editModal.show();
         }
     </script>

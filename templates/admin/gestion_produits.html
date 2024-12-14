@@ -120,7 +120,7 @@
         </div>
 
         <!-- Tableau des produits -->
-        <h2 class="mb-3 text-primary">Liste des produits</h2>
+        <h2 class="mb-3 text-primary">Liste des produits (Total: {{ total_produits }})</h2>
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
@@ -138,17 +138,17 @@
                 <tr>
                     <td>{{ produit.ID_off }}</td>
                     <td>{{ produit.libelle_off }}</td>
-                    <td>{{ produit.description_off }}</td>
-                    <td>{{ produit.quantite_en_stock }}</td>
+                    <td>{{ produit.categorie }}</td>
                     <td>{{ produit.prix_off }}</td>
+                    <td>{{ produit.quantite_en_stock }}</td>
                     <td>{{ produit.date_off }}</td>                    
                     <td>
                         <!-- Editer Button -->
-                        <a href="" class="btn btn-primary btn-sm">Editer</a>
+                        <button class="btn btn-primary btn-sm" onclick="openEditForm('{{ produit.ID_off }}', '{{ produit.libelle_off }}', '{{ produit.prix_off }}', '{{ produit.quantite_en_stock }}')">Editer</button>
                         
                         <!-- Supprimer Button -->
-                        <form action="" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce service?');">Supprimer</button>
+                        <form action="{{ url_for('supprimer_offre', offre_id=produit.ID_off) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit?');">Supprimer</button>
                         </form>
                     </td>
                 </tr>
@@ -179,5 +179,50 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de modification du produit -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editProductForm" method="POST" action="{{ url_for('update_offre') }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProductModalLabel">Modifier le produit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="offerId" id="productId">
+                        <div class="mb-3">
+                            <label for="offerName" class="form-label">Nom</label>
+                            <input type="text" class="form-control" name="offerName" id="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="offerPrice" class="form-label">Prix</label>
+                            <input type="text" class="form-control" name="offerPrice" id="productPrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="offerQuantity" class="form-label">Quantité</label>
+                            <input type="text" class="form-control" name="offerQuantity" id="productQuantity" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript to Handle Edit Button Click -->
+    <script>
+        function openEditForm(productId, productName, productPrice, productQuantity) {
+            document.getElementById('productId').value = productId;
+            document.getElementById('productName').value = productName;
+            document.getElementById('productPrice').value = productPrice;
+            document.getElementById('productQuantity').value = productQuantity;
+            const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            editModal.show();
+        }
+    </script>
 
 {% endblock %}
