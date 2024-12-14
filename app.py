@@ -1067,6 +1067,26 @@ def boutique(vendeur_id):
     
     return render_template('Boutique.html', vendeur=vendeur, offres=offres)
 
+
+@app.route("/boutiques", methods=["GET"])
+def boutiques():
+    boutiques = db.execute("""
+        SELECT utilisateur.nom_uti, utilisateur.prenom_uti, Details_Vendeur.nom_boutique,
+               Details_Vendeur.adresse_boutique, Details_Vendeur.description, Details_Vendeur.logo,
+               Details_Vendeur.ID_uti AS ID_uti
+        FROM utilisateur
+        JOIN Details_Vendeur ON utilisateur.ID_uti = Details_Vendeur.ID_uti
+    """)
+
+    # Affichage des résultats pour vérifier leur structure
+    print(boutiques)
+
+    return render_template('Lesboutiques.html', boutiques=boutiques)
+
+    
+
+
+
 @app.route("/Contactez-nous", methods=['GET', 'POST'])
 def Contactez_nous():
     return render_template("contacter_nous.html")
