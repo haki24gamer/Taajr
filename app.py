@@ -582,7 +582,7 @@ def unlike_offer():
     # Supprimer l'offre des favoris
     deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
     if (deleted):
-        flash('Offre retirée de vos favoris. ❤️', 'success')
+        flash('Offre retirée de vos favoris. ❤���', 'success')
         # Debugging: Confirm deletion
         print(f"User {session['user_id']} unliked offer {offer_id}. ❤️")
     else:
@@ -1164,10 +1164,29 @@ def delete_user(user_id):
     # Delete related records (e.g., favoris, panier, likes, etc.)
     db.execute("DELETE FROM likes WHERE ID_uti = ?", user_id)
     db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
-    # Add more deletions as necessary based on your database schema
-    
+    db.execute("DELETE FROM Details_Client WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Vendeur WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM commande WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM avis WHERE ID_uti = ?", user_id)
+
+    # Fetch all offer IDs associated with the user
+    user_offers = db.execute("SELECT ID_off FROM offre WHERE ID_uti = ?", user_id)
+    offer_ids = [offer['ID_off'] for offer in user_offers]
+
+    # Delete related records for each offer
+    for offer_id in offer_ids:
+        db.execute("DELETE FROM likes WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM panier WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM appartenir WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM avis WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM commande WHERE ID_off = ?", offer_id)
+
+    # Delete the user's offers
+    db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
+
     # Finally, delete the user
     db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
+
     
     flash('Utilisateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_utilisateurs'))
