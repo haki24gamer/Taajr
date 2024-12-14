@@ -1187,7 +1187,7 @@ def gestion_utilisateurs():
     total_admins = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Admin'")[0]['count']
 
     # Pass the counts to the template
-    return render_template('gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
+    return render_template('admin/gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
@@ -1227,12 +1227,12 @@ def delete_user(user_id):
 @admin_required
 def gestion_produits():
     produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit'")
-    return render_template('gestion_produits.html', produits=produits)
+    return render_template('admin/gestion_produits.html', produits=produits)
 
 @app.route('/gestion_services')
 def gestion_services():
     services = db.execute("SELECT * FROM offre WHERE type_off = 'Service'")
-    return render_template('gestion_services.html', services=services)
+    return render_template('admin/gestion_services.html', services=services)
 
 @app.route('/gestion_categories')
 @admin_required
@@ -1248,33 +1248,33 @@ def gestion_categories():
         return redirect(url_for('index'))
     
     categories = db.execute("SELECT * FROM categorie")
-    return render_template('gestion_categories.html', categories=categories)
+    return render_template('admin/gestion_categories.html', categories=categories)
 
 @app.route('/gestion_commandes')
 @admin_required
 def gestion_commandes():
     commandes = db.execute("SELECT * FROM commande")
-    return render_template('gestion_commandes.html', commandes=commandes)
+    return render_template('admin/gestion_commandes.html', commandes=commandes)
 
 @app.route('/gestion_messages')
 @admin_required
 def gestion_messages():
-    return render_template('gestion_messages.html')
+    return render_template('admin/gestion_messages.html')
 
 @app.route('/gestion_comptes_admin')
 @admin_required
 def gestion_comptes_admin():
-    return render_template('gestion_comptes_admin.html')
+    return render_template('admin/gestion_comptes_admin.html')
 
 @app.route('/gestion_parametres')
 @admin_required
 def gestion_parametres():
-    return render_template('gestion_parametres.html')
+    return render_template('admin/gestion_parametres.html')
 
 @app.route('/gestion_notifications')
 @admin_required
 def gestion_notifications():
-    return render_template('gestion_notifications.html')
+    return render_template('admin/gestion_notifications.html')
 
 if __name__ == '__main__':
 
