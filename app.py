@@ -23,9 +23,12 @@ Session(app)
 # Configuration for file uploads
 UPLOAD_FOLDER_OFFRES = 'static/Images/Offres/'
 UPLOAD_FOLDER_LOGO = 'static/Images/Logo_Boutique/'  # New upload folder for boutique logos
+UPLOAD_FOLDER_CATEGORIES = 'static/Images/Categories/'  # New upload folder for category images
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif', 'webp'}
 app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
-app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folde
+app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
+app.config['UPLOAD_FOLDER_CATEGORIES'] = UPLOAD_FOLDER_CATEGORIES
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -581,7 +584,7 @@ def unlike_offer():
     # Supprimer l'offre des favoris
     deleted = db.execute("DELETE FROM likes WHERE ID_uti = ? AND ID_off = ?", session['user_id'], offer_id)
     if (deleted):
-        flash('Offre retirée de vos favoris. ❤���', 'success')
+        flash('Offre retirée de vos favoris. ❤️', 'success')
         # Debugging: Confirm deletion
         print(f"User {session['user_id']} unliked offer {offer_id}. ❤️")
     else:
@@ -1031,7 +1034,7 @@ def create_admin(email, password):
             INSERT INTO utilisateur (email_uti, mot_de_passe, type_uti)
             VALUES (?, ?, 'Admin')
         """, email, hashed_password)
-        flash('Admin créé avec succès.', 'success')
+        flash('Admin cr��é avec succès.', 'success')
     except Exception as e:
         flash(f"Une erreur est survenue : {str(e)}", 'danger')
 
@@ -1183,9 +1186,6 @@ def delete_user(user_id):
     # Delete the user's offers
     db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
 
-    # Finally, delete the user
-    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
-
     
     flash('Utilisateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_utilisateurs'))
@@ -1215,7 +1215,8 @@ def gestion_categories():
         return redirect(url_for('index'))
     
     categories = db.execute("SELECT * FROM categorie")
-    return render_template('admin/gestion_categories.html', categories=categories)
+    total_categories = len(categories)
+    return render_template('admin/gestion_categories.html', categories=categories, total_categories=total_categories)
 
 @app.route('/gestion_commandes')
 @admin_required
@@ -1299,6 +1300,45 @@ def update_user():
 
     flash('Utilisateur mis à jour avec succès.', 'success')
     return redirect(url_for('gestion_utilisateurs'))
+
+@app.route('/add_category', methods=['POST'])
+@admin_required
+def add_category():
+    nom_cat = request.form.get('nom_cat')
+    description = request.form.get('description')
+    image = request.files.get('image')
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER_CATEGORIES'], image_filename))
+        image_path = os.path.join('Images/Categories', image_filename)
+    else:
+        image_path = None
+    db.execute("INSERT INTO categorie (nom_cat, description, image) VALUES (?, ?, ?)", nom_cat, description, image_path)
+    flash('Catégorie ajoutée avec succès.', 'success')
+    return redirect(url_for('gestion_categories'))
+
+@app.route('/edit_category/<int:category_id>', methods=['POST'])
+@admin_required
+def edit_category(category_id):
+    nom_cat = request.form.get('nom_cat')
+    description = request.form.get('description')
+    image = request.files.get('image')
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER_CATEGORIES'], image_filename))
+        image_path = os.path.join('Images/Categories', image_filename)
+        db.execute("UPDATE categorie SET nom_cat = ?, description = ?, image = ? WHERE ID_cat = ?", nom_cat, description, image_path, category_id)
+    else:
+        db.execute("UPDATE categorie SET nom_cat = ?, description = ? WHERE ID_cat = ?", nom_cat, description, category_id)
+    flash('Catégorie modifiée avec succès.', 'success')
+    return redirect(url_for('gestion_categories'))
+
+@app.route('/delete_category/<int:category_id>', methods=['POST'])
+@admin_required
+def delete_category(category_id):
+    db.execute("DELETE FROM categorie WHERE ID_cat = ?", category_id)
+    flash('Catégorie supprimée avec succès.', 'success')
+    return redirect(url_for('gestion_categories'))
 
 if __name__ == '__main__':
 
