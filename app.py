@@ -1,6 +1,6 @@
 import datetime
 from email import errors
-from flask import Flask, render_template, request, redirect,url_for,flash, session
+from flask import Flask, render_template, request, redirect,url_for,flash, session, jsonify
 from cs50 import SQL
 import os
 from werkzeug.utils import secure_filename
@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import re
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -22,9 +23,11 @@ Session(app)
 # Configuration for file uploads
 UPLOAD_FOLDER_OFFRES = 'static/Images/Offres/'
 UPLOAD_FOLDER_LOGO = 'static/Images/Logo_Boutique/'  # New upload folder for boutique logos
+UPLOAD_FOLDER_CATEGORIES = 'static/Images/Categories/'  # New upload folder for category images
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif', 'webp'}
 app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
 app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
+app.config['UPLOAD_FOLDER_CATEGORIES'] = UPLOAD_FOLDER_CATEGORIES
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -49,16 +52,16 @@ def inject_user_id():
 @app.context_processor
 def inject_user_info():
     user_id = session.get('user_id')
-    if (user_id):
-        user = db.execute("SELECT nom_uti, prenom_uti FROM utilisateur WHERE ID_uti = ?", user_id)
-        if (user):
-            user_name = f"{user[0]['prenom_uti']} {user[0]['nom_uti']}"
-            return dict(user_name=user_name)
+    if user_id:
+        user = db.execute("SELECT nom_uti, prenom_uti, email_uti, telephone, date_naissance, genre, type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
+        if user:
+            return dict(user_name=f"{user[0]['nom_uti']} {user[0]['prenom_uti']}")
     return dict(user_name=None)
 
 @app.context_processor
 def inject_categories():
     categories = db.execute("SELECT ID_cat, nom_cat FROM categorie")
+    return dict(categories=categories)
     return dict(categories=categories)
 
 @app.context_processor
@@ -78,6 +81,19 @@ def inject_cart_ids():
     else:
         cart_ids = []
     return dict(cart_ids=cart_ids)
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Veuillez vous connecter en tant qu\'admin.', 'danger')
+            return redirect(url_for('connexion'))
+        user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+        if not user or user[0]['type_uti'] != 'Admin':
+            flash('Accès réservé aux administrateurs.', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
@@ -676,6 +692,7 @@ def offre_details(offre_id):
     return render_template('un_offre.html', offre=offre, avis=avis, similar_offers=similar_offers, seller_info=seller_info, category=category, likes_count=likes_count, avg_stars=avg_stars, ratings_count=ratings_count)
 
 @app.route('/admin')
+@admin_required
 def admin():
     # Calculate counts
     num_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur")[0]['count']
@@ -685,10 +702,18 @@ def admin():
     
     # Fetch detailed data with owner information, limited to 5
     users = db.execute("SELECT ID_uti, nom_uti, prenom_uti, email_uti FROM utilisateur LIMIT 5")
-    offers = db.execute("""
+    products = db.execute("""
         SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
         FROM offre
         JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
+        WHERE offre.type_off = 'Produit'
+        LIMIT 5
+    """)
+    services = db.execute("""
+        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
+        FROM offre
+        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
+        WHERE offre.type_off = 'Service'
         LIMIT 5
     """)
     pending_orders = db.execute("SELECT * FROM commande WHERE status_com='pending' LIMIT 5")
@@ -701,7 +726,8 @@ def admin():
                            num_pending=num_pending,
                            num_orders=num_orders,
                            users=users,
-                           offers=offers,
+                           products=products,
+                           services=services,
                            pending_orders=pending_orders,
                            orders=orders)
 
@@ -730,126 +756,65 @@ def modifier_profil():
     user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
     if (not user):
         flash('Utilisateur non trouvé.', 'danger')
-        return redirect(url_for('connexion'))
+        return redirect(url_for('index'))
     
     details = {}
     if (user[0]['type_uti'] == 'Client'):
-        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
+        details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])[0]
     elif (user[0]['type_uti'] == 'Vendeur'):
-        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
+        details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])[0]
     
     if (request.method == 'POST'):
-        errors = []
         # Collect form data
         nom = request.form.get('nom')
         prenom = request.form.get('prenom')
         email = request.form.get('email')
         telephone = request.form.get('telephone')
-        date_naissance = request.form.get('birthdate')
-        genre = request.form.get('gender')
+        date_naissance = request.form.get('date_naissance')
+        genre = request.form.get('genre')
         
-        # Verify required fields are not empty
+        # Validate inputs
+        errors = []
         if not nom:
             errors.append("Le nom est obligatoire.")
         if not prenom:
             errors.append("Le prénom est obligatoire.")
-        if not email:
-            errors.append("L'email est obligatoire.")
+        if not email or not is_valid_email(email):
+            errors.append("L'email est invalide.")
         if not telephone:
             errors.append("Le numéro de téléphone est obligatoire.")
-        if not date_naissance:
-            errors.append("La date de naissance est obligatoire.")
-        if not genre:
-            errors.append("Le genre est obligatoire.")
-        
-        if not is_valid_email(email):
-            errors.append("L'adresse email n'est pas valide ou le domaine n'est pas autorisé.")
-
-        # Verify age is 18+
-        if date_naissance:
-            try:
-                birthdate = datetime.datetime.strptime(date_naissance, '%Y-%m-%d')
-                today = datetime.datetime.today()
-                age = (today - birthdate).days // 365
-                if age < 18:
-                    errors.append("Vous devez avoir au moins 18 ans.")
-            except ValueError:
-                errors.append("Format de date de naissance invalide.")
-        
-        # Verify phone number
-        if not (telephone.startswith('77') and len(telephone) == 8 and telephone.isdigit()):
-            errors.append("Le numéro de téléphone doit commencer par 77 et contenir 8 chiffres.")
-        
-        # Update Details_Client or Details_Vendeur based on user type
-        if (user[0]['type_uti'] == 'Client'):
-            adresse = request.form.get('adresse')  # From adresse_client field
-            if adresse:
-                db.execute("""
-                    UPDATE Details_Client 
-                    SET adresse = ?
-                    WHERE ID_uti = ?
-                """, adresse, session['user_id'])
-        elif (user[0]['type_uti'] == 'Vendeur'):
-            nom_boutique = request.form.get('nom_boutique')
-            adresse_boutique = request.form.get('adresse_boutique')
-            description = request.form.get('description')
-            if nom_boutique and adresse_boutique and description:
-                db.execute("""
-                    UPDATE Details_Vendeur 
-                    SET nom_boutique = ?, adresse_boutique = ?, description = ?
-                    WHERE ID_uti = ?
-                """, nom_boutique, adresse_boutique, description, session['user_id'])
-        
-        # Handle password change
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-        confirm_new_password = request.form.get('confirm_new_password')
-        
-        if (current_password or new_password or confirm_new_password):
-            if not current_password:
-                errors.append('Veuillez saisir votre mot de passe actuel pour le changement de mot de passe.')
-            elif not check_password_hash(user[0]['mot_de_passe'], current_password):
-                errors.append('Mot de passe actuel incorrect.')
-            elif new_password != confirm_new_password:
-                errors.append('Les nouveaux mots de passe ne correspondent pas.')
-            
-            if new_password and not errors:
-                hashed_new_password = generate_password_hash(new_password)
-                db.execute("""
-                    UPDATE utilisateur 
-                    SET mot_de_passe = ?
-                    WHERE ID_uti = ?
-                """, hashed_new_password, session['user_id'])
-        
-        # Handle logo upload for Vendeur
-        if (user[0]['type_uti'] == 'Vendeur'):
-            logo = request.files.get('logo')
-            if (logo and allowed_file(logo.filename)):
-                logo_filename = secure_filename(logo.filename)
-                logo.save(os.path.join(app.config['UPLOAD_FOLDER_LOGO'], logo_filename))  # Save to Logo_Boutique
-                logo_relative_path = os.path.join('Images/Logo_Boutique', logo_filename)  # Update path
-                # Update the logo path in Details_Vendeur
-                db.execute("""
-                    UPDATE Details_Vendeur 
-                    SET logo = ?
-                    WHERE ID_uti = ?
-                """, logo_relative_path, session['user_id'])
-            # ...handle else case if needed...
+        # Ajoutez d'autres validations si nécessaire
         
         if errors:
             for error in errors:
                 flash(error, 'danger')
-            return render_template('modifier_profil.html', user=user[0], details=details)
-        
-        # Update utilisateur table
-        db.execute("""
-            UPDATE utilisateur 
-            SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
-            WHERE ID_uti = ?
-        """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
-        
-        flash('Profil mis à jour avec succès.', 'success')
-        return redirect(url_for('profil'))
+        else:
+            # Mettre à jour la table utilisateur
+            db.execute("""
+                UPDATE utilisateur
+                SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+                WHERE ID_uti = ?
+            """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
+            
+            if (user[0]['type_uti'] == 'Client'):
+                adresse = request.form.get('adresse')
+                db.execute("""
+                    UPDATE Details_Client
+                    SET adresse = ?
+                    WHERE ID_uti = ?
+                """, adresse, session['user_id'])
+            elif (user[0]['type_uti'] == 'Vendeur'):
+                boutique = request.form.get('boutique')
+                adresse_boutique = request.form.get('adresse_boutique')
+                description = request.form.get('description')
+                db.execute("""
+                    UPDATE Details_Vendeur
+                    SET nom_boutique = ?, adresse_boutique = ?, description = ?
+                    WHERE ID_uti = ?
+                """, boutique, adresse_boutique, description, session['user_id'])
+            
+            flash('Profil mis à jour avec succès.', 'success')
+            return redirect(url_for('profil'))
     
     return render_template('modifier_profil.html', user=user[0], details=details)
 
@@ -972,7 +937,7 @@ def ajouter_offre():
     image = request.files.get('image_off')
     if (image and allowed_file(image.filename)):
         image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+        image.save(os.path.join(app.config['UPLOAD_FOLDER_OFFRES'], image_filename))
         image_off = os.path.join('Images/Offres', image_filename)  # Updated path
     else:
         image_off = 'Images/default.png'  # Image par défaut si aucune image n'est téléchargée
@@ -1069,7 +1034,7 @@ def create_admin(email, password):
             INSERT INTO utilisateur (email_uti, mot_de_passe, type_uti)
             VALUES (?, ?, 'Admin')
         """, email, hashed_password)
-        flash('Admin créé avec succès.', 'success')
+        flash('Admin cr��é avec succès.', 'success')
     except Exception as e:
         flash(f"Une erreur est survenue : {str(e)}", 'danger')
 
@@ -1155,6 +1120,225 @@ def reset_password():
     # Afficher le formulaire par défaut
     return render_template("reset_password.html")
 
+@app.route('/gestion_utilisateurs')
+@admin_required
+def gestion_utilisateurs():
+    users = db.execute("SELECT * FROM utilisateur")
+    
+    # Calculate total users
+    total_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur")[0]['count']
+    
+    # Calculate active sellers
+    active_sellers = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Vendeur'")[0]['count']
+    
+    # Calculate active clients
+    active_clients = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Client'")[0]['count']
+    
+    # Calculate total admins
+    total_admins = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE type_uti = 'Admin'")[0]['count']
+
+    # Pass the counts and all user data to the template
+    return render_template('admin/gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify the logged-in user is an admin
+    current_user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not current_user or current_user[0]['type_uti'] != 'Admin':
+        flash('Vous n\'avez pas les permissions nécessaires pour effectuer cette action.', 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Prevent admin from deleting themselves
+    if user_id == session['user_id']:
+        flash('Vous ne pouvez pas vous supprimer vous-même.', 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Check if the user exists
+    user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", user_id)
+    if not user:
+        flash('Utilisateur non trouvé.', 'warning')
+        return redirect(url_for('gestion_utilisateurs'))
+    
+    # Delete related records (e.g., favoris, panier, likes, etc.)
+    db.execute("DELETE FROM likes WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Client WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Vendeur WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM commande WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM avis WHERE ID_uti = ?", user_id)
+
+    # Fetch all offer IDs associated with the user
+    user_offers = db.execute("SELECT ID_off FROM offre WHERE ID_uti = ?", user_id)
+    offer_ids = [offer['ID_off'] for offer in user_offers]
+
+    # Delete related records for each offer
+    for offer_id in offer_ids:
+        db.execute("DELETE FROM likes WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM panier WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM appartenir WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM avis WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM commande WHERE ID_off = ?", offer_id)
+
+    # Delete the user's offers
+    db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
+
+    
+    flash('Utilisateur supprimé avec succès.', 'success')
+    return redirect(url_for('gestion_utilisateurs'))
+
+@app.route('/gestion_produits')
+@admin_required
+def gestion_produits():
+    produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit'")
+    return render_template('admin/gestion_produits.html', produits=produits)
+
+@app.route('/gestion_services')
+def gestion_services():
+    services = db.execute("SELECT * FROM offre WHERE type_off = 'Service'")
+    return render_template('admin/gestion_services.html', services=services)
+
+@app.route('/gestion_categories')
+@admin_required
+def gestion_categories():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à la gestion des catégories.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    # Verify the logged-in user is an admin
+    current_user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if not current_user or current_user[0]['type_uti'] != 'Admin':
+        flash('Accès refusé. Vous devez être un administrateur.', 'danger')
+        return redirect(url_for('index'))
+    
+    categories = db.execute("SELECT * FROM categorie")
+    total_categories = len(categories)
+    return render_template('admin/gestion_categories.html', categories=categories, total_categories=total_categories)
+
+@app.route('/gestion_commandes')
+@admin_required
+def gestion_commandes():
+    commandes = db.execute("SELECT * FROM commande")
+    return render_template('admin/gestion_commandes.html', commandes=commandes)
+
+@app.route('/gestion_messages')
+@admin_required
+def gestion_messages():
+    return render_template('admin/gestion_messages.html')
+
+@app.route('/gestion_comptes_admin')
+@admin_required
+def gestion_comptes_admin():
+    return render_template('admin/gestion_comptes_admin.html')
+
+@app.route('/gestion_parametres')
+@admin_required
+def gestion_parametres():
+    return render_template('admin/gestion_parametres.html')
+
+@app.route('/gestion_notifications')
+@admin_required
+def gestion_notifications():
+    return render_template('admin/gestion_notifications.html')
+
+@app.route('/update_user', methods=['POST'])
+@admin_required
+def update_user():
+    user_id = request.form.get('user_id')
+    nom = request.form.get('nom')
+    prenom = request.form.get('prenom')
+    email = request.form.get('email')
+    type_uti = request.form.get('type')
+    telephone = request.form.get('telephone')  # New field
+    date_naissance = request.form.get('date_naissance')  # New field
+    genre = request.form.get('genre')  # New field
+
+    # Validate input
+    errors = []
+    if not user_id:
+        errors.append("L'identifiant de l'utilisateur est requis.")
+    if not nom:
+        errors.append("Le nom est requis.")
+    if not prenom:
+        errors.append("Le prénom est requis.")
+    if not email:
+        errors.append("L'email est requis.")
+    elif not is_valid_email(email):
+        errors.append("L'email n'est pas valide.")
+    if not type_uti:
+        errors.append("Le type d'utilisateur est requis.")
+    elif type_uti not in ['Admin', 'Vendeur', 'Client']:
+        errors.append("Le type d'utilisateur est invalide.")
+    if not telephone:
+        errors.append("Le téléphone est requis.")
+    elif not telephone.startswith('77') or len(telephone) != 8 or not telephone.isdigit():
+        errors.append("Le numéro de téléphone est invalide.")
+    if not date_naissance:
+        errors.append("La date de naissance est requise.")
+    if not genre:
+        errors.append("Le genre est requis.")
+
+    # Check if email already exists for another user
+    existing_user = db.execute("SELECT * FROM utilisateur WHERE email_uti = ? AND ID_uti != ?", email, user_id)
+    if existing_user:
+        errors.append("L'email est déjà utilisé par un autre utilisateur.")
+
+    if errors:
+        for error in errors:
+            flash(error, 'danger')
+        return redirect(url_for('gestion_utilisateurs'))
+
+    # Update the user in the database
+    db.execute("""
+        UPDATE utilisateur
+        SET nom_uti = ?, prenom_uti = ?, email_uti = ?, type_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+        WHERE ID_uti = ?
+    """, nom, prenom, email, type_uti, telephone, date_naissance, genre, user_id)
+
+    flash('Utilisateur mis à jour avec succès.', 'success')
+    return redirect(url_for('gestion_utilisateurs'))
+
+@app.route('/add_category', methods=['POST'])
+@admin_required
+def add_category():
+    nom_cat = request.form.get('nom_cat')
+    description = request.form.get('description')
+    image = request.files.get('image')
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER_CATEGORIES'], image_filename))
+        image_path = os.path.join('Images/Categories', image_filename)
+    else:
+        image_path = None
+    db.execute("INSERT INTO categorie (nom_cat, description, image) VALUES (?, ?, ?)", nom_cat, description, image_path)
+    flash('Catégorie ajoutée avec succès.', 'success')
+    return redirect(url_for('gestion_categories'))
+
+@app.route('/edit_category/<int:category_id>', methods=['POST'])
+@admin_required
+def edit_category(category_id):
+    nom_cat = request.form.get('nom_cat')
+    description = request.form.get('description')
+    image = request.files.get('image')
+    if image and allowed_file(image.filename):
+        image_filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER_CATEGORIES'], image_filename))
+        image_path = os.path.join('Images/Categories', image_filename)
+        db.execute("UPDATE categorie SET nom_cat = ?, description = ?, image = ? WHERE ID_cat = ?", nom_cat, description, image_path, category_id)
+    else:
+        db.execute("UPDATE categorie SET nom_cat = ?, description = ? WHERE ID_cat = ?", nom_cat, description, category_id)
+    flash('Catégorie modifiée avec succès.', 'success')
+    return redirect(url_for('gestion_categories'))
+
+@app.route('/delete_category/<int:category_id>', methods=['POST'])
+@admin_required
+def delete_category(category_id):
+    db.execute("DELETE FROM categorie WHERE ID_cat = ?", category_id)
+    flash('Catégorie supprimée avec succès.', 'success')
+    return redirect(url_for('gestion_categories'))
 
 if __name__ == '__main__':
 

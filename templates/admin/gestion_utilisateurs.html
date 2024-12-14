@@ -1,0 +1,256 @@
+{% extends "admin_layout.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    .header {
+        background-color: #0056b3;
+        color: white;
+        text-align: center;
+        padding: 20px 10px;
+    }
+    .header h1 {
+        font-size: 2.5rem;
+    }
+    .header .subtitle {
+        font-size: 1rem;
+    }
+    .btn-primary, .btn-info {
+        background-color: #0056b3;
+        border: none;
+    }
+    .btn-danger {
+        background-color: #d63384;
+        border: none;
+    }
+    .btn-primary:hover, .btn-info:hover {
+        background-color: #003d80;
+    }
+    .btn-danger:hover {
+        background-color: #a82867;
+    }
+    .stats-card {
+        background-color: #fff;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stats-card h4 {
+        font-size: 1.5rem;
+        color: #0056b3;
+    }
+    .stats-card p {
+        font-size: 1rem;
+    }
+    .table th {
+        background-color: #0056b3;
+        color: white;
+    }
+    .table thead th {
+        border-bottom: 2px solid #d63384; /* Séparateur rose */
+    }
+    .divider {
+        height: 4px;
+        background: linear-gradient(to right, #0056b3, #d63384); /* Dégradé bleu-rose */
+        border: none;
+        margin: 20px 0;
+    }
+    .filter-container {
+        margin-bottom: 20px;
+    }
+    .filter-container select,
+    .filter-container input {
+        border-radius: 8px;
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+</style>
+    <!-- En-tête -->
+    <header class="header">
+        <h1>Gestion des utilisateurs</h1>
+        <p class="subtitle">Surveillez, administrez et optimisez la gestion des utilisateurs de Taajr</p>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques -->
+        <div class="row text-center mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ total_users }}</h4>
+                    <p>Total des utilisateurs</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ active_sellers }}</h4>
+                    <p>Vendeurs</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ active_clients }}</h4>
+                    <p>Clients</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h4>{{ total_admins }}</h4>
+                    <p>Admins</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Filtres et barre de recherche -->
+        <div class="filter-container d-flex justify-content-between">
+            <!-- Barre de recherche -->
+            <div class="w-50">
+                <input type="text" class="form-control" placeholder="Rechercher un utilisateur...">
+            </div>
+            <!-- Filtres -->
+            <div class="d-flex gap-3 w-50">
+                <!-- Filtrage par rôle -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par rôle</option>
+                    <option value="vendeur">Vendeur</option>
+                    <option value="client">Client</option>
+                </select>
+                <!-- Filtrage par statut -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par statut</option>
+                    <option value="actif">Actif</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="banni">Banni</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tableau des utilisateurs -->
+        <h2 class="mb-3 text-primary">Liste des utilisateurs</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Date de Naissance</th>
+                    <th>Genre</th>
+                    <th>Type</th>
+                    <th>Date de creation du compte</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.ID_uti }}</td>
+                    <td>{{ user.nom_uti }}</td>
+                    <td>{{ user.prenom_uti }}</td>
+                    <td>{{ user.email_uti }}</td>
+                    <td>{{ user.telephone }}</td>
+                    <td>{{ user.date_naissance }}</td>
+                    <td>{{ user.genre }}</td>
+                    <td>{{ user.type_uti }}</td>
+                    <td>{{ user.date_inscription }}</td>
+                    <td>
+                        <button class="btn btn-info edit-button"
+                            onclick="openEditForm('{{ user.ID_uti }}', '{{ user.nom_uti }}', '{{ user.prenom_uti }}', '{{ user.email_uti }}', '{{ user.telephone }}', '{{ user.date_naissance }}', '{{ user.genre }}', '{{ user.type_uti }}', '{{ user.mot_de_passe }}')">
+                            Editer
+                        </button>
+                        <form action="{{ url_for('delete_user', user_id=user.ID_uti) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="editUserForm" method="POST" action="/update_user">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editUserModalLabel">Modifier l'utilisateur</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="user_id" id="userId">
+                            <div class="mb-3">
+                                <label for="nom" class="form-label">Nom</label>
+                                <input type="text" class="form-control" name="nom" id="nom" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="prenom" class="form-label">Prénom</label>
+                                <input type="text" class="form-control" name="prenom" id="prenom" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="type" class="form-label">Type</label>
+                                <select class="form-select" name="type" id="type" required>
+                                    <option value="Client">Client</option>
+                                    <option value="Vendeur">Vendeur</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="text" class="form-control" name="telephone" id="telephone" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="date_naissance" class="form-label">Date de Naissance</label>
+                                <input type="date" class="form-control" name="date_naissance" id="date_naissance" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="genre" class="form-label">Genre</label>
+                                <select class="form-select" name="genre" id="genre" required>
+                                    <option value="Masculin">Masculin</option>
+                                    <option value="Féminin">Féminin</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="mot_de_passe" class="form-label">Mot de Passe</label>
+                                <input type="password" class="form-control" name="mot_de_passe" id="mot_de_passe" placeholder="Laisser vide pour ne pas changer">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript to Handle Edit Button Click -->
+        <script>
+            // Ouvre le formulaire de modification
+            function openEditForm(userId, nom, prenom, email, telephone, date_naissance, genre, type, mot_de_passe) {
+                document.getElementById('userId').value = userId;
+                document.getElementById('nom').value = nom;
+                document.getElementById('prenom').value = prenom;
+                document.getElementById('email').value = email;
+                document.getElementById('telephone').value = telephone;
+                document.getElementById('date_naissance').value = date_naissance;
+                document.getElementById('genre').value = genre;
+                document.getElementById('type').value = type;
+                document.getElementById('mot_de_passe').value = ''; // Clear password field
+                const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                editModal.show();
+            }
+        </script>
+    </main>
+
+{% endblock %}

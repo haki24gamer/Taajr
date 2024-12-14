@@ -1,0 +1,197 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}Gestion des Catégories{% endblock %}
+
+{% block content %}
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .header {
+            background-color: #0056b3;
+            color: white;
+            text-align: center;
+            padding: 20px 10px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+        }
+        .header .subtitle {
+            font-size: 1rem;
+        }
+        .btn-primary, .btn-info {
+            background-color: #0056b3;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #d63384;
+            border: none;
+        }
+        .btn-primary:hover, .btn-info:hover {
+            background-color: #003d80;
+        }
+        .btn-danger:hover {
+            background-color: #a82867;
+        }
+        .stats-card {
+            background-color: #fff;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stats-card h4 {
+            font-size: 1.5rem;
+            color: #0056b3;
+        }
+        .stats-card p {
+            font-size: 1rem;
+        }
+        .table th {
+            background-color: #0056b3;
+            color: white;
+        }
+        .table thead th {
+            border-bottom: 2px solid #d63384;
+        }
+        .divider {
+            height: 4px;
+            background: linear-gradient(to right, #0056b3, #d63384);
+            border: none;
+            margin: 20px 0;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+        }
+        .filter-container select,
+        .filter-container input {
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <!-- En-tête -->
+    <header class="header">
+        <h1>Gestion des Commandes</h1>
+        <p class="subtitle">Administrez toutes les commandes des utilisateurs</p>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques commandes -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>500</h4>
+                    <p>Total des commandes</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>320</h4>
+                    <p>Commandes traitées</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>180</h4>
+                    <p>Commandes en attente</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et barre de recherche -->
+        <div class="filter-container d-flex justify-content-between">
+            <!-- Barre de recherche -->
+            <div class="w-50">
+                <input type="text" class="form-control" placeholder="Rechercher une commande...">
+            </div>
+            <!-- Filtres -->
+            <div class="d-flex gap-3 w-50">
+                <!-- Filtrage par statut -->
+                <select class="form-select w-50">
+                    <option value="">Filtrer par statut</option>
+                    <option value="en attente">En attente</option>
+                    <option value="traitée">Traitée</option>
+                    <option value="livrée">Livrée</option>
+                    <option value="annulée">Annulée</option>
+                </select>
+                <!-- Filtrage par date -->
+                <input type="date" class="form-control w-50" placeholder="Filtrer par date">
+            </div>
+        </div>
+
+        <!-- Tableau des commandes -->
+        <h2 class="mb-3 text-primary">Liste des Commandes</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID Commande</th>
+                    <th>Client</th>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix total</th>
+                    <th>Statut</th>
+                    <th>Date de commande</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#1001</td>
+                    <td>Halima Med</td>
+                    <td>Sac à main</td>
+                    <td>1</td>
+                    <td>80€</td>
+                    <td><span class="badge bg-warning">En attente</span></td>
+                    <td>2024-11-15</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewOrderModal"><i class="fa fa-eye"></i></button>
+                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>#1002</td>
+                    <td>Hagui Med</td>
+                    <td>Machine à laver</td>
+                    <td>1</td>
+                    <td>200€</td>
+                    <td><span class="badge bg-success">Livrée</span></td>
+                    <td>2024-11-10</td>
+                    <td>
+                        <button class="btn btn-info btn-sm"><i class="fa fa-eye"></i></button>
+                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Modal de consultation des détails de la commande -->
+    <div class="modal fade" id="viewOrderModal" tabindex="-1" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewOrderModalLabel">Détails de la commande</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID Commande :</strong> #1001</p>
+                    <p><strong>Client :</strong> Halima Mohamed</p>
+                    <p><strong>Produit :</strong> sac à main</p>
+                    <p><strong>Quantité :</strong> 1</p>
+                    <p><strong>Prix total :</strong> 80€</p>
+                    <p><strong>Statut :</strong> En attente</p>
+                    <p><strong>Date de commande :</strong> 2024-11-15</p>
+                    <p><strong>Adresse de livraison :</strong> 12 rue d'arta, Djibouti-ville</p>
+                    <p><strong>Méthode de paiement :</strong> Carte bancaire</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}
