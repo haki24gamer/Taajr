@@ -86,59 +86,61 @@
                 <a href="{{ url_for('gestion_utilisateurs') }}" class="btn btn-primary">Plus</a>
             </div>
 
-            <h2>Liste des Offres</h2>
+            <h2>Liste des Produits</h2>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
                         <th>Libellé</th>
-                        <th>Prix (fdj)</th>
-                        <th>Quantité en Stock</th>
-                        <th>Propriétaire</th> <!-- New column -->
+                        <th>Prix</th>
+                        <th>Quantité en stock</th>
+                        <th>Vendeur</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for offer in offers %}
+                    {% for product in products %}
                     <tr>
-                        <td>{{ offer.ID_off }}</td>
-                        <td>{{ offer.libelle_off }}</td>
-                        <td>{{ offer.prix_off }}</td>
-                        <td>{{ offer.quantite_en_stock }}</td>
-                        <td>{{ offer.nom_uti }} {{ offer.prenom_uti }}</td> <!-- Owner info -->
+                        <td>{{ product.ID_off }}</td>
+                        <td>{{ product.libelle_off }}</td>
+                        <td>{{ product.prix_off }}</td>
+                        <td>{{ product.quantite_en_stock }}</td>
+                        <td>{{ product.nom_uti }} {{ product.prenom_uti }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             <div class="text-end">
-                <a href="/admin/offers" class="btn btn-primary">Plus</a>
+                <a href="{{ url_for('gestion_produits') }}" class="btn btn-primary">Plus</a>
             </div>
 
-            <h2>Commandes en Attente</h2>
+            <h2>Liste des Services</h2>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID Commande</th>
-                        <th>ID Utilisateur</th>
-                        <th>Statut</th>
-                        <th>Date</th>
+                        <th>ID</th>
+                        <th>Libellé</th>
+                        <th>Prix</th>
+                        <th>Quantité en stock</th>
+                        <th>Vendeur</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for order in pending_orders %}
+                    {% for service in services %}
                     <tr>
-                        <td>{{ order.ID_com }}</td>
-                        <td>{{ order.ID_uti }}</td>
-                        <td>{{ order.status_com }}</td>
-                        <td>{{ order.date_com }}</td>
+                        <td>{{ service.ID_off }}</td>
+                        <td>{{ service.libelle_off }}</td>
+                        <td>{{ service.prix_off }}</td>
+                        <td>{{ service.quantite_en_stock }}</td>
+                        <td>{{ service.nom_uti }} {{ service.prenom_uti }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             <div class="text-end">
-                <a href="/admin/pending_orders" class="btn btn-primary">Plus</a>
+                <a href="{{ url_for('gestion_services') }}" class="btn btn-primary">Plus</a>
             </div>
 
-            <h2>Toutes les Commandes</h2>
+            <h2>Liste des Commandes</h2>
             <table class="table table-hover">
                 <thead class="table-dark">
                     <tr>
@@ -160,7 +162,7 @@
                 </tbody>
             </table>
             <div class="text-end">
-                <a href="/admin/orders" class="btn btn-primary">Plus</a>
+                <a href="{{ url_for('gestion_commandes') }}" class="btn btn-primary">Plus</a>
             </div>
         </div>
     </div>
