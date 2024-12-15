@@ -1,6 +1,6 @@
 {% extends "admin_layout.html" %}
 
-{% block title %}Gestion des Catégories{% endblock %}
+{% block title %}Gestion des Commandes{% endblock %}
 
 {% block content %}
 
@@ -61,44 +61,22 @@
             <thead>
                 <tr>
                     <th>ID Commande</th>
-                    <th>Client</th>
-                    <th>Produit</th>
-                    <th>Quantité</th>
-                    <th>Prix total</th>
+                    <th>ID Utilisateur</th>
+                    <th>Date Commande</th>
                     <th>Statut</th>
-                    <th>Date de commande</th>
-                    <th>Actions</th>
+                    <!-- ...other columns... -->
                 </tr>
             </thead>
             <tbody>
+                {% for commande in commandes %}
                 <tr>
-                    <td>#1001</td>
-                    <td>Halima Med</td>
-                    <td>Sac à main</td>
-                    <td>1</td>
-                    <td>80€</td>
-                    <td><span class="badge bg-warning">En attente</span></td>
-                    <td>2024-11-15</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewOrderModal"><i class="fa fa-eye"></i></button>
-                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
-                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                    </td>
+                    <td>{{ commande.ID_com }}</td>
+                    <td>{{ commande.ID_uti }}</td>
+                    <td>{{ commande.date_com }}</td>
+                    <td>{{ commande.status_com }}</td>
+                    <!-- ...other data... -->
                 </tr>
-                <tr>
-                    <td>#1002</td>
-                    <td>Hagui Med</td>
-                    <td>Machine à laver</td>
-                    <td>1</td>
-                    <td>200€</td>
-                    <td><span class="badge bg-success">Livrée</span></td>
-                    <td>2024-11-10</td>
-                    <td>
-                        <button class="btn btn-info btn-sm"><i class="fa fa-eye"></i></button>
-                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
-                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                    </td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </main>
