@@ -149,8 +149,8 @@
                     <td>{{ offre.date_off }}</td>
                     <td>{{ offre.type_off }}</td>
                     <td>
-                        <!-- Editer Button -->
-                        <button class="btn btn-primary btn-sm" onclick="openEditForm('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}')">Editer</button>
+                        <!-- View Button -->
+                        <button class="btn btn-info btn-sm" onclick="openViewModal('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.categorie }}', '{{ offre.description_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}', '{{ offre.date_off }}', '{{ offre.type_off }}', '{{ offre.prenom_uti }}', '{{ offre.nom_uti }}')">Voir</button>
                         
                         <!-- Supprimer Button -->
                         <form action="{{ url_for('supprimer_offre', offre_id=offre.ID_off) }}" method="POST" style="display:inline;">
@@ -168,65 +168,39 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewOfferModalLabel">Détails de l'offre</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Détails de l'offre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Nom de l'offre :</strong> Nom de l'offre</p>
-                    <p><strong>Catégorie :</strong> Catégorie</p>
-                    <p><strong>Description :</strong> Description de l'offre</p>
-                    <p><strong>Prix :</strong> Prix de l'offre</p>
-                    <p><strong>Quantité disponible :</strong> Quantité</p>
-                    <p><strong>Type :</strong> Type de l'offre</p>
-                    <p><strong>Date d'ajout :</strong> Date d'ajout</p>
+                    <p><strong>Nom de l'offre :</strong> <span id="viewOfferName"></span></p>
+                    <p><strong>Catégorie :</strong> <span id="viewOfferCategory"></span></p>
+                    <p><strong>Description :</strong> <span id="viewOfferDescription"></span></p>
+                    <p><strong>Prix :</strong> <span id="viewOfferPrice"></span></p>
+                    <p><strong>Quantité disponible :</strong> <span id="viewOfferQuantity"></span></p>
+                    <p><strong>Type :</strong> <span id="viewOfferType"></span></p>
+                    <p><strong>Date d'ajout :</strong> <span id="viewOfferDate"></span></p>
+                    <p><strong>Vendeur :</strong> <span id="viewOfferSeller"></span></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de modification de l'offre -->
-    <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="editOfferForm" method="POST" action="{{ url_for('update_offre') }}">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editOfferModalLabel">Modifier l'offre</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="offerId" id="offerId">
-                        <div class="mb-3">
-                            <label for="offerName" class="form-label">Nom</label>
-                            <input type="text" class="form-control" name="offerName" id="offerName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="offerPrice" class="form-label">Prix</label>
-                            <input type="text" class="form-control" name="offerPrice" id="offerPrice" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="offerQuantity" class="form-label">Quantité</label>
-                            <input type="text" class="form-control" name="offerQuantity" id="offerQuantity" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Sauvegarder</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript to Handle Edit Button Click -->
+    <!-- JavaScript to Handle View Button Click -->
     <script>
-        function openEditForm(offerId, offerName, offerPrice, offerQuantity) {
-            document.getElementById('offerId').value = offerId;
-            document.getElementById('offerName').value = offerName;
-            document.getElementById('offerPrice').value = offerPrice;
-            document.getElementById('offerQuantity').value = offerQuantity;
-            const editModal = new bootstrap.Modal(document.getElementById('editOfferModal'));
-            editModal.show();
+        function openViewModal(offerId, offerName, offerCategory, offerDescription, offerPrice, offerQuantity, offerDate, offerType, sellerFirstName, sellerLastName) {
+            document.getElementById('viewOfferName').textContent = offerName;
+            document.getElementById('viewOfferCategory').textContent = offerCategory;
+            document.getElementById('viewOfferDescription').textContent = offerDescription;
+            document.getElementById('viewOfferPrice').textContent = offerPrice;
+            document.getElementById('viewOfferQuantity').textContent = offerQuantity;
+            document.getElementById('viewOfferDate').textContent = offerDate;
+            document.getElementById('viewOfferType').textContent = offerType;
+            document.getElementById('viewOfferSeller').textContent = sellerFirstName + ' ' + sellerLastName;
+            
+            const viewModal = new bootstrap.Modal(document.getElementById('viewOfferModal'));
+            viewModal.show();
         }
     </script>
+
 
 {% endblock %}

@@ -886,23 +886,25 @@ def modifier_offre():
 
 @app.route('/supprimer_offre/<int:offre_id>', methods=['POST'])
 def supprimer_offre(offre_id):
-    if ('user_id' not in session):
-        flash('Veuillez vous connecter pour supprimer une offre.', 'danger')
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
         return redirect(url_for('connexion'))
-    
-    # Verify that the offer belongs to the logged-in user
-    offre = db.execute("SELECT * FROM offre WHERE ID_off = ? AND ID_uti = ?", offre_id, session['user_id'])
-    if (not offre):
-        flash('Offre non trouvée ou accès interdit.', 'danger')
-        return redirect(url_for('offres_vendeurs'))
+    # Verify that the offer belongs to the logged-in admin or appropriate user
+    offre = db.execute("SELECT * FROM offre WHERE ID_off = ?", offre_id)
+    if not offre:
+        flash('Offre non trouvée ou vous n\'avez pas la permission de la supprimer.', 'danger')
+        return redirect(url_for('gestion_offres'))
     
     # Retrieve the image path before deletion
     image_path = offre[0]['image_off']
-    if (image_path and image_path != 'Images/default.png'):
+    if image_path and image_path != 'Images/default.png':
+        # Construct the full path to the image
+        full_image_path = os.path.join(app.root_path, image_path)
         try:
-            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(image_path)))
-        except FileNotFoundError:
-            pass  # Optionally log this event
+            os.remove(full_image_path)
+            flash('Image de l\'offre supprimée.', 'success')
+        except OSError as e:
+            flash(f'Erreur lors de la suppression de l\'image: {e}', 'danger')
     
     # Delete related records
     db.execute("DELETE FROM likes WHERE ID_off = ?", offre_id)
@@ -911,8 +913,8 @@ def supprimer_offre(offre_id):
     db.execute("DELETE FROM avis WHERE ID_off = ?", offre_id)  # Supprimer les avis associés
     db.execute("DELETE FROM offre WHERE ID_off = ?", offre_id)
     
-    flash('Produit et enregistrements associés supprimés avec succès.', 'success')
-    return redirect(url_for('offres_vendeurs'))
+    flash('Offre et enregistrements associés supprimés avec succès.', 'success')
+    return redirect(url_for('gestion_offres'))
 
 @app.route('/ajouter_offre', methods=['POST'])
 def ajouter_offre():
@@ -1333,17 +1335,12 @@ def delete_category(category_id):
 @app.route('/gestion_offres')
 @admin_required
 def gestion_offres():
-    offres = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, GROUP_CONCAT(categorie.nom_cat, ', ') AS categorie, offre.description_off, offre.prix_off, offre.quantite_en_stock, offre.date_off, offre.type_off
+    offers = db.execute("""
+        SELECT offre.*, utilisateur.prenom_uti, utilisateur.nom_uti
         FROM offre
-        JOIN appartenir ON offre.ID_off = appartenir.ID_off
-        JOIN categorie ON appartenir.ID_cat = categorie.ID_cat
-        GROUP BY offre.ID_off
+        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
     """)
-    total_offres = db.execute("SELECT COUNT(*) AS count FROM offre")[0]['count']
-    total_produits = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off = 'Produit'")[0]['count']
-    total_services = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off = 'Service'")[0]['count']
-    return render_template('admin/gestion_offres.html', offres=offres, total_offres=total_offres, total_produits=total_produits, total_services=total_services)
+    return render_template('admin/gestion_offres.html', offres=offers)
 
 
 if __name__ == '__main__':
