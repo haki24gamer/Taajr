@@ -1,126 +1,39 @@
 {% extends "admin_layout.html" %}
 
 {% block content %}
-<style>
-    body {
-        background-color: #f5f5f5;
-        color: #333;
-    }
-    .header {
-        background-color: #0056b3;
-        color: white;
-        text-align: center;
-        padding: 20px 10px;
-    }
-    .header h1 {
-        font-size: 2.5rem;
-    }
-    .header .subtitle {
-        font-size: 1rem;
-    }
-    .btn-primary, .btn-info {
-        background-color: #0056b3;
-        border: none;
-    }
-    .btn-danger {
-        background-color: #d63384;
-        border: none;
-    }
-    .btn-primary:hover, .btn-info:hover {
-        background-color: #003d80;
-    }
-    .btn-danger:hover {
-        background-color: #a82867;
-    }
-    .stats-card {
-        background-color: #fff;
-        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-    }
-    .stats-card h4 {
-        font-size: 1.5rem;
-        color: #0056b3;
-    }
-    .stats-card p {
-        font-size: 1rem;
-    }
-    .table th {
-        background-color: #0056b3;
-        color: white;
-    }
-    .table thead th {
-        border-bottom: 2px solid #d63384;
-    }
-    .divider {
-        height: 4px;
-        background: linear-gradient(to right, #0056b3, #d63384);
-        border: none;
-        margin: 20px 0;
-    }
-    .filter-container {
-        margin-bottom: 20px;
-    }
-    .filter-container select,
-    .filter-container input {
-        border-radius: 8px;
-        padding: 8px;
-        border: 1px solid #ddd;
-    }
-</style>
+
+
+<!-- En-tête -->
+<header class="header">
+    <h1>Gestion des Offres</h1>
+    <p class="subtitle">Administrez toutes les offres</p>
+</header>
+
     <!-- Contenu principal -->
     <main class="container my-5">
         <!-- Section des statistiques offres -->
         <div class="row text-center mb-4">
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h4>{{ total_offres }}</h4>
-                    <p>Total des offres</p>
+                    <h4>Total Offres</h4>
+                    <p>{{ num_offers }}</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h4>{{ total_produits }}</h4>
-                    <p>Total des produits</p>
+                    <h4>Total Produits</h4>
+                    <p>{{ num_products }}</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h4>{{ total_services }}</h4>
-                    <p>Total des services</p>
+                    <h4>Total Services</h4>
+                    <p>{{ num_services }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Filtres et barre de recherche -->
-        <div class="filter-container d-flex justify-content-between">
-            <!-- Barre de recherche -->
-            <div class="w-50">
-                <input type="text" class="form-control" placeholder="Rechercher une offre...">
-            </div>
-            <!-- Filtres -->
-            <div class="d-flex gap-3 w-50">
-                <!-- Filtrage par catégorie -->
-                <select class="form-select w-50">
-                    <option value="">Filtrer par catégorie</option>
-                    <option value="consultation">Consultation</option>
-                    <option value="formation">Formation</option>
-                    <option value="réparation">Réparation</option>
-                    <option value="livraison">Livraison</option>
-                    <option value="electronique">Électronique</option>
-                    <option value="vêtements">Vêtements</option>
-                    <option value="maison">Maison</option>
-                    <option value="alimentation">Alimentation</option>
-                </select>
-                <!-- Filtrage par type -->
-                <select class="form-select w-50">
-                    <option value="">Filtrer par type</option>
-                    <option value="Produit">Produit</option>
-                    <option value="Service">Service</option>
-                </select>
-            </div>
-        </div>
+
 
         <!-- Tableau des offres -->
         <table class="table table-hover table-bordered">
@@ -129,7 +42,6 @@
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Catégorie</th>
-                    <th>Description</th>
                     <th>Prix</th>
                     <th>Quantité</th>
                     <th>Date d'ajout</th>
@@ -142,19 +54,26 @@
                 <tr>
                     <td>{{ offre.ID_off }}</td>
                     <td>{{ offre.libelle_off }}</td>
-                    <td>{{ offre.categorie }}</td>
-                    <td>{{ offre.description_off }}</td>
+                    <td>
+                        {% for category in offre.categories %}
+                            {{ category }} <br>
+                        {% endfor %}
+                    </td>
                     <td>{{ offre.prix_off }}</td>
                     <td>{{ offre.quantite_en_stock }}</td>
                     <td>{{ offre.date_off }}</td>
                     <td>{{ offre.type_off }}</td>
                     <td>
                         <!-- View Button -->
-                        <button class="btn btn-info btn-sm" onclick="openViewModal('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.categorie }}', '{{ offre.description_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}', '{{ offre.date_off }}', '{{ offre.type_off }}', '{{ offre.prenom_uti }}', '{{ offre.nom_uti }}')">Voir</button>
+                        <button class="btn btn-info btn-sm" onclick="openViewModal('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.categorie }}', '{{ offre.description_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}', '{{ offre.date_off }}', '{{ offre.type_off }}', '{{ offre.prenom_uti }}', '{{ offre.nom_uti }}')">
+                            <i class="fa fa-eye"></i>
+                        </button>
                         
-                        <!-- Supprimer Button -->
+                        <!-- Delete Button -->
                         <form action="{{ url_for('supprimer_offre', offre_id=offre.ID_off) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre?');">Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre?');">
+                                <i class="fa fa-times"></i>
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -168,18 +87,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Détails de l'offre</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    <h5 class="modal-title" id="viewOfferModalLabel">Détails de l'Offre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Nom de l'offre :</strong> <span id="viewOfferName"></span></p>
-                    <p><strong>Catégorie :</strong> <span id="viewOfferCategory"></span></p>
-                    <p><strong>Description :</strong> <span id="viewOfferDescription"></span></p>
-                    <p><strong>Prix :</strong> <span id="viewOfferPrice"></span></p>
-                    <p><strong>Quantité disponible :</strong> <span id="viewOfferQuantity"></span></p>
-                    <p><strong>Type :</strong> <span id="viewOfferType"></span></p>
-                    <p><strong>Date d'ajout :</strong> <span id="viewOfferDate"></span></p>
-                    <p><strong>Vendeur :</strong> <span id="viewOfferSeller"></span></p>
+                    <p><strong>Nom:</strong> <span id="viewOfferName"></span></p>
+                    <p><strong>Catégorie:</strong> <span id="viewOfferCategory"></span></p>
+                    <p><strong>Description:</strong> <span id="viewOfferDescription"></span></p>
+                    <p><strong>Prix:</strong> <span id="viewOfferPrice"></span></p>
+                    <p><strong>Quantité:</strong> <span id="viewOfferQuantity"></span></p>
+                    <p><strong>Date:</strong> <span id="viewOfferDate"></span></p>
+                    <p><strong>Type:</strong> <span id="viewOfferType"></span></p>
+                    <p><strong>Vendeur:</strong> <span id="viewOfferSeller"></span></p>
                 </div>
             </div>
         </div>

@@ -1335,14 +1335,34 @@ def delete_category(category_id):
 @app.route('/gestion_offres')
 @admin_required
 def gestion_offres():
+    # ...existing code...
+    # Calculate total number of offers
+    num_offers = db.execute("SELECT COUNT(*) AS count FROM offre")[0]['count']
+    # Calculate total number of products
+    num_products = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off='Produit'")[0]['count']
+    # Calculate total number of services
+    num_services = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off='Service'")[0]['count']
+    # ...existing code...
     offers = db.execute("""
         SELECT offre.*, utilisateur.prenom_uti, utilisateur.nom_uti
         FROM offre
         JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
     """)
-    return render_template('admin/gestion_offres.html', offres=offers)
-
-
+    # Fetch and append categories for each offer
+    for offer in offers:
+        categories = db.execute("""
+            SELECT categorie.nom_cat 
+            FROM appartenir 
+            JOIN categorie ON appartenir.ID_cat = categorie.ID_cat 
+            WHERE appartenir.ID_off = ?
+        """, offer['ID_off'])
+        offer['categories'] = [cat['nom_cat'] for cat in categories]
+    
+    return render_template('admin/gestion_offres.html',
+                           offres=offers,
+                           num_offers=num_offers,
+                           num_products=num_products,
+                           num_services=num_services)
 if __name__ == '__main__':
 
     app.run(debug=True)
