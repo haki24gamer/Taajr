@@ -1190,33 +1190,6 @@ def delete_user(user_id):
     flash('Utilisateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_utilisateurs'))
 
-@app.route('/gestion_produits')
-@admin_required
-def gestion_produits():
-    produits = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, GROUP_CONCAT(categorie.nom_cat, ', ') AS categorie, offre.prix_off, offre.quantite_en_stock, offre.date_off
-        FROM offre
-        JOIN appartenir ON offre.ID_off = appartenir.ID_off
-        JOIN categorie ON appartenir.ID_cat = categorie.ID_cat
-        WHERE offre.type_off = 'Produit'
-        GROUP BY offre.ID_off
-    """)
-    total_produits = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off = 'Produit'")[0]['count']
-    return render_template('admin/gestion_produits.html', produits=produits, total_produits=total_produits)
-
-@app.route('/gestion_services')
-@admin_required
-def gestion_services():
-    services = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, GROUP_CONCAT(categorie.nom_cat, ', ') AS categorie, offre.description_off, offre.prix_off, offre.date_off, offre.quantite_en_stock
-        FROM offre
-        JOIN appartenir ON offre.ID_off = appartenir.ID_off
-        JOIN categorie ON appartenir.ID_cat = categorie.ID_cat
-        WHERE offre.type_off = 'Service'
-        GROUP BY offre.ID_off
-    """)
-    total_services = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off = 'Service'")[0]['count']
-    return render_template('admin/gestion_services.html', services=services, total_services=total_services)
 
 @app.route('/gestion_categories')
 @admin_required
@@ -1372,32 +1345,6 @@ def gestion_offres():
     total_services = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off = 'Service'")[0]['count']
     return render_template('admin/gestion_offres.html', offres=offres, total_offres=total_offres, total_produits=total_produits, total_services=total_services)
 
-@app.route('/update_offre', methods=['POST'])
-def update_offre():
-    if 'user_id' not in session:
-        flash('Veuillez vous connecter pour mettre à jour une offre.', 'danger')
-        return redirect(url_for('connexion'))
-    
-    # Retrieve form data
-    offre_id = request.form.get('offerId')
-    libelle_off = request.form.get('offerName')
-    prix_off = request.form.get('offerPrice')
-    quantite = request.form.get('offerQuantity')
-    
-    # Validate input
-    if not offre_id or not libelle_off or not prix_off or not quantite:
-        flash('Données invalides pour la mise à jour de l\'offre.', 'danger')
-        return redirect(request.referrer)
-    
-    # Update the offer in the database
-    db.execute("""
-        UPDATE offre 
-        SET libelle_off = ?, prix_off = ?, quantite_en_stock = ?
-        WHERE ID_off = ? AND ID_uti = ?
-    """, libelle_off, prix_off, quantite, offre_id, session['user_id'])
-    
-    flash('Offre mise à jour avec succès.', 'success')
-    return redirect(request.referrer)
 
 if __name__ == '__main__':
 
