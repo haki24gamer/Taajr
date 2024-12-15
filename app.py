@@ -702,21 +702,12 @@ def admin():
     
     # Fetch detailed data with owner information, limited to 5
     users = db.execute("SELECT ID_uti, nom_uti, prenom_uti, email_uti FROM utilisateur LIMIT 5")
-    products = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
+    offers = db.execute("""
+        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti, offre.type_off
         FROM offre
         JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
-        WHERE offre.type_off = 'Produit'
-        LIMIT 5
+        LIMIT 10
     """)
-    services = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
-        FROM offre
-        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
-        WHERE offre.type_off = 'Service'
-        LIMIT 5
-    """)
-    pending_orders = db.execute("SELECT * FROM commande WHERE status_com='pending' LIMIT 5")
     orders = db.execute("SELECT * FROM commande LIMIT 5")
     
     # Pass the counts and detailed data to the template
@@ -726,9 +717,7 @@ def admin():
                            num_pending=num_pending,
                            num_orders=num_orders,
                            users=users,
-                           products=products,
-                           services=services,
-                           pending_orders=pending_orders,
+                           offers=offers,
                            orders=orders)
 
 @app.route('/Profil')
