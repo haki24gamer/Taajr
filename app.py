@@ -843,21 +843,24 @@ def offres_vendeurs():
 
 @app.route('/commandes_vendeurs')
 def commandes_vendeurs():
-    if ('user_id' not in session):
+    if 'user_id' not in session:
         flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if (not user or user[0]['type_uti'] != 'Vendeur'):
+    if not user or user[0]['type_uti'] != 'Vendeur':
         flash('Accès interdit.', 'danger')
         return redirect(url_for('index'))
     
     commandes = db.execute("""
-        SELECT commande.*, utilisateur.nom_uti, utilisateur.prenom_uti
+        SELECT commande.*, utilisateur.nom_uti, utilisateur.prenom_uti, offre.libelle_off, contenir.quantite
         FROM commande
         JOIN utilisateur ON commande.ID_uti = utilisateur.ID_uti
-        WHERE commande.ID_uti = ?
+        JOIN contenir ON commande.ID_com = contenir.ID_com
+        JOIN offre ON contenir.ID_off = offre.ID_off
+        WHERE offre.ID_uti = ?
     """, session['user_id'])
+    
     return render_template('commandes_vendeurs.html', commandes=commandes)
 
 @app.route('/modifier_offre', methods=['POST'])
@@ -1435,6 +1438,22 @@ def supprimer_compte():
     session.clear()
     flash('Votre compte a été supprimé avec succès.', 'success')
     return redirect(url_for('index'))
+
+@app.route('/commandes_clients')
+def commandes_clients():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à vos commandes.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    commandes = db.execute("""
+        SELECT commande.*, offre.libelle_off, contenir.quantite
+        FROM commande
+        JOIN contenir ON commande.ID_com = contenir.ID_com
+        JOIN offre ON contenir.ID_off = offre.ID_off
+        WHERE commande.ID_uti = ?
+    """, session['user_id'])
+    
+    return render_template('commandes_clients.html', commandes=commandes)
 
 if __name__ == '__main__':
 

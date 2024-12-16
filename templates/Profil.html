@@ -29,18 +29,23 @@ Profil - {{ user['prenom_uti'] }} {{ user['nom_uti'] }}
             <p><strong>Adresse de la boutique:</strong> {{ details[0]['adresse_boutique'] }}</p>
             <p><strong>Description:</strong> {{ details[0]['description'] }}</p>
             <div class="button-group mt-3">
-            <a href="{{ url_for('offres_vendeurs') }}" class="btn btn-danger">Offres</a>
-            <a href="{{ url_for('commandes_vendeurs') }}" class="btn btn-danger">Commandes</a>
-</div>
-
+                <a href="{{ url_for('offres_vendeurs') }}" class="btn btn-danger">Offres</a>
+                <a href="{{ url_for('commandes_vendeurs') }}" class="btn btn-danger">Commandes</a>
+            </div>
         {% endif %}
     </div>
 </div>
 <br>
-<div>
-    <a href="{{ url_for('modifier_profil') }}" class="btn btn-primary">Modifier le Profil</a>
-    <a href="{{ url_for('supprimer_compte') }}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')">Supprimer le compte</a>
+<div style="display: flex; justify-content: space-between;">
+    <div>
+        <a href="{{ url_for('modifier_profil') }}" class="btn btn-primary">Modifier le Profil</a>
+        <a href="{{ url_for('supprimer_compte') }}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')">Supprimer le compte</a>
+    </div>
+    {% if user['type_uti'] == 'Client' %}
+        <div>
+            <a href="{{ url_for('commandes_clients') }}" class="btn btn-danger">Commandes</a>
+        </div>
+    {% endif %}
 </div>
-
 
 {% endblock %}
