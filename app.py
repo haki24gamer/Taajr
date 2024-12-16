@@ -763,9 +763,11 @@ def modifier_profil():
         telephone = request.form.get('telephone')
         date_naissance = request.form.get('date_naissance')
         genre = request.form.get('genre')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_new_password')
+        errors = []
         
         # Validate inputs
-        errors = []
         if not nom:
             errors.append("Le nom est obligatoire.")
         if not prenom:
@@ -776,36 +778,46 @@ def modifier_profil():
             errors.append("Le numéro de téléphone est obligatoire.")
         # Ajoutez d'autres validations si nécessaire
         
+        if new_password or confirm_password:
+            if not new_password:
+                errors.append("Veuillez entrer le nouveau mot de passe.")
+            elif new_password != confirm_password:
+                errors.append("Les mots de passe ne correspondent pas.")
+            else:
+                hashed_password = generate_password_hash(new_password)
+                db.execute("UPDATE utilisateur SET mot_de_passe = ? WHERE ID_uti = ?", hashed_password, session['user_id'])
+        
         if errors:
             for error in errors:
                 flash(error, 'danger')
-        else:
-            # Mettre à jour la table utilisateur
+            return redirect(url_for('modifier_profil'))
+        
+        # Mettre à jour la table utilisateur
+        db.execute("""
+            UPDATE utilisateur
+            SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+            WHERE ID_uti = ?
+        """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
+        
+        if (user[0]['type_uti'] == 'Client'):
+            adresse = request.form.get('adresse')
             db.execute("""
-                UPDATE utilisateur
-                SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+                UPDATE Details_Client
+                SET adresse = ?
                 WHERE ID_uti = ?
-            """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
-            
-            if (user[0]['type_uti'] == 'Client'):
-                adresse = request.form.get('adresse')
-                db.execute("""
-                    UPDATE Details_Client
-                    SET adresse = ?
-                    WHERE ID_uti = ?
-                """, adresse, session['user_id'])
-            elif (user[0]['type_uti'] == 'Vendeur'):
-                boutique = request.form.get('boutique')
-                adresse_boutique = request.form.get('adresse_boutique')
-                description = request.form.get('description')
-                db.execute("""
-                    UPDATE Details_Vendeur
-                    SET nom_boutique = ?, adresse_boutique = ?, description = ?
-                    WHERE ID_uti = ?
-                """, boutique, adresse_boutique, description, session['user_id'])
-            
-            flash('Profil mis à jour avec succès.', 'success')
-            return redirect(url_for('profil'))
+            """, adresse, session['user_id'])
+        elif (user[0]['type_uti'] == 'Vendeur'):
+            boutique = request.form.get('boutique')
+            adresse_boutique = request.form.get('adresse_boutique')
+            description = request.form.get('description')
+            db.execute("""
+                UPDATE Details_Vendeur
+                SET nom_boutique = ?, adresse_boutique = ?, description = ?
+                WHERE ID_uti = ?
+            """, boutique, adresse_boutique, description, session['user_id'])
+        
+        flash('Profil mis à jour avec succès.', 'success')
+        return redirect(url_for('profil'))
     
     return render_template('modifier_profil.html', user=user[0], details=details)
 
@@ -1385,6 +1397,44 @@ def add_admin():
     
     flash('Nouvel administrateur ajouté avec succès.', 'success')
     return redirect(url_for('gestion_comptes_admin'))
+
+@app.route('/supprimer_compte', methods=['POST', 'GET'])
+def supprimer_compte():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour supprimer votre compte.', 'danger')
+        return redirect(url_for('connexion'))
+
+    user_id = session['user_id']
+
+    # Delete related records
+    db.execute("DELETE FROM likes WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Client WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Vendeur WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM commande WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM avis WHERE ID_uti = ?", user_id)
+
+    # Fetch all offer IDs associated with the user
+    user_offers = db.execute("SELECT ID_off FROM offre WHERE ID_uti = ?", user_id)
+    offer_ids = [offer['ID_off'] for offer in user_offers]
+
+    # Delete related records for each offer
+    for offer_id in offer_ids:
+        db.execute("DELETE FROM likes WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM panier WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM appartenir WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM avis WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM commande WHERE ID_off = ?", offer_id)
+
+    # Delete the user's offers
+    db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
+
+    # Finally, delete the user
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
+
+    session.clear()
+    flash('Votre compte a été supprimé avec succès.', 'success')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
 

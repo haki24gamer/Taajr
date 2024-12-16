@@ -39,6 +39,7 @@ Profil - {{ user['prenom_uti'] }} {{ user['nom_uti'] }}
 <br>
 <div>
     <a href="{{ url_for('modifier_profil') }}" class="btn btn-primary">Modifier le Profil</a>
+    <a href="{{ url_for('supprimer_compte') }}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')">Supprimer le compte</a>
 </div>
 
 
