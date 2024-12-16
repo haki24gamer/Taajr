@@ -699,24 +699,16 @@ def admin():
     num_offers = db.execute("SELECT COUNT(*) AS count FROM offre")[0]['count']
     num_pending = db.execute("SELECT COUNT(*) AS count FROM commande WHERE status_com='pending'")[0]['count']
     num_orders = db.execute("SELECT COUNT(*) AS count FROM commande")[0]['count']
+    num_new_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE date_inscription >= date('now', '-1 day')")[0]['count']
     
     # Fetch detailed data with owner information, limited to 5
     users = db.execute("SELECT ID_uti, nom_uti, prenom_uti, email_uti FROM utilisateur LIMIT 5")
-    products = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
+    offers = db.execute("""
+        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti, offre.type_off
         FROM offre
         JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
-        WHERE offre.type_off = 'Produit'
-        LIMIT 5
+        LIMIT 10
     """)
-    services = db.execute("""
-        SELECT offre.ID_off, offre.libelle_off, offre.prix_off, offre.quantite_en_stock, utilisateur.nom_uti, utilisateur.prenom_uti
-        FROM offre
-        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
-        WHERE offre.type_off = 'Service'
-        LIMIT 5
-    """)
-    pending_orders = db.execute("SELECT * FROM commande WHERE status_com='pending' LIMIT 5")
     orders = db.execute("SELECT * FROM commande LIMIT 5")
     
     # Pass the counts and detailed data to the template
@@ -725,10 +717,9 @@ def admin():
                            num_offers=num_offers,
                            num_pending=num_pending,
                            num_orders=num_orders,
+                           num_new_users=num_new_users,
                            users=users,
-                           products=products,
-                           services=services,
-                           pending_orders=pending_orders,
+                           offers=offers,
                            orders=orders)
 
 @app.route('/Profil')
@@ -859,20 +850,20 @@ def commandes_vendeurs():
 
 @app.route('/modifier_offre', methods=['POST'])
 def modifier_offre():
-    if ('user_id' not in session):
+    if 'user_id' not in session:
         flash('Veuillez vous connecter pour modifier une offre.', 'danger')
         return redirect(url_for('connexion'))
     
     # Retrieve form data
-    offre_id = request.form.get('productId')
-    libelle_off = request.form.get('productName')
-    prix_off = request.form.get('productPrice')
-    quantite = request.form.get('productQuantity')
+    offre_id = request.form.get('offerId')
+    libelle_off = request.form.get('offerName')
+    prix_off = request.form.get('offerPrice')
+    quantite = request.form.get('offerQuantity')
     
     # Validate input
-    if (not offre_id or not libelle_off or not prix_off or not quantite):
+    if not offre_id or not libelle_off or not prix_off or not quantite:
         flash('Données invalides pour la modification de l\'offre.', 'danger')
-        return redirect(url_for('offres_vendeurs'))
+        return redirect(request.referrer)
     
     # Update the offer in the database
     db.execute("""
@@ -881,28 +872,30 @@ def modifier_offre():
         WHERE ID_off = ? AND ID_uti = ?
     """, libelle_off, prix_off, quantite, offre_id, session['user_id'])
     
-    flash('Produit modifié avec succès.', 'success')
-    return redirect(url_for('offres_vendeurs'))
+    flash('Offre modifiée avec succès.', 'success')
+    return redirect(request.referrer)
 
 @app.route('/supprimer_offre/<int:offre_id>', methods=['POST'])
 def supprimer_offre(offre_id):
-    if ('user_id' not in session):
-        flash('Veuillez vous connecter pour supprimer une offre.', 'danger')
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
         return redirect(url_for('connexion'))
-    
-    # Verify that the offer belongs to the logged-in user
-    offre = db.execute("SELECT * FROM offre WHERE ID_off = ? AND ID_uti = ?", offre_id, session['user_id'])
-    if (not offre):
-        flash('Offre non trouvée ou accès interdit.', 'danger')
-        return redirect(url_for('offres_vendeurs'))
+    # Verify that the offer belongs to the logged-in admin or appropriate user
+    offre = db.execute("SELECT * FROM offre WHERE ID_off = ?", offre_id)
+    if not offre:
+        flash('Offre non trouvée ou vous n\'avez pas la permission de la supprimer.', 'danger')
+        return redirect(url_for('gestion_offres'))
     
     # Retrieve the image path before deletion
     image_path = offre[0]['image_off']
-    if (image_path and image_path != 'Images/default.png'):
+    if image_path and image_path != 'Images/default.png':
+        # Construct the full path to the image
+        full_image_path = os.path.join(app.root_path, image_path)
         try:
-            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(image_path)))
-        except FileNotFoundError:
-            pass  # Optionally log this event
+            os.remove(full_image_path)
+            flash('Image de l\'offre supprimée.', 'success')
+        except OSError as e:
+            flash(f'Erreur lors de la suppression de l\'image: {e}', 'danger')
     
     # Delete related records
     db.execute("DELETE FROM likes WHERE ID_off = ?", offre_id)
@@ -911,8 +904,8 @@ def supprimer_offre(offre_id):
     db.execute("DELETE FROM avis WHERE ID_off = ?", offre_id)  # Supprimer les avis associés
     db.execute("DELETE FROM offre WHERE ID_off = ?", offre_id)
     
-    flash('Produit et enregistrements associés supprimés avec succès.', 'success')
-    return redirect(url_for('offres_vendeurs'))
+    flash('Offre et enregistrements associés supprimés avec succès.', 'success')
+    return redirect(url_for('gestion_offres'))
 
 @app.route('/ajouter_offre', methods=['POST'])
 def ajouter_offre():
@@ -1161,6 +1154,7 @@ def gestion_utilisateurs():
     return render_template('admin/gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
+@admin_required
 def delete_user(user_id):
     if 'user_id' not in session:
         flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
@@ -1206,20 +1200,11 @@ def delete_user(user_id):
     # Delete the user's offers
     db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
 
+    # Finally, delete the user
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
     
     flash('Utilisateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_utilisateurs'))
-
-@app.route('/gestion_produits')
-@admin_required
-def gestion_produits():
-    produits = db.execute("SELECT * FROM offre WHERE type_off = 'Produit'")
-    return render_template('admin/gestion_produits.html', produits=produits)
-
-@app.route('/gestion_services')
-def gestion_services():
-    services = db.execute("SELECT * FROM offre WHERE type_off = 'Service'")
-    return render_template('admin/gestion_services.html', services=services)
 
 @app.route('/gestion_categories')
 @admin_required
@@ -1252,7 +1237,8 @@ def gestion_messages():
 @app.route('/gestion_comptes_admin')
 @admin_required
 def gestion_comptes_admin():
-    return render_template('admin/gestion_comptes_admin.html')
+    admins = db.execute("SELECT * FROM utilisateur WHERE type_uti = 'Admin'")
+    return render_template('admin/gestion_comptes_admin.html', admins=admins)
 
 @app.route('/gestion_parametres')
 @admin_required
@@ -1359,6 +1345,66 @@ def delete_category(category_id):
     db.execute("DELETE FROM categorie WHERE ID_cat = ?", category_id)
     flash('Catégorie supprimée avec succès.', 'success')
     return redirect(url_for('gestion_categories'))
+
+@app.route('/gestion_offres')
+@admin_required
+def gestion_offres():
+    # ...existing code...
+    # Calculate total number of offers
+    num_offers = db.execute("SELECT COUNT(*) AS count FROM offre")[0]['count']
+    # Calculate total number of products
+    num_products = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off='Produit'")[0]['count']
+    # Calculate total number of services
+    num_services = db.execute("SELECT COUNT(*) AS count FROM offre WHERE type_off='Service'")[0]['count']
+    # ...existing code...
+    offers = db.execute("""
+        SELECT offre.*, utilisateur.prenom_uti, utilisateur.nom_uti
+        FROM offre
+        JOIN utilisateur ON offre.ID_uti = utilisateur.ID_uti
+    """)
+    # Fetch and append categories for each offer
+    for offer in offers:
+        categories = db.execute("""
+            SELECT categorie.nom_cat 
+            FROM appartenir 
+            JOIN categorie ON appartenir.ID_cat = categorie.ID_cat 
+            WHERE appartenir.ID_off = ?
+        """, offer['ID_off'])
+        offer['categories'] = [cat['nom_cat'] for cat in categories]
+    
+    return render_template('admin/gestion_offres.html',
+                           offres=offers,
+                           num_offers=num_offers,
+                           num_products=num_products,
+                           num_services=num_services)
+
+@app.route('/add_admin', methods=['POST'])
+@admin_required
+def add_admin():
+    admin_name = request.form.get('adminName')
+    admin_first_name = request.form.get('adminFirstName')
+    admin_email = request.form.get('adminEmail')
+    admin_password = request.form.get('adminPassword')
+    admin_phone = request.form.get('adminPhone')
+    admin_birth_date = request.form.get('adminBirthDate')
+    admin_gender = request.form.get('adminGender')
+    
+    # Validate input
+    if not admin_name or not admin_first_name or not admin_email or not admin_password or not admin_phone or not admin_birth_date or not admin_gender:
+        flash('Tous les champs sont obligatoires.', 'danger')
+        return redirect(url_for('gestion_comptes_admin'))
+    
+    # Hash the password
+    hashed_password = generate_password_hash(admin_password)
+    
+    # Insert new admin into the database
+    db.execute("""
+        INSERT INTO utilisateur (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'Admin')
+    """, admin_name, admin_first_name, admin_email, hashed_password, admin_phone, admin_birth_date, admin_gender)
+    
+    flash('Nouvel administrateur ajouté avec succès.', 'success')
+    return redirect(url_for('gestion_comptes_admin'))
 
 if __name__ == '__main__':
 

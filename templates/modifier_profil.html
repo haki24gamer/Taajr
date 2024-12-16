@@ -154,9 +154,8 @@
                             <div class="mb-3">
                                 <label for="gender" class="form-label">Genre</label>
                                 <select class="form-control" id="gender" name="gender" required>
-                                    <option value="Masculin" {% if user.genre == 'Masculin' %}selected{% endif %}>Masculin</option>
-                                    <option value="Féminin" {% if user.genre == 'Féminin' %}selected{% endif %}>Féminin</option>
-                                    <option value="Autre" {% if user.genre == 'Autre' %}selected{% endif %}>Autre</option>
+                                    <option value="Homme" {% if user.genre == 'Homme' %}selected{% endif %}>Homme</option>
+                                    <option value="Femme" {% if user.genre == 'Femme' %}selected{% endif %}>Femme</option>
                                 </select>
                             </div>
                             

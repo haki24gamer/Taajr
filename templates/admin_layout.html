@@ -110,6 +110,60 @@
       }
 
     </style>
+
+<style>
+    body {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+    .header {
+        background-color: #0056b3;
+        color: white;
+        text-align: center;
+        padding: 20px 10px;
+    }
+    .header h1 {
+        font-size: 2.5rem;
+    }
+    .btn-primary {
+        background-color: #0056b3;
+        border: none;
+    }
+    .btn-danger {
+        background-color: #d63384;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #003d80;
+    }
+    .btn-danger:hover {
+        background-color: #a82867;
+    }
+    .stats-card {
+        background-color: #fff;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stats-card h4 {
+        font-size: 1.5rem;
+        color: #0056b3;
+    }
+    .stats-card p {
+        font-size: 1rem;
+    }
+    .table th {
+        background-color: #0056b3;
+        color: white;
+    }
+    .divider {
+        height: 4px;
+        background: linear-gradient(to right, #0056b3, #d63384);
+        border: none;
+        margin: 20px 0;
+    }
+</style>
 </head>
 <body>
 
@@ -118,12 +172,11 @@
         <h2 class="text-center mb-4">Admin Panel</h2>
         <a href="/admin"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
         <a href="{{ url_for('gestion_utilisateurs') }}"><i class="fas fa-users"></i> Gestion des utilisateurs</a>
-        <a href="{{ url_for('gestion_produits') }}"><i class="fas fa-box-open"></i> Gestion des produits</a>
-        <a href="{{ url_for('gestion_services') }}"><i class="fas fa-hands-helping"></i> Gestion des services</a>
+        <a href="{{ url_for('gestion_offres') }}"><i class="fas fa-th-list"></i> Gestion des offres</a>
         <a href="{{ url_for('gestion_categories') }}"><i class="fas fa-tags"></i> Gestion des catégories</a>
         <a href="{{ url_for('gestion_commandes') }}"><i class="fas fa-shopping-cart"></i> Gestion des commandes</a>
-        <a href="{{ url_for('gestion_messages') }}"><i class="fas fa-comment-dots"></i> Gestion des messages et reclamations</a>
         <a href="{{ url_for('gestion_comptes_admin') }}"><i class="fas fa-user-cog"></i> Gestion des comptes administrateur</a>
+        <a href="{{ url_for('gestion_messages') }}"><i class="fas fa-comment-dots"></i> Gestion des messages et reclamations</a>
         <a href="{{ url_for('gestion_parametres') }}"><i class="fas fa-cog"></i> Paramètres</a>
         <a href="{{ url_for('gestion_notifications') }}"><i class="fas fa-bell"></i> Gestion des notifications</a>
     </div>
