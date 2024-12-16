@@ -9,6 +9,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import re
 from functools import wraps
+import random
+import string
+from flask_mail import Mail, Message  # Added for email functionality
 
 app = Flask(__name__)
 
@@ -29,6 +32,14 @@ app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
 app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
 app.config['UPLOAD_FOLDER_CATEGORIES'] = UPLOAD_FOLDER_CATEGORIES
 
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'mail.protonmail.ch'
+app.config['MAIL_PORT'] = 1025
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'Haki24gamer@proton.me'
+app.config['MAIL_PASSWORD'] = 'YZ01P9uN$9Da%mMV'
+mail = Mail(app)
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -44,6 +55,9 @@ def is_valid_email(email):
         if domain in allowed_domains:
             return True
     return False
+
+def generate_verification_code(length=6):
+    return ''.join(random.choices(string.digits, k=length))
 
 @app.context_processor
 def inject_user_id():
@@ -312,6 +326,8 @@ def Inscription_Vendeur():
         else:
             document_filename = None  # Or handle error
         
+        verification_code = generate_verification_code()
+        
         # Insert into utilisateur
         user_id = db.execute("""
             INSERT INTO utilisateur 
@@ -331,7 +347,13 @@ def Inscription_Vendeur():
 
         document = document_filename
         
-        return redirect("/connexion")
+        # Send verification email
+        msg = Message('Votre Code de Vérification', sender='taajr.services@example.com', recipients=[email])
+        msg.body = f'Votre code de vérification est : {verification_code}'
+        mail.send(msg)
+        
+        flash('Inscription réussie! Un code de vérification a été envoyé à votre email.', 'success')
+        return redirect("/verify_email")
     else:
         return render_template('inscription_vendeur.html')
     
@@ -395,6 +417,8 @@ def Inscription_Client():
                 flash(error, 'danger')
             return render_template('inscription_client.html')
         
+        verification_code = generate_verification_code()
+        
         # Insert into utilisateur
         user_id = db.execute("""
             INSERT INTO utilisateur 
@@ -409,7 +433,13 @@ def Inscription_Client():
             VALUES (?, ?)
         """, user_id, adresse)
         
-        return redirect("/connexion")
+        # Send verification email
+        msg = Message('Votre Code de Vérification', sender='taajr.services@example.com', recipients=[email])
+        msg.body = f'Votre code de vérification est : {verification_code}'
+        mail.send(msg)
+        
+        flash('Inscription réussie! Un code de vérification a été envoyé à votre email.', 'success')
+        return redirect("/verify_email")
     else:
         return render_template('inscription_client.html')
 
@@ -1385,6 +1415,20 @@ def add_admin():
     
     flash('Nouvel administrateur ajouté avec succès.', 'success')
     return redirect(url_for('gestion_comptes_admin'))
+
+@app.route('/verify_email', methods=["GET", "POST"])
+def verify_email():
+    if request.method == "POST":
+        email = request.form.get("email")
+        code = request.form.get("code")
+        user = db.execute("SELECT ID_uti, verification_code FROM utilisateur WHERE email_uti = ?", email)
+        if user and user[0]['verification_code'] == code:
+            db.execute("UPDATE utilisateur SET is_verified = ? WHERE ID_uti = ?", True, user[0]['ID_uti'])
+            flash('Email vérifié avec succès!', 'success')
+            return redirect("/connexion")
+        else:
+            flash("Code de vérification invalide.", "danger")
+    return render_template("verify_email.html")
 
 if __name__ == '__main__':
 
