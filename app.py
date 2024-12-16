@@ -1398,6 +1398,44 @@ def add_admin():
     flash('Nouvel administrateur ajouté avec succès.', 'success')
     return redirect(url_for('gestion_comptes_admin'))
 
+@app.route('/supprimer_compte', methods=['POST', 'GET'])
+def supprimer_compte():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour supprimer votre compte.', 'danger')
+        return redirect(url_for('connexion'))
+
+    user_id = session['user_id']
+
+    # Delete related records
+    db.execute("DELETE FROM likes WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Client WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM Details_Vendeur WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM commande WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM avis WHERE ID_uti = ?", user_id)
+
+    # Fetch all offer IDs associated with the user
+    user_offers = db.execute("SELECT ID_off FROM offre WHERE ID_uti = ?", user_id)
+    offer_ids = [offer['ID_off'] for offer in user_offers]
+
+    # Delete related records for each offer
+    for offer_id in offer_ids:
+        db.execute("DELETE FROM likes WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM panier WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM appartenir WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM avis WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM commande WHERE ID_off = ?", offer_id)
+
+    # Delete the user's offers
+    db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
+
+    # Finally, delete the user
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
+
+    session.clear()
+    flash('Votre compte a été supprimé avec succès.', 'success')
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
 
     app.run(debug=True)
