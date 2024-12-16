@@ -763,9 +763,11 @@ def modifier_profil():
         telephone = request.form.get('telephone')
         date_naissance = request.form.get('date_naissance')
         genre = request.form.get('genre')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_new_password')
+        errors = []
         
         # Validate inputs
-        errors = []
         if not nom:
             errors.append("Le nom est obligatoire.")
         if not prenom:
@@ -776,36 +778,46 @@ def modifier_profil():
             errors.append("Le numéro de téléphone est obligatoire.")
         # Ajoutez d'autres validations si nécessaire
         
+        if new_password or confirm_password:
+            if not new_password:
+                errors.append("Veuillez entrer le nouveau mot de passe.")
+            elif new_password != confirm_password:
+                errors.append("Les mots de passe ne correspondent pas.")
+            else:
+                hashed_password = generate_password_hash(new_password)
+                db.execute("UPDATE utilisateur SET mot_de_passe = ? WHERE ID_uti = ?", hashed_password, session['user_id'])
+        
         if errors:
             for error in errors:
                 flash(error, 'danger')
-        else:
-            # Mettre à jour la table utilisateur
+            return redirect(url_for('modifier_profil'))
+        
+        # Mettre à jour la table utilisateur
+        db.execute("""
+            UPDATE utilisateur
+            SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+            WHERE ID_uti = ?
+        """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
+        
+        if (user[0]['type_uti'] == 'Client'):
+            adresse = request.form.get('adresse')
             db.execute("""
-                UPDATE utilisateur
-                SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+                UPDATE Details_Client
+                SET adresse = ?
                 WHERE ID_uti = ?
-            """, nom, prenom, email, telephone, date_naissance, genre, session['user_id'])
-            
-            if (user[0]['type_uti'] == 'Client'):
-                adresse = request.form.get('adresse')
-                db.execute("""
-                    UPDATE Details_Client
-                    SET adresse = ?
-                    WHERE ID_uti = ?
-                """, adresse, session['user_id'])
-            elif (user[0]['type_uti'] == 'Vendeur'):
-                boutique = request.form.get('boutique')
-                adresse_boutique = request.form.get('adresse_boutique')
-                description = request.form.get('description')
-                db.execute("""
-                    UPDATE Details_Vendeur
-                    SET nom_boutique = ?, adresse_boutique = ?, description = ?
-                    WHERE ID_uti = ?
-                """, boutique, adresse_boutique, description, session['user_id'])
-            
-            flash('Profil mis à jour avec succès.', 'success')
-            return redirect(url_for('profil'))
+            """, adresse, session['user_id'])
+        elif (user[0]['type_uti'] == 'Vendeur'):
+            boutique = request.form.get('boutique')
+            adresse_boutique = request.form.get('adresse_boutique')
+            description = request.form.get('description')
+            db.execute("""
+                UPDATE Details_Vendeur
+                SET nom_boutique = ?, adresse_boutique = ?, description = ?
+                WHERE ID_uti = ?
+            """, boutique, adresse_boutique, description, session['user_id'])
+        
+        flash('Profil mis à jour avec succès.', 'success')
+        return redirect(url_for('profil'))
     
     return render_template('modifier_profil.html', user=user[0], details=details)
 
