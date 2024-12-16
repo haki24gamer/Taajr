@@ -55,19 +55,18 @@ def inject_user_info():
     if user_id:
         user = db.execute("SELECT nom_uti, prenom_uti, email_uti, telephone, date_naissance, genre, type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
         if user:
-            return dict(user_name=f"{user[0]['nom_uti']} {user[0]['prenom_uti']}")
+            return dict(user_name=f"{user[0]['prenom_uti']} {user[0]['nom_uti']}")
     return dict(user_name=None)
 
 @app.context_processor
 def inject_categories():
     categories = db.execute("SELECT ID_cat, nom_cat FROM categorie")
     return dict(categories=categories)
-    return dict(categories=categories)
 
 @app.context_processor
 def inject_favoris_ids():
     user_id = session.get('user_id')
-    if (user_id):
+    if user_id:
         favoris = db.execute("SELECT ID_off FROM likes WHERE ID_uti = ?", user_id)
         favoris_ids = [item['ID_off'] for item in favoris]
         return dict(favoris_ids=favoris_ids)
@@ -75,8 +74,9 @@ def inject_favoris_ids():
 
 @app.context_processor
 def inject_cart_ids():
-    if ('user_id' in session):
+    if 'user_id' in session:
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
+        cart_ids = [item['ID_off'] for item in cart_items]
         cart_ids = [item['ID_off'] for item in cart_items]
     else:
         cart_ids = []
@@ -1454,6 +1454,66 @@ def commandes_clients():
     """, session['user_id'])
     
     return render_template('commandes_clients.html', commandes=commandes)
+
+@app.route('/passer_commande', methods=['POST'])
+def passer_commande():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour passer une commande.', 'warning')
+        return redirect(url_for('connexion'))
+    
+    # Fetch cart items
+    cart_items = db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id'])
+    if not cart_items:
+        flash('Votre panier est vide.', 'info')
+        return redirect(url_for('Panier'))
+    
+    # Calculate total amount
+    total_amount = 0
+    for item in cart_items:
+        offer = db.execute("SELECT prix_off FROM offre WHERE ID_off = ?", item['ID_off'])[0]
+        total_amount += offer['prix_off'] * item['quantity']
+    
+    return render_template('payment.html', total_amount=total_amount)
+
+@app.route('/confirmer_paiement', methods=['POST'])
+def confirmer_paiement():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour effectuer le paiement.', 'warning')
+        return redirect(url_for('connexion'))
+    
+    # Collect payment details
+    montant_pay = request.form.get('montant_pay')
+    methode_pay = request.form.get('methode_pay')
+    type_pay = request.form.get('type_pay')
+    
+    if not montant_pay or not methode_pay or not type_pay:
+        flash('Tous les champs de paiement sont requis.', 'danger')
+        return redirect(url_for('passer_commande'))
+    
+    # Insert payment record
+    paiement_id = db.execute("""
+        INSERT INTO paiement (montant_pay, methode_pay, type_pay)
+        VALUES (?, ?, ?)
+    """, montant_pay, methode_pay, type_pay)
+    
+    # Create commande record
+    commande_id = db.execute("""
+        INSERT INTO commande (montant_com, status_com, ID_uti, ID_pay)
+        VALUES (?, 'confirmed', ?, ?)
+    """, montant_pay, session['user_id'], paiement_id)
+    
+    # Move items from panier to contenir
+    for item in db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id']):
+        db.execute("""
+            INSERT INTO contenir (ID_com, ID_off, quantity)
+            VALUES (?, ?, ?)
+        """, commande_id, item['ID_off'], item['quantity'])
+    
+    # Clear the panier
+    db.execute("DELETE FROM panier WHERE ID_uti = ?", session['user_id'])
+    
+    flash('Commande passée avec succès.', 'success')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
 
