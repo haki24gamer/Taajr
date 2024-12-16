@@ -699,6 +699,7 @@ def admin():
     num_offers = db.execute("SELECT COUNT(*) AS count FROM offre")[0]['count']
     num_pending = db.execute("SELECT COUNT(*) AS count FROM commande WHERE status_com='pending'")[0]['count']
     num_orders = db.execute("SELECT COUNT(*) AS count FROM commande")[0]['count']
+    num_new_users = db.execute("SELECT COUNT(*) AS count FROM utilisateur WHERE date_inscription >= date('now', '-1 day')")[0]['count']
     
     # Fetch detailed data with owner information, limited to 5
     users = db.execute("SELECT ID_uti, nom_uti, prenom_uti, email_uti FROM utilisateur LIMIT 5")
@@ -716,6 +717,7 @@ def admin():
                            num_offers=num_offers,
                            num_pending=num_pending,
                            num_orders=num_orders,
+                           num_new_users=num_new_users,
                            users=users,
                            offers=offers,
                            orders=orders)
@@ -1132,6 +1134,7 @@ def gestion_utilisateurs():
     return render_template('admin/gestion_utilisateurs.html', users=users, total_users=total_users, active_sellers=active_sellers, active_clients=active_clients, total_admins=total_admins)
 
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
+@admin_required
 def delete_user(user_id):
     if 'user_id' not in session:
         flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
@@ -1177,10 +1180,11 @@ def delete_user(user_id):
     # Delete the user's offers
     db.execute("DELETE FROM offre WHERE ID_uti = ?", user_id)
 
+    # Finally, delete the user
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ?", user_id)
     
     flash('Utilisateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_utilisateurs'))
-
 
 @app.route('/gestion_categories')
 @admin_required
@@ -1213,7 +1217,8 @@ def gestion_messages():
 @app.route('/gestion_comptes_admin')
 @admin_required
 def gestion_comptes_admin():
-    return render_template('admin/gestion_comptes_admin.html')
+    admins = db.execute("SELECT * FROM utilisateur WHERE type_uti = 'Admin'")
+    return render_template('admin/gestion_comptes_admin.html', admins=admins)
 
 @app.route('/gestion_parametres')
 @admin_required
@@ -1352,6 +1357,35 @@ def gestion_offres():
                            num_offers=num_offers,
                            num_products=num_products,
                            num_services=num_services)
+
+@app.route('/add_admin', methods=['POST'])
+@admin_required
+def add_admin():
+    admin_name = request.form.get('adminName')
+    admin_first_name = request.form.get('adminFirstName')
+    admin_email = request.form.get('adminEmail')
+    admin_password = request.form.get('adminPassword')
+    admin_phone = request.form.get('adminPhone')
+    admin_birth_date = request.form.get('adminBirthDate')
+    admin_gender = request.form.get('adminGender')
+    
+    # Validate input
+    if not admin_name or not admin_first_name or not admin_email or not admin_password or not admin_phone or not admin_birth_date or not admin_gender:
+        flash('Tous les champs sont obligatoires.', 'danger')
+        return redirect(url_for('gestion_comptes_admin'))
+    
+    # Hash the password
+    hashed_password = generate_password_hash(admin_password)
+    
+    # Insert new admin into the database
+    db.execute("""
+        INSERT INTO utilisateur (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'Admin')
+    """, admin_name, admin_first_name, admin_email, hashed_password, admin_phone, admin_birth_date, admin_gender)
+    
+    flash('Nouvel administrateur ajouté avec succès.', 'success')
+    return redirect(url_for('gestion_comptes_admin'))
+
 if __name__ == '__main__':
 
     app.run(debug=True)
