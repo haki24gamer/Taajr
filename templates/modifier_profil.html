@@ -120,22 +120,22 @@
                             {% if user.type_uti == 'Client' %}
                             <div class="mb-3">
                                 <label for="adresse" class="form-label">Adresse</label>
-                                <input type="text" class="form-control" id="adresse" name="adresse" value="{{ details[0].adresse }}" required>
+                                <input type="text" class="form-control" id="adresse" name="adresse" value="{{ details.adresse }}" required>
                             </div>
                             {% endif %}
                             
                             {% if user.type_uti == 'Vendeur' %}
                             <div class="mb-3">
                                 <label for="nom_boutique" class="form-label">Nom de la Boutique</label>
-                                <input type="text" class="form-control" id="nom_boutique" name="nom_boutique" value="{{ details[0].nom_boutique }}" required>
+                                <input type="text" class="form-control" id="nom_boutique" name="nom_boutique" value="{{ details.nom_boutique }}" required>
                             </div>
                             <div class="mb-3">
                                 <label for="adresse_boutique" class="form-label">Adresse de la Boutique</label>
-                                <input type="text" class="form-control" id="adresse_boutique" name="adresse_boutique" value="{{ details[0].adresse_boutique }}" required>
+                                <input type="text" class="form-control" id="adresse_boutique" name="adresse_boutique" value="{{ details.adresse_boutique }}" required>
                             </div>
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" name="description" required>{{ details[0].description }}</textarea>
+                                <textarea class="form-control" id="description" name="description" required>{{ details.description }}</textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="logo" class="form-label">Logo de la Boutique</label>
