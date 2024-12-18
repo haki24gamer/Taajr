@@ -1130,7 +1130,7 @@ def Contactez_nous():
         print(1)
         # Compose the email
         msg = EmailMessage()
-        msg['Subject'] = f"Contact Form: {subject}"
+        msg['Subject'] = f"{subject}"
         msg['From'] = email
         msg['To'] = 'Contacternous@gmail.com'  # Replace with your actual email
         msg.set_content(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
@@ -1306,7 +1306,8 @@ def gestion_commandes():
 @app.route('/gestion_messages')
 @admin_required
 def gestion_messages():
-    return render_template('admin/gestion_messages.html')
+    emails = db.execute("SELECT * FROM email")
+    return render_template('admin/gestion_messages.html', emails=emails)
 
 @app.route('/gestion_comptes_admin')
 @admin_required
@@ -1708,6 +1709,13 @@ def delete_admin(admin_id):
     return redirect(url_for('gestion_comptes_admin'))
 
 # ...existing code...
+
+@app.route('/delete_email/<int:email_id>', methods=['POST'])
+@admin_required
+def delete_email(email_id):
+    db.execute("DELETE FROM email WHERE ID_email = ?", email_id)
+    flash('Email supprimé avec succès.', 'success')
+    return redirect(url_for('gestion_messages'))
 
 if __name__ == '__main__':
 

@@ -1,6 +1,6 @@
 {% extends "admin_layout.html" %}
 
-{% block title %}Gestion des Catégories{% endblock %}
+{% block title %}Gestion des Messages{% endblock %}
 
 {% block content %}
 
@@ -149,6 +149,60 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- Liste des messages et réclamations -->
+        <h2 class="mb-3 text-primary">Liste des Messages et Réclamations</h2>
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Expéditeur</th>
+                    <th>Destinataire</th>
+                    <th>Sujet</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in emails %}
+                <tr>
+                    <td>{{ email.ID_email }}</td>
+                    <td>{{ email.sender }}</td>
+                    <td>{{ email.recipient }}</td>
+                    <td>{{ email.subject }}</td>
+                    <td>{{ email.date_sent }}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewMessageModal{{ email.ID_email }}"><i class="fa fa-eye"></i> Voir</button>
+                        <form action="{{ url_for('delete_email', email_id=email.ID_email) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce email ?');" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Modals for each email -->
+        {% for email in emails %}
+        <div class="modal fade" id="viewMessageModal{{ email.ID_email }}" tabindex="-1" aria-labelledby="viewMessageModalLabel{{ email.ID_email }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewMessageModalLabel{{ email.ID_email }}">Détails du Message</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>ID :</strong> {{ email.ID_email }}</p>
+                        <p><strong>Expéditeur :</strong> {{ email.sender }}</p>
+                        <p><strong>Destinataire :</strong> {{ email.recipient }}</p>
+                        <p><strong>Sujet :</strong> {{ email.subject }}</p>
+                        <p><strong>Message :</strong> {{ email.message }}</p>
+                        <p><strong>Date :</strong> {{ email.date_sent }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </main>
 
     <!-- Modal pour voir les détails -->
