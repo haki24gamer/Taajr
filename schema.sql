@@ -100,3 +100,11 @@ CREATE TABLE IF NOT EXISTS "avis" (
     FOREIGN KEY (ID_off) REFERENCES "offre"(ID_off),
     FOREIGN KEY (ID_uti) REFERENCES "utilisateur"(ID_uti)
 );
+CREATE TABLE IF NOT EXISTS "email" (
+    ID_email INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender CHAR(50),
+    recipient CHAR(50),
+    subject CHAR(100),
+    message TEXT,
+    date_sent DATE DEFAULT (date('now', 'localtime'))
+);

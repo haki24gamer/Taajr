@@ -9,6 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import re
 from functools import wraps
+import smtplib
+from email.message import EmailMessage
 
 app = Flask(__name__)
 
@@ -1118,9 +1120,7 @@ def boutique(vendeur_id):
     
     return render_template('Boutique.html', vendeur=vendeur, offres=offres)
 
-@app.route("/Contactez-nous", methods=['GET', 'POST'])
-def Contactez_nous():
-    return render_template("contacter_nous.html")
+
 
 # Route pour la réinitialisation du mot de passe
 @app.route('/reset_password', methods=["GET", "POST"])
@@ -1281,7 +1281,11 @@ def gestion_commandes():
 @app.route('/gestion_messages')
 @admin_required
 def gestion_messages():
-    return render_template('admin/gestion_messages.html')
+    # ...existing code...
+    emails = db.execute("SELECT * FROM email")
+    total_emails = len(emails)
+    return render_template('admin/gestion_messages.html', emails=emails, total_emails=total_emails)
+    # ...existing code...
 
 @app.route('/gestion_comptes_admin')
 @admin_required
@@ -1682,7 +1686,39 @@ def delete_admin(admin_id):
     flash('Administrateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_comptes_admin'))
 
-# ...existing code...
+@app.route("/Contactez-nous", methods=['GET', 'POST'])
+def Contactez_nous():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        print(1)
+        # Compose the email
+        msg = EmailMessage()
+        msg['Subject'] = f"{subject}"
+        msg['From'] = email
+        msg['To'] = 'Contacternous@gmail.com'  # Replace with your actual email
+        msg.set_content(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
+        print(2)
+        # Send the email via local SMTP server
+        try:
+            with smtplib.SMTP('localhost', 1025) as server:
+                print(3)
+                server.send_message(msg)
+            flash('Votre message a été envoyé avec succès.', 'success')
+            return redirect(url_for('Contactez_nous'))
+        except Exception as e:
+            flash('Une erreur est survenue lors de l\'envoi du message.', 'danger')
+
+    return render_template("contacter_nous.html")
+
+@app.route('/delete_email/<int:email_id>', methods=['POST'])
+@admin_required
+def delete_email(email_id):
+    db.execute("DELETE FROM email WHERE ID_email = ?", email_id)
+    flash('Email supprimé avec succès.', 'success')
+    return redirect(url_for('gestion_messages'))
 
 if __name__ == '__main__':
 

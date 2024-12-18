@@ -8,3 +8,5 @@ requests
 validate-email-address
 pyDNS
 flask-mail
+
+aiosmtpd
