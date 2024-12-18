@@ -102,9 +102,9 @@ CREATE TABLE IF NOT EXISTS "avis" (
 );
 CREATE TABLE IF NOT EXISTS "email" (
     ID_email INTEGER PRIMARY KEY AUTOINCREMENT,
-    sender_email CHAR(255),
-    recipient_email CHAR(255),
-    subject CHAR(255),
-    body TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    sender CHAR(50),
+    recipient CHAR(50),
+    subject CHAR(100),
+    message TEXT,
+    date_sent DATE DEFAULT (date('now', 'localtime'))
 );

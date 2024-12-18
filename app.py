@@ -1127,17 +1127,18 @@ def Contactez_nous():
         email = request.form.get('email')
         subject = request.form.get('subject')
         message = request.form.get('message')
-
+        print(1)
         # Compose the email
         msg = EmailMessage()
         msg['Subject'] = f"Contact Form: {subject}"
         msg['From'] = email
-        msg['To'] = 'your_email@example.com'  # Replace with your actual email
+        msg['To'] = 'Contacternous@gmail.com'  # Replace with your actual email
         msg.set_content(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
-
+        print(2)
         # Send the email via local SMTP server
         try:
             with smtplib.SMTP('localhost', 1025) as server:
+                print(3)
                 server.send_message(msg)
             flash('Votre message a été envoyé avec succès.', 'success')
             return redirect(url_for('Contactez_nous'))
