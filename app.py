@@ -1120,32 +1120,7 @@ def boutique(vendeur_id):
     
     return render_template('Boutique.html', vendeur=vendeur, offres=offres)
 
-@app.route("/Contactez-nous", methods=['GET', 'POST'])
-def Contactez_nous():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        subject = request.form.get('subject')
-        message = request.form.get('message')
-        print(1)
-        # Compose the email
-        msg = EmailMessage()
-        msg['Subject'] = f"{subject}"
-        msg['From'] = email
-        msg['To'] = 'Contacternous@gmail.com'  # Replace with your actual email
-        msg.set_content(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
-        print(2)
-        # Send the email via local SMTP server
-        try:
-            with smtplib.SMTP('localhost', 1025) as server:
-                print(3)
-                server.send_message(msg)
-            flash('Votre message a été envoyé avec succès.', 'success')
-            return redirect(url_for('Contactez_nous'))
-        except Exception as e:
-            flash('Une erreur est survenue lors de l\'envoi du message.', 'danger')
 
-    return render_template("contacter_nous.html")
 
 # Route pour la réinitialisation du mot de passe
 @app.route('/reset_password', methods=["GET", "POST"])
@@ -1307,6 +1282,7 @@ def gestion_commandes():
 @admin_required
 def gestion_messages():
     emails = db.execute("SELECT * FROM email")
+    
     return render_template('admin/gestion_messages.html', emails=emails)
 
 @app.route('/gestion_comptes_admin')
@@ -1708,7 +1684,32 @@ def delete_admin(admin_id):
     flash('Administrateur supprimé avec succès.', 'success')
     return redirect(url_for('gestion_comptes_admin'))
 
-# ...existing code...
+@app.route("/Contactez-nous", methods=['GET', 'POST'])
+def Contactez_nous():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+        print(1)
+        # Compose the email
+        msg = EmailMessage()
+        msg['Subject'] = f"{subject}"
+        msg['From'] = email
+        msg['To'] = 'Contacternous@gmail.com'  # Replace with your actual email
+        msg.set_content(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
+        print(2)
+        # Send the email via local SMTP server
+        try:
+            with smtplib.SMTP('localhost', 1025) as server:
+                print(3)
+                server.send_message(msg)
+            flash('Votre message a été envoyé avec succès.', 'success')
+            return redirect(url_for('Contactez_nous'))
+        except Exception as e:
+            flash('Une erreur est survenue lors de l\'envoi du message.', 'danger')
+
+    return render_template("contacter_nous.html")
 
 @app.route('/delete_email/<int:email_id>', methods=['POST'])
 @admin_required

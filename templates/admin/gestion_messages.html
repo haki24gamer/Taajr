@@ -196,7 +196,7 @@
                         <p><strong>Expéditeur :</strong> {{ email.sender }}</p>
                         <p><strong>Destinataire :</strong> {{ email.recipient }}</p>
                         <p><strong>Sujet :</strong> {{ email.subject }}</p>
-                        <p><strong>Message :</strong> {{ email.message }}</p>
+                        <p><strong>Message :<br></strong> {{ email.message.partition("Message:")[2].strip() }}</p>
                         <p><strong>Date :</strong> {{ email.date_sent }}</p>
                     </div>
                 </div>
