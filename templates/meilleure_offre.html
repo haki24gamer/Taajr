@@ -15,7 +15,6 @@
                         
                         <div class="card-body">
                             <h5 class="card-title">{{ offre.libelle_off }}</h5>
-                            <p class="card-text">{{ offre.description_off }}</p>                
                             <!-- Changed rating display -->
                             <p class="rating">
                                 {% for i in range(1, 6) %}
@@ -29,7 +28,7 @@
                                 {% endfor %}
                                 ({{ offre.reviews_count }} avis)
                             </p>
-                            <p class="card-text fw-bold">Prix : {{ offre.prix_off }}fdj</p>
+                            <p class="card-text fw-bold">Prix : {{ offre.prix_off }} FDJ</p>
                             <p class="card-text fw-bold">{{ offre.total_likes }} ❤️</p>
 
                             {% if offre.ID_off in cart_ids %}

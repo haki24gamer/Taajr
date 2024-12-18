@@ -20,8 +20,8 @@
                 <tr>
                     <td><a href="{{ url_for('offre_details', offre_id=item.ID_off) }}">{{ item.libelle_off }}</a></td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.prix_off }}fdj</td>
-                    <td>{{ item.quantity * item.prix_off }}fdj</td>
+                    <td>{{ item.prix_off }} FDJ</td>
+                    <td>{{ item.quantity * item.prix_off }} FDJ</td>
                     <td>
                         <form method="POST" action="{{ url_for('increment_quantity') }}" style="display:inline;">
                             <input type="hidden" name="panier_id" value="{{ item.ID_panier }}">
@@ -37,7 +37,7 @@
             </tbody>
         </table>
         <div class="d-flex justify-content-end">
-            <h4>Total : {{ total_price }}fdj</h4>
+            <h4>Total : {{ total_price }} FDJ</h4>
         </div>
         <form action="{{ url_for('passer_commande') }}" method="POST">
             <button class="btn btn-success btn-lg mt-3" type="submit">Passer la commande</button>

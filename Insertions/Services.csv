@@ -1,4 +1,0 @@
-ID_off,libelle_off,description_off,quantite_en_stock,prix_off,date_off,type_off,ID_uti,image_off
-1,Service de coiffure,Coiffure pour femmes,10,9000,2021-01-01,Service,22,Images/Offres/Service de coiffure.webp
-2,Service de manucure,Manucure et pédicure pour femmes,10,5400,2021-01-01,Service,22,Images/Offres/Service de manucure.webp
-3,Service de maquillage,Maquillage professionnel pour femmes,10,7200,2021-01-01,Service,22,Images/Offres/Service de maquillage.webp

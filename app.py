@@ -834,17 +834,27 @@ def termes_and_conditions():
 
 @app.route('/offres_vendeurs')
 def offres_vendeurs():
-    if ('user_id' not in session):
+    if 'user_id' not in session:
         flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if (not user or user[0]['type_uti'] != 'Vendeur'):
+    if not user or user[0]['type_uti'] != 'Vendeur':
         flash('Accès interdit.', 'danger')
         return redirect(url_for('index'))
     
     # Récupérer les offres de l'utilisateur connecté
     offres = db.execute("SELECT * FROM offre WHERE ID_uti = ?", session['user_id'])
+    
+    # Récupérer les catégories pour chaque offre
+    for offre in offres:
+        categories = db.execute("""
+            SELECT categorie.nom_cat 
+            FROM appartenir 
+            JOIN categorie ON appartenir.ID_cat = categorie.ID_cat 
+            WHERE appartenir.ID_off = ?
+        """, offre['ID_off'])
+        offre['categories'] = [cat['nom_cat'] for cat in categories]
     
     return render_template('offres_vendeurs.html', offres=offres)
 
@@ -877,13 +887,14 @@ def modifier_offre():
         return redirect(url_for('connexion'))
     
     # Retrieve form data
-    offre_id = request.form.get('offerId')
-    libelle_off = request.form.get('offerName')
-    prix_off = request.form.get('offerPrice')
-    quantite = request.form.get('offerQuantity')
+    offre_id = request.form.get('productId')
+    libelle_off = request.form.get('productName')
+    prix_off = request.form.get('productPrice')
+    quantite = request.form.get('productQuantity')
+    selected_categories = request.form.getlist('productCategories')
     
     # Validate input
-    if not offre_id or not libelle_off or not prix_off or not quantite:
+    if not offre_id or not libelle_off or not prix_off or not quantite or not selected_categories:
         flash('Données invalides pour la modification de l\'offre.', 'danger')
         return redirect(request.referrer)
     
@@ -893,6 +904,11 @@ def modifier_offre():
         SET libelle_off = ?, prix_off = ?, quantite_en_stock = ?
         WHERE ID_off = ? AND ID_uti = ?
     """, libelle_off, prix_off, quantite, offre_id, session['user_id'])
+    
+    # Update categories
+    db.execute("DELETE FROM appartenir WHERE ID_off = ?", offre_id)
+    for category_id in selected_categories:
+        db.execute("INSERT INTO appartenir (ID_off, ID_cat) VALUES (?, ?)", offre_id, category_id)
     
     flash('Offre modifiée avec succès.', 'success')
     return redirect(request.referrer)

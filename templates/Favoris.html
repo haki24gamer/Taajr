@@ -18,7 +18,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ offer.libelle_off }}</h5>
                         <p class="card-text">{{ offer.description_off }}</p>
-                        <p class="card-text fw-bold">Prix : {{ offer.prix_off }}fdj</p>
+                        <p class="card-text fw-bold">Prix : {{ offer.prix_off }} FDJ</p>
                         <form method="POST" action="{{ url_for('unlike_offer') }}">
                             <input type="hidden" name="offer_id" value="{{ offer.ID_off }}">
                             <button type="submit" class="btn btn-danger mt-2">Retirer des favoris</button>
