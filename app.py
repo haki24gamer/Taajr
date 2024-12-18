@@ -1455,65 +1455,68 @@ def commandes_clients():
     
     return render_template('commandes_clients.html', commandes=commandes)
 
-@app.route('/passer_commande', methods=['POST'])
+@app.route('/passer_commande', methods=['GET', 'POST'])
 def passer_commande():
-    if 'user_id' not in session:
+    if 'user_id' not in session:        
         flash('Veuillez vous connecter pour passer une commande.', 'warning')
         return redirect(url_for('connexion'))
     
-    # Fetch cart items
-    cart_items = db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id'])
-    if not cart_items:
-        flash('Votre panier est vide.', 'info')
-        return redirect(url_for('Panier'))
-    
-    # Calculate total amount
-    total_amount = 0
-    for item in cart_items:
-        offer = db.execute("SELECT prix_off FROM offre WHERE ID_off = ?", item['ID_off'])[0]
-        total_amount += offer['prix_off'] * item['quantity']
-    
-    return render_template('payment.html', total_amount=total_amount)
 
-@app.route('/confirmer_paiement', methods=['POST'])
-def confirmer_paiement():
-    if 'user_id' not in session:
-        flash('Veuillez vous connecter pour effectuer le paiement.', 'warning')
-        return redirect(url_for('connexion'))
-    
-    # Collect payment details
-    montant_pay = request.form.get('montant_pay')
-    methode_pay = request.form.get('methode_pay')
-    type_pay = request.form.get('type_pay')
-    
-    if not montant_pay or not methode_pay or not type_pay:
-        flash('Tous les champs de paiement sont requis.', 'danger')
-        return redirect(url_for('passer_commande'))
-    
-    # Insert payment record
-    paiement_id = db.execute("""
-        INSERT INTO paiement (montant_pay, methode_pay, type_pay)
-        VALUES (?, ?, ?)
-    """, montant_pay, methode_pay, type_pay)
-    
-    # Create commande record
-    commande_id = db.execute("""
-        INSERT INTO commande (montant_com, status_com, ID_uti, ID_pay)
-        VALUES (?, 'confirmed', ?, ?)
-    """, montant_pay, session['user_id'], paiement_id)
-    
-    # Move items from panier to contenir
-    for item in db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id']):
-        db.execute("""
-            INSERT INTO contenir (ID_com, ID_off, quantity)
-            VALUES (?, ?, ?)
-        """, commande_id, item['ID_off'], item['quantity'])
-    
-    # Clear the panier
-    db.execute("DELETE FROM panier WHERE ID_uti = ?", session['user_id'])
-    
-    flash('Commande passée avec succès.', 'success')
-    return redirect(url_for('index'))
+    if request.method == 'GET':
+        # Fetch cart items
+        cart_items = db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id'])
+        if not cart_items:
+            flash('Votre panier est vide.', 'info')
+            return redirect(url_for('Panier'))
+        # Calculate total amount
+        total_amount = 0
+        for item in cart_items:
+            offer = db.execute("SELECT prix_off FROM offre WHERE ID_off = ?", item['ID_off'])[0]
+            total_amount += offer['prix_off'] * item['quantity']
+        # Available payment methods
+        payment_methods = ['Carte de Crédit', 'PayPal', 'Virement Bancaire']
+        # Render the payment page with total amount and payment methods
+        return render_template('payment.html', total_amount=total_amount, payment_methods=payment_methods)
+
+    else:
+        # Handle POST request to process payment
+        selected_method = request.form.get('payment_method')
+        if not selected_method:
+            flash('Veuillez sélectionner une méthode de paiement.', 'danger')
+            return redirect(url_for('passer_commande'))
+
+        # Fetch cart items
+        cart_items = db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id'])
+        if not cart_items:
+            flash('Votre panier est vide.', 'info')
+            return redirect(url_for('Panier'))
+        # Calculate total amount
+        total_amount = 0
+        for item in cart_items:
+            offer = db.execute("SELECT prix_off FROM offre WHERE ID_off = ?", item['ID_off'])[0]
+            total_amount += offer['prix_off'] * item['quantity']
+
+        # Create a paiement record
+        paiement_id = db.execute("INSERT INTO paiement (montant_pay, methode_pay, type_pay) VALUES (?, ?, ?)",
+                                 total_amount, selected_method, 'Commande')
+
+        # Create a commande record
+        commande_id = db.execute("INSERT INTO commande (montant_com, date_com, status_com, ID_off, ID_uti, ID_pay) VALUES (?, date('now'), 'En cours', NULL, ?, ?)",
+                                 total_amount, session['user_id'], paiement_id)
+
+        # Insert into contenir table and update stock
+        for item in cart_items:
+            db.execute("INSERT INTO contenir (ID_com, ID_off, quantite) VALUES (?, ?, ?)",
+                       commande_id, item['ID_off'], item['quantity'])
+            # Update stock quantity
+            db.execute("UPDATE offre SET quantite_en_stock = quantite_en_stock - ? WHERE ID_off = ?",
+                       item['quantity'], item['ID_off'])
+
+        # Clear the user's cart
+        db.execute("DELETE FROM panier WHERE ID_uti = ?", session['user_id'])
+
+        flash('Commande passée avec succès.', 'success')
+        return redirect(url_for('commandes_clients'))
 
 if __name__ == '__main__':
 
