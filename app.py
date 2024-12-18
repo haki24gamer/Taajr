@@ -1601,6 +1601,46 @@ def delete_order():
     flash('Commande supprimée avec succès.', 'success')
     return redirect(url_for('gestion_commandes'))
 
+# ...existing code...
+
+@app.route('/update_admin/<int:admin_id>', methods=['POST'])
+@admin_required
+def update_admin(admin_id):
+    admin_name = request.form.get('adminName')
+    admin_first_name = request.form.get('adminFirstName')
+    admin_email = request.form.get('adminEmail')
+    admin_phone = request.form.get('adminPhone')
+    admin_birth_date = request.form.get('adminBirthDate')
+    admin_gender = request.form.get('adminGender')
+    
+    # Validate input
+    if not admin_name or not admin_first_name or not admin_email or not admin_phone or not admin_birth_date or not admin_gender:
+        flash('Tous les champs sont obligatoires.', 'danger')
+        return redirect(url_for('gestion_comptes_admin'))
+    
+    # Update admin in the database
+    db.execute("""
+        UPDATE utilisateur
+        SET nom_uti = ?, prenom_uti = ?, email_uti = ?, telephone = ?, date_naissance = ?, genre = ?
+        WHERE ID_uti = ? AND type_uti = 'Admin'
+    """, admin_name, admin_first_name, admin_email, admin_phone, admin_birth_date, admin_gender, admin_id)
+    
+    flash('Administrateur mis à jour avec succès.', 'success')
+    return redirect(url_for('gestion_comptes_admin'))
+
+@app.route('/delete_admin/<int:admin_id>', methods=['POST'])
+@admin_required
+def delete_admin(admin_id):
+    if admin_id == session['user_id']:
+        flash('Vous ne pouvez pas vous supprimer vous-même.', 'danger')
+        return redirect(url_for('gestion_comptes_admin'))
+    
+    db.execute("DELETE FROM utilisateur WHERE ID_uti = ? AND type_uti = 'Admin'", admin_id)
+    flash('Administrateur supprimé avec succès.', 'success')
+    return redirect(url_for('gestion_comptes_admin'))
+
+# ...existing code...
+
 if __name__ == '__main__':
 
     app.run(debug=True)

@@ -52,14 +52,92 @@
                         <td>{{ admin.date_naissance }}</td>
                         <td>{{ admin.genre }}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm">Modifier</button>
-                            <button class="btn btn-danger btn-sm">Désactiver</button>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-id="{{ admin.ID_uti }}" data-name="{{ admin.nom_uti }}" data-firstname="{{ admin.prenom_uti }}" data-email="{{ admin.email_uti }}" data-phone="{{ admin.telephone }}" data-birthdate="{{ admin.date_naissance }}" data-gender="{{ admin.genre }}">Modifier</button>
+                            <form method="POST" action="{{ url_for('delete_admin', admin_id=admin.ID_uti) }}" style="display:inline;">
+                                <button class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <!-- Modal for editing admin -->
+        <div class="modal fade" id="editAdminModal" tabindex="-1" aria-labelledby="editAdminModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editAdminModalLabel">Modifier Administrateur</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editAdminForm" method="POST">
+                            <div class="mb-3">
+                                <label for="editAdminName" class="form-label">Nom</label>
+                                <input type="text" class="form-control" id="editAdminName" name="adminName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAdminFirstName" class="form-label">Prénom</label>
+                                <input type="text" class="form-control" id="editAdminFirstName" name="adminFirstName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAdminEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editAdminEmail" name="adminEmail">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAdminPhone" class="form-label">Téléphone</label>
+                                <input type="text" class="form-control" id="editAdminPhone" name="adminPhone">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAdminBirthDate" class="form-label">Date de Naissance</label>
+                                <input type="date" class="form-control" id="editAdminBirthDate" name="adminBirthDate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAdminGender" class="form-label">Genre</label>
+                                <select class="form-select" id="editAdminGender" name="adminGender">
+                                    <option value="Homme">Homme</option>
+                                    <option value="Femme">Femme</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var editAdminModal = document.getElementById('editAdminModal');
+            editAdminModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var id = button.getAttribute('data-id');
+                var name = button.getAttribute('data-name');
+                var firstname = button.getAttribute('data-firstname');
+                var email = button.getAttribute('data-email');
+                var phone = button.getAttribute('data-phone');
+                var birthdate = button.getAttribute('data-birthdate');
+                var gender = button.getAttribute('data-gender');
+
+                var modalTitle = editAdminModal.querySelector('.modal-title');
+                var form = editAdminModal.querySelector('#editAdminForm');
+                var nameInput = editAdminModal.querySelector('#editAdminName');
+                var firstnameInput = editAdminModal.querySelector('#editAdminFirstName');
+                var emailInput = editAdminModal.querySelector('#editAdminEmail');
+                var phoneInput = editAdminModal.querySelector('#editAdminPhone');
+                var birthdateInput = editAdminModal.querySelector('#editAdminBirthDate');
+                var genderInput = editAdminModal.querySelector('#editAdminGender');
+
+                modalTitle.textContent = 'Modifier Administrateur';
+                form.action = '/update_admin/' + id;
+                nameInput.value = name;
+                firstnameInput.value = firstname;
+                emailInput.value = email;
+                phoneInput.value = phone;
+                birthdateInput.value = birthdate;
+                genderInput.value = gender;
+            });
+        </script>
 
         <!-- Ajouter un nouvel administrateur -->
         <div class="section-card">
