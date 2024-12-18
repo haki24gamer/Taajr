@@ -45,7 +45,7 @@
         <table class="table table-bordered text-center align-middle">
           <thead class="table-dark">
             <tr>
-              <th>ID Commande</th>
+              <th>#</th>
               <th>Client</th>
               <th>Produit</th>
               <th>Quantité</th>
@@ -58,7 +58,7 @@
           <tbody>
             {% for commande in commandes %}
             <tr>
-              <td>{{ commande.ID_com }}</td>
+              <td>{{ loop.index }}</td>
               <td>{{ commande.nom_uti }} {{ commande.prenom_uti }}</td>
               <td>{{ commande.libelle_off }}</td>
               <td>{{ commande.quantite }}</td>

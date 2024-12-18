@@ -82,6 +82,19 @@ def inject_cart_ids():
         cart_ids = []
     return dict(cart_ids=cart_ids)
 
+@app.context_processor
+def inject_top_categories():
+    top_categories = db.execute("""
+        SELECT categorie.ID_cat, categorie.nom_cat, COUNT(offre.ID_off) AS offer_count
+        FROM categorie
+        JOIN appartenir ON categorie.ID_cat = appartenir.ID_cat
+        JOIN offre ON appartenir.ID_off = offre.ID_off
+        GROUP BY categorie.ID_cat
+        ORDER BY offer_count DESC
+        LIMIT 7
+    """)
+    return dict(top_categories=top_categories)
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -1536,7 +1549,7 @@ def passer_commande():
                                  total_amount, selected_method, 'Commande')
 
         # Create a commande record
-        commande_id = db.execute("INSERT INTO commande (montant_com, date_com, status_com, ID_off, ID_uti, ID_pay) VALUES (?, date('now'), 'En cours', NULL, ?, ?)",
+        commande_id = db.execute("INSERT INTO commande (montant_com, date_com, status_com, ID_off, ID_uti, ID_pay) VALUES (?, date('now'), 'En attente', NULL, ?, ?)",
                                  total_amount, session['user_id'], paiement_id)
 
         # Insert into contenir table and update stock

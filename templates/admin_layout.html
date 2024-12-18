@@ -113,6 +113,13 @@
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
+      .user-name {
+        font-weight: bold;
+        margin-right: 15px;
+        color: #333;
+        font-size: 1.2rem; /* Increase font size */
+    }
+
     </style>
 
 <style>
@@ -190,19 +197,12 @@
       
       <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light navbar-shadow">
-      <div class="container-fluid">
-          <!-- Barre de recherche -->
-          <form class="d-flex">
-              <input class="search-bar" type="search" placeholder="Rechercher..." aria-label="Search">
-          </form>
-
-          <!-- Bouton de déconnexion -->
-          <!-- <a href="/Deconnexion" class="logout-btn"> 
-              <button class="logout-btn fas fa-sign-out-alt">Déconnexion</button>
-          </a> -->
-          <a href="/Deconnexion" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-      </div>
-  </nav>
+        <div class="d-flex align-items-center w-100 justify-content-between">
+            <span class="user-name">{{ user_name }}</span>
+            <a href="{{ url_for('deconnexion') }}" class="logout-btn">Deconnexion</a>
+        </div>
+        <!-- ...existing code... -->
+    </nav>
   {% block content %}
   {% endblock %}
   </div>
