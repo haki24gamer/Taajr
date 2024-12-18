@@ -13,12 +13,12 @@
     header {
       background: linear-gradient(90deg, #28a745, #20c997);
       color: white;
-      padding: 20px 0;
     }
 
     header h1, header p {
       margin: 0;
       text-align: center;
+      padding: 10px 0;
     }
 
     .table {
@@ -158,6 +158,8 @@
               <th>Offre</th>
               <th>Prix</th>
               <th>Quantité</th>
+              <th>Type</th>
+              <th>Catégories</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -168,9 +170,15 @@
               <td>{{ offre.libelle_off }}</td>
               <td>{{ offre.prix_off }} fjd</td>
               <td>{{ offre.quantite_en_stock }}</td>
+              <td>{{ offre.type_off }}</td>
+              <td>
+                {% for category in offre.categories %}
+                  <span class="badge bg-secondary">{{ category }}</span>
+                {% endfor %}
+              </td>
               <td>
                 <!-- Modifier Button -->
-                <button class="btn btn-modifier btn-sm" onclick="openEditForm('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}')">Modifier</button>
+                <button class="btn btn-modifier btn-sm" onclick="openEditForm('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}', '{{ offre.type_off }}', '{{ offre.categories|join(',') }}')">Modifier</button>
                 
                 <!-- Supprimer Form -->
                 <form action="{{ url_for('supprimer_offre', offre_id=offre.ID_off) }}" method="POST" style="display:inline;">
@@ -202,12 +210,21 @@
               <input type="text" class="form-control" id="productName" name="productName" required>
             </div>
             <div class="mb-3">
-              <label for="productPrice" class="form-label">Prix (fdj)</label>
+              <label for="productPrice" class="form-label">Prix (  FDJ)</label>
               <input type="number" class="form-control" id="productPrice" name="productPrice" step="0.01" required>
             </div>
             <div class="mb-3">
               <label for="productQuantity" class="form-label">Quantité</label>
               <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
+            </div>
+            <div class="mb-3">
+              <label for="productCategories" class="form-label">Catégories</label>
+              <select class="form-select" id="productCategories" name="productCategories" multiple required>
+                {% for category in categories %}
+                  <option value="{{ category.ID_cat }}">{{ category.nom_cat }}</option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Maintenez la touche Ctrl (Windows) ou Commande (Mac) pour sélectionner plusieurs catégories.</div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Enregistrer les modifications</button>
           </form>
@@ -221,7 +238,7 @@
     let currentProductId = null;
 
     // Ouvre le formulaire de modification
-    function openEditForm(productId, productName, productPrice, productQuantity) {
+    function openEditForm(productId, productName, productPrice, productQuantity, productType, productCategories) {
       currentProductId = productId; // Stocker l'ID du produit
       document.getElementById('productId').value = productId;
       document.getElementById('productName').value = productName;

@@ -34,26 +34,6 @@
             </div>
         </div>
 
-        <!-- Filtres et barre de recherche -->
-        <div class="filter-container d-flex justify-content-between">
-            <!-- Barre de recherche -->
-            <div class="w-50">
-                <input type="text" class="form-control" placeholder="Rechercher une commande...">
-            </div>
-            <!-- Filtres -->
-            <div class="d-flex gap-3 w-50">
-                <!-- Filtrage par statut -->
-                <select class="form-select w-50">
-                    <option value="">Filtrer par statut</option>
-                    <option value="en attente">En attente</option>
-                    <option value="traitée">Traitée</option>
-                    <option value="livrée">Livrée</option>
-                    <option value="annulée">Annulée</option>
-                </select>
-                <!-- Filtrage par date -->
-                <input type="date" class="form-control w-50" placeholder="Filtrer par date">
-            </div>
-        </div>
 
         <!-- Tableau des commandes -->
         <h2 class="mb-3 text-primary">Liste des Commandes</h2>
@@ -64,7 +44,8 @@
                     <th>ID Utilisateur</th>
                     <th>Date Commande</th>
                     <th>Statut</th>
-                    <!-- ...other columns... -->
+                    <th>Méthode de Paiement</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,8 +54,25 @@
                     <td>{{ commande.ID_com }}</td>
                     <td>{{ commande.ID_uti }}</td>
                     <td>{{ commande.date_com }}</td>
-                    <td>{{ commande.status_com }}</td>
-                    <!-- ...other data... -->
+                    <td>
+                        <form action="{{ url_for('change_order_status') }}" method="POST">
+                            <input type="hidden" name="order_id" value="{{ commande.ID_com }}">
+                            <select name="new_status" onchange="this.form.submit()">
+                                <option value="En attente" {% if commande.status_com == 'En attente' %}selected{% endif %}>En attente</option>
+                                <option value="Traitée" {% if commande.status_com == 'Traitée' %}selected{% endif %}>Traitée</option>
+                                <option value="Expédiée" {% if commande.status_com == 'Expédiée' %}selected{% endif %}>Expédiée</option>
+                                <option value="Livrée" {% if commande.status_com == 'Livrée' %}selected{% endif %}>Livrée</option>
+                                <option value="Annulée" {% if commande.status_com == 'Annulée' %}selected{% endif %}>Annulée</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>{{ commande.methode_pay }}</td>
+                    <td>
+                        <form action="{{ url_for('delete_order') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">
+                            <input type="hidden" name="order_id" value="{{ commande.ID_com }}">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -94,7 +92,7 @@
                     <p><strong>Client :</strong> Halima Mohamed</p>
                     <p><strong>Produit :</strong> sac à main</p>
                     <p><strong>Quantité :</strong> 1</p>
-                    <p><strong>Prix total :</strong> 80€</p>
+                    <p><strong>Prix total :</strong> 80  FDJ</p>
                     <p><strong>Statut :</strong> En attente</p>
                     <p><strong>Date de commande :</strong> 2024-11-15</p>
                     <p><strong>Adresse de livraison :</strong> 12 rue d'arta, Djibouti-ville</p>
