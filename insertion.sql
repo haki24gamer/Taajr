@@ -106,66 +106,16 @@ DELETE FROM "panier";
 DELETE FROM "likes";
 
 
--- Insert into offers
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur bleu', 10, 20, '2021-01-01', 'Produit', 1);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Pantalon', 'Pantalon de couleur noir', 10, 30, '2021-01-01', 'Produit', 1);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Chaussure', 'Chaussure de couleur rouge', 10, 40, '2021-01-01', 'Produit', 1);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur rouge', 10, 20, '2021-01-01', 'Produit', 2);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Pantalon', 'Pantalon de couleur bleu', 10, 30, '2021-01-01', 'Produit', 2);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Chaussure', 'Chaussure de couleur noir', 10, 40, '2021-01-01', 'Produit', 2);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('T-shirt', 'T-shirt de couleur noir', 10, 20, '2021-01-01', 'Produit', 3);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Pantalon', 'Pantalon de couleur rouge', 10, 30, '2021-01-01', 'Produit', 3);
+-- Load data from Services.csv
+.mode csv
+.import /home/haki/Documents/VScode/Projets/Taajr/Insertions/Services.csv offre
 
--- Insert into offers des services
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de nettoyage', 'Nettoyage de votre maison', 10, 20, '2021-01-01', 'Service', 1);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de jardinage', 'Entretien de votre jardin', 10, 30, '2021-01-01', 'Service', 1);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de bricolage', 'Bricolage de votre maison', 10, 40, '2021-01-01', 'Service', 1);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de nettoyage', 'Nettoyage de votre maison', 10, 20, '2021-01-01', 'Service', 2);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de jardinage', 'Entretien de votre jardin', 10, 30, '2021-01-01', 'Service', 2);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de bricolage', 'Bricolage de votre maison', 10, 40, '2021-01-01', 'Service', 2);
-INSERT INTO "offre" (libelle_off, description_off, quantite_en_stock, prix_off, date_off, type_off, ID_uti) VALUES ('Service de nettoyage', 'Nettoyage de votre maison', 10, 20, '2021-01-01', 'Service', 3);
-
-
--- Insert into categories using one query
-INSERT INTO "categorie" (nom_cat, description, image) VALUES 
-    ('Mode et vetements', 'Vêtements et accessoires de mode pour hommes, femmes et enfants', 'Images/Categories/Categorie.png'), 
-    ('Chaussures', 'Chaussures pour toutes les occasions et tous les styles', 'Images/Categories/Categorie.png'), 
-    ('Electromenager', 'Appareils électroménagers pour la maison', 'Images/Categories/Categorie.png'), 
-    ('Informatique', 'Matériel informatique et accessoires', 'Images/Categories/Categorie.png'), 
-    ('Jouets', 'Jouets pour enfants de tous âges', 'Images/Categories/Categorie.png'), 
-    ('Jeux video', 'Jeux vidéo pour toutes les plateformes', 'Images/Categories/Categorie.png'),
-    ('Sport et loisirs', 'Équipements et accessoires pour le sport et les loisirs', 'Images/Categories/Categorie.png'), 
-    ('Musique', 'Instruments de musique et accessoires', 'Images/Categories/Categorie.png'), 
-    ('Livres', 'Livres de tous genres et pour tous les âges', 'Images/Categories/Categorie.png'), 
-    ('Électronique', 'Appareils électroniques et gadgets', 'Images/Categories/Categorie.png'),
-    ('Beauté et soins', 'Produits de beauté et soins personnels', 'Images/Categories/Categorie.png'), 
-    ('Maison et jardin', 'Articles pour la maison et le jardin', 'Images/Categories/Categorie.png'), 
-    ('Santé et bien-être', 'Produits pour la santé et le bien-être', 'Images/Categories/Categorie.png');
-
--- Catégorie : Sports et activités extérieures
-INSERT INTO categorie (nom_cat, description, image) VALUES
-('Équipements de fitness', 'Équipements pour le fitness et l’entraînement.', 'Images/Categories/fitness.jpg'),
-('Maquillage', 'Maquillage pour toutes occasions.', 'Images/Categories/Makeup.jpg'),
-('Marketing numérique', 'Marketing numérique et SEO.', 'Images/Categories/digital-marketing.webp'),
-('Apprentissage en ligne', 'Cours et formations en ligne.', 'Images/Categories/online-readiness-01.jpg'),
-('Vêtements', 'Vêtements pour hommes, femmes et enfants.', 'Images/Categories/Oxfam_LeDressing_Paris-1920x1153.webp'),
-('Chaussures', 'Chaussures pour toutes occasions.', 'Images/Categories/shoes.webp'),
-('Smartphones', 'Téléphones mobiles intelligents avec diverses fonctionnalités.', 'Images/Categories/HMD_Smartphones_Image.jpg'),
-('Ordinateurs portables', 'Ordinateurs portables pour travail et divertissement.', 'Images/Categories/ordinateurs.jpeg'),
-('Conception de sites web', 'Création et design de sites web.', 'Images/Categories/creation-site-740x447.jpg'),
-('Support informatique', 'Support technique et maintenance.', 'Images/Categories/Supports_Info.jpg'),
-('Services cloud', 'Services de stockage et gestion cloud.', 'Images/Categories/Cloud.jpg');
+-- Load data from Produits.csv
+.mode csv
+.import /home/haki/Documents/VScode/Projets/Taajr/Insertions/Produits.csv offre
 
 
 -- Insert into appartenir with all category mappings
 INSERT INTO "appartenir" (ID_off, ID_cat) VALUES 
-    (1, 1), (1, 2), 
-    (2, 1), (2, 2), 
-    (3, 1), (3, 2), 
-    (4, 1), (4, 2), 
-    (5, 1), (5, 2), 
-    -- Add mappings for all offers and categories
-    -- Example mappings for categories 3 to 14
-    (1, 3), (2, 3), (3, 4), (4, 5),
-    -- ...continue for all offers and their respective categories...
-    (40, 14), (41, 14);
+    (1, 56), (2, 56), 
+    (3, 56);

@@ -11,6 +11,9 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .sidebar {
             height: 100vh;
@@ -42,6 +45,7 @@
         .main-content {
             margin-left: 290px;
             padding: 20px;
+            flex: 1;
         }
         .card {
             border-radius: 10px;
@@ -201,6 +205,7 @@
   </nav>
   {% block content %}
   {% endblock %}
+  </div>
   <!-- Footer -->
   <footer class="text-center py-3 bg-primary text-white mt-auto">
       <p>&copy; 2024 Taajr. Tous droits réservés.</p>
