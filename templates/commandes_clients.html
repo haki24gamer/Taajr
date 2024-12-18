@@ -45,6 +45,8 @@
                         <th>Prix total (€)</th>
                         <th>Date de commande</th>
                         <th>Statut</th>
+                        <th>Méthode de Paiement</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,6 +58,17 @@
                         <td>{{ commande['montant_com'] }}</td>
                         <td>{{ commande['date_com'] }}</td>
                         <td>{{ commande['status_com'] }}</td>
+                        <td>{{ commande['methode_pay'] }}</td>
+                        <td>
+                            {% if commande['status_com'] == 'En attente' %}
+                                <form action="{{ url_for('annuler_commande') }}" method="post">
+                                    <input type="hidden" name="commande_id" value="{{ commande['ID_com'] }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-danger btn-sm" disabled>Annuler</button>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

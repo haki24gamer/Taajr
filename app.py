@@ -1221,7 +1221,11 @@ def gestion_categories():
 @app.route('/gestion_commandes')
 @admin_required
 def gestion_commandes():
-    commandes = db.execute("SELECT * FROM commande")
+    commandes = db.execute("""
+        SELECT commande.*, paiement.methode_pay
+        FROM commande
+        JOIN paiement ON commande.ID_pay = paiement.ID_pay
+    """)
     return render_template('admin/gestion_commandes.html', commandes=commandes)
 
 @app.route('/gestion_messages')
@@ -1446,8 +1450,9 @@ def commandes_clients():
         return redirect(url_for('connexion'))
     
     commandes = db.execute("""
-        SELECT commande.*, offre.libelle_off, contenir.quantite
+        SELECT commande.*, paiement.methode_pay, offre.libelle_off, contenir.quantite
         FROM commande
+        JOIN paiement ON commande.ID_pay = paiement.ID_pay
         JOIN contenir ON commande.ID_com = contenir.ID_com
         JOIN offre ON contenir.ID_off = offre.ID_off
         WHERE commande.ID_uti = ?
@@ -1517,6 +1522,62 @@ def passer_commande():
 
         flash('Commande passée avec succès.', 'success')
         return redirect(url_for('commandes_clients'))
+
+@app.route('/change_order_status', methods=['POST'])
+@admin_required
+def change_order_status():
+    order_id = request.form.get('order_id')
+    new_status = request.form.get('new_status')
+    
+    if not order_id or not new_status:
+        flash('Informations de commande invalides.', 'danger')
+        return redirect(url_for('gestion_commandes'))
+    
+    # Mettre à jour le statut de la commande dans la base de données
+    db.execute("UPDATE commande SET status_com = ? WHERE ID_com = ?", new_status, order_id)
+    flash('Statut de la commande mis à jour avec succès.', 'success')
+    return redirect(url_for('gestion_commandes'))
+
+@app.route('/annuler_commande', methods=['POST'])
+def annuler_commande():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour annuler une commande.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    commande_id = request.form.get('commande_id')
+    if not commande_id:
+        flash('Commande invalide.', 'danger')
+        return redirect(url_for('commandes_clients'))
+    
+    # Vérifier si la commande appartient à l'utilisateur et n'est pas encore expédiée
+    commande = db.execute("SELECT * FROM commande WHERE ID_com = ? AND ID_uti = ? AND status_com != 'Expédiée'", commande_id, session['user_id'])
+    if not commande:
+        flash('Commande non trouvée ou déjà expédiée.', 'danger')
+        return redirect(url_for('commandes_clients'))
+    
+    # Changer le statut de la commande à "Annulée"
+    db.execute("UPDATE commande SET status_com = 'Annulée' WHERE ID_com = ?", commande_id)
+    
+    flash('Commande annulée avec succès.', 'success')
+    return redirect(url_for('commandes_clients'))
+
+@app.route('/update_order_status', methods=['POST'])
+def update_order_status():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour modifier le statut de la commande.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    commande_id = request.form.get('commande_id')
+    new_status = request.form.get('status')
+    
+    if not commande_id or not new_status:
+        flash('Informations de commande invalides.', 'danger')
+        return redirect(url_for('commandes_vendeurs'))
+    
+    # Mettre à jour le statut de la commande dans la base de données
+    db.execute("UPDATE commande SET status_com = ? WHERE ID_com = ?", new_status, commande_id)
+    flash('Statut de la commande mis à jour avec succès.', 'success')
+    return redirect(url_for('commandes_vendeurs'))
 
 if __name__ == '__main__':
 

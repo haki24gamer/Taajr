@@ -5,18 +5,108 @@
 
 <form method="POST" action="{{ url_for('passer_commande') }}" class="payment-form">
     <label for="payment_method">Choisissez une méthode de paiement :</label>
-    <select name="payment_method" id="payment_method">
+    <select name="payment_method" id="payment_method" onchange="updatePaymentFields()">
         {% for method in payment_methods %}
             <option value="{{ method }}">{{ method }}</option>
         {% endfor %}
     </select>
     <!-- Additional fields for payment methods -->
     <div class="payment-details">
-        <label for="credit_card_number">Numéro de carte :</label>
-        <input type="text" name="credit_card_number" id="credit_card_number" disabled>
-        <label for="paypal_email">Email PayPal :</label>
-        <input type="email" name="paypal_email" id="paypal_email" disabled>
+        <div id="credit_card_fields" style="display: none;">
+            <label for="credit_card_number">Numéro de carte :</label>
+            <input type="text" name="credit_card_number" id="credit_card_number">
+            <label for="credit_card_cvc">CVC :</label>
+            <input type="text" name="credit_card_cvc" id="credit_card_cvc">
+            <label for="credit_card_expiry">Date d'expiration :</label>
+            <input type="text" name="credit_card_expiry" id="credit_card_expiry">
+        </div>
+        <div id="paypal_fields" style="display: none;">
+            <label for="paypal_email">Email PayPal :</label>
+            <input type="email" name="paypal_email" id="paypal_email">
+            <label for="paypal_password">Mot de passe PayPal :</label>
+            <input type="password" name="paypal_password" id="paypal_password">
+        </div>
+        <div id="credit_fields" style="display: none;">
+            <label for="credit_limit">Limite de crédit :</label>
+            <input type="number" name="credit_limit" id="credit_limit">
+            <label for="credit_terms">Conditions de crédit :</label>
+            <input type="text" name="credit_terms" id="credit_terms">
+        </div>
+        <div id="bancaire_fields" style="display: none;">
+            <label for="bank_account_number">Numéro de compte bancaire :</label>
+            <input type="text" name="bank_account_number" id="bank_account_number">
+            <label for="bank_routing_number">Numéro de routage :</label>
+            <input type="text" name="bank_routing_number" id="bank_routing_number">
+        </div>
     </div>
     <button type="submit">Payer</button>
 </form>
+
+<style>
+    .payment-form input[type="text"],
+    .payment-form input[type="email"],
+    .payment-form input[type="password"],
+    .payment-form input[type="number"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    .payment-form select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    .payment-form button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .payment-form button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<script>
+function updatePaymentFields() {
+    const paymentMethod = document.getElementById('payment_method').value;
+    const creditCardFields = document.getElementById('credit_card_fields');
+    const paypalFields = document.getElementById('paypal_fields');
+    const creditFields = document.getElementById('credit_fields');
+    const bancaireFields = document.getElementById('bancaire_fields');
+
+    if (paymentMethod === 'Carte de Crédit') {
+        creditCardFields.style.display = 'block';
+        paypalFields.style.display = 'none';
+        creditFields.style.display = 'none';
+        bancaireFields.style.display = 'none';
+    } else if (paymentMethod === 'PayPal') {
+        creditCardFields.style.display = 'none';
+        paypalFields.style.display = 'block';
+        creditFields.style.display = 'none';
+        bancaireFields.style.display = 'none';
+    } else if (paymentMethod === 'Crédit') {
+        creditCardFields.style.display = 'none';
+        paypalFields.style.display = 'none';
+        creditFields.style.display = 'block';
+        bancaireFields.style.display = 'none';
+    } else if (paymentMethod === 'Virement Bancaire') { <!-- Updated value -->
+        creditCardFields.style.display = 'none';
+        paypalFields.style.display = 'none';
+        creditFields.style.display = 'none';
+        bancaireFields.style.display = 'block';
+    } else {
+        creditCardFields.style.display = 'none';
+        paypalFields.style.display = 'none';
+        creditFields.style.display = 'none';
+        bancaireFields.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}

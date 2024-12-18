@@ -45,25 +45,40 @@
         <table class="table table-bordered text-center align-middle">
           <thead class="table-dark">
             <tr>
-              <th>#</th>
-              <th>Nom du produit</th>
-              <th>Quantité</th>
-              <th>Prix total (€)</th>
-              <th>Date de commande</th>
+              <th>ID Commande</th>
               <th>Client</th>
+              <th>Produit</th>
+              <th>Quantité</th>
+              <th>Montant</th>
+              <th>Date</th>
               <th>Statut</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for commande in commandes %}
             <tr>
-              <td>{{ loop.index }}</td>
-              <td>{{ commande['libelle_off'] }}</td>
-              <td>{{ commande['quantite'] }}</td>
-              <td>{{ commande['montant_com'] }}</td>
-              <td>{{ commande['date_com'] }}</td>
-              <td>{{ commande['nom_uti'] }} {{ commande['prenom_uti'] }}</td>
-              <td><span class="badge {% if commande['status_com'] == 'En cours' %}bg-warning text-dark{% elif commande['status_com'] == 'Livré' %}bg-success{% elif commande['status_com'] == 'Annulé' %}bg-danger{% endif %}">{{ commande['status_com'] }}</span></td>
+              <td>{{ commande.ID_com }}</td>
+              <td>{{ commande.nom_uti }} {{ commande.prenom_uti }}</td>
+              <td>{{ commande.libelle_off }}</td>
+              <td>{{ commande.quantite }}</td>
+              <td>{{ commande.montant_com }} €</td>
+              <td>{{ commande.date_com }}</td>
+              <td>{{ commande.status_com }}</td>
+              <td>
+                <form action="{{ url_for('update_order_status') }}" method="post" style="display:inline;">
+                  <input type="hidden" name="commande_id" value="{{ commande.ID_com }}">
+                  <button type="submit" name="status" value="Expédiée" class="btn btn-success btn-sm" {% if commande.status_com == 'Annulée' or commande.status_com == 'Livrée' %}disabled{% endif %}>Confirmer</button>
+                </form>
+                <form action="{{ url_for('update_order_status') }}" method="post" style="display:inline;">
+                  <input type="hidden" name="commande_id" value="{{ commande.ID_com }}">
+                  <button type="submit" name="status" value="Annulée" class="btn btn-danger btn-sm" {% if commande.status_com == 'Livrée' or commande.status_com == 'Annulée' %}disabled{% endif %}>Annuler</button>
+                </form>
+                <form action="{{ url_for('update_order_status') }}" method="post" style="display:inline;">
+                  <input type="hidden" name="commande_id" value="{{ commande.ID_com }}">
+                  <button type="submit" name="status" value="Livrée" class="btn btn-primary btn-sm" {% if commande.status_com == 'Annulée' or commande.status_com == 'Livrée' %}disabled{% endif %}>Livrée</button>
+                </form>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
