@@ -1,12 +1,22 @@
-<h1>Paiement de la commande</h1>
-<p>Montant total à payer : {{ total_amount }} </p>
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="payment-title">Paiement de la commande</h1>
+<p class="total-amount">Montant total à payer : <span>{{ total_amount }}</span></p>
 
-<form method="POST" action="{{ url_for('passer_commande') }}">
+<form method="POST" action="{{ url_for('passer_commande') }}" class="payment-form">
     <label for="payment_method">Choisissez une méthode de paiement :</label>
     <select name="payment_method" id="payment_method">
         {% for method in payment_methods %}
             <option value="{{ method }}">{{ method }}</option>
         {% endfor %}
     </select>
+    <!-- Additional fields for payment methods -->
+    <div class="payment-details">
+        <label for="credit_card_number">Numéro de carte :</label>
+        <input type="text" name="credit_card_number" id="credit_card_number" disabled>
+        <label for="paypal_email">Email PayPal :</label>
+        <input type="email" name="paypal_email" id="paypal_email" disabled>
+    </div>
     <button type="submit">Payer</button>
 </form>
+{% endblock %}
