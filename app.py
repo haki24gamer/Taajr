@@ -1281,9 +1281,11 @@ def gestion_commandes():
 @app.route('/gestion_messages')
 @admin_required
 def gestion_messages():
+    # ...existing code...
     emails = db.execute("SELECT * FROM email")
-    
-    return render_template('admin/gestion_messages.html', emails=emails)
+    total_emails = len(emails)
+    return render_template('admin/gestion_messages.html', emails=emails, total_emails=total_emails)
+    # ...existing code...
 
 @app.route('/gestion_comptes_admin')
 @admin_required

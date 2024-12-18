@@ -66,89 +66,14 @@
     <!-- Contenu principal -->
     <main class="container my-5">
         <!-- Section des statistiques -->
-        <div class="row text-center mb-4">
+        <div class="row justify-content-center text-center mb-4">
             <div class="col-md-4">
                 <div class="stats-card">
-                    <h4>150</h4>
-                    <p>Total Messages & Réclamations</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>80</h4>
-                    <p>Messages ouverts</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>70</h4>
-                    <p>Messages traités</p>
+                    <h4>{{ total_emails }}</h4>
+                    <p>Messages en total</p>
                 </div>
             </div>
         </div>
-
-        <!-- Barre de recherche et filtres -->
-        <div class="d-flex justify-content-between mb-3">
-            <!-- Recherche -->
-            <input type="text" class="form-control w-50" placeholder="Rechercher par sujet ou utilisateur...">
-            <!-- Filtres -->
-            <div class="d-flex gap-2">
-                <select class="form-select w-auto">
-                    <option value="">Filtrer par type</option>
-                    <option value="message">Message</option>
-                    <option value="reclamation">Réclamation</option>
-                </select>
-                <select class="form-select w-auto">
-                    <option value="">Filtrer par statut</option>
-                    <option value="open">Ouvert</option>
-                    <option value="closed">Fermé</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Liste des messages et réclamations -->
-        <h2 class="mb-3 text-primary">Liste des Messages et Réclamations</h2>
-        <table class="table table-hover table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Utilisateur</th>
-                    <th>Type</th>
-                    <th>Sujet</th>
-                    <th>Statut</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>101</td>
-                    <td>Halima Mohamed</td>
-                    <td>Réclamation</td>
-                    <td>Problème de livraison</td>
-                    <td><span class="badge bg-warning">Ouvert</span></td>
-                    <td>2024-11-15</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewMessageModal"><i class="fa fa-eye"></i></button>
-                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
-                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>102</td>
-                    <td>Hagui Mohamed</td>
-                    <td>Message</td>
-                    <td>Question sur un produit</td>
-                    <td><span class="badge bg-success">Fermé</span></td>
-                    <td>2024-11-12</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewMessageModal"><i class="fa fa-eye"></i></button>
-                        <button class="btn btn-success btn-sm"><i class="fa fa-check"></i></button>
-                        <button class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
 
         <!-- Liste des messages et réclamations -->
         <h2 class="mb-3 text-primary">Liste des Messages et Réclamations</h2>
@@ -172,9 +97,9 @@
                     <td>{{ email.subject }}</td>
                     <td>{{ email.date_sent }}</td>
                     <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewMessageModal{{ email.ID_email }}"><i class="fa fa-eye"></i> Voir</button>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewMessageModal{{ email.ID_email }}"><i class="fa fa-eye"></i></button>
                         <form action="{{ url_for('delete_email', email_id=email.ID_email) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce email ?');" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
                         </form>
                     </td>
                 </tr>
