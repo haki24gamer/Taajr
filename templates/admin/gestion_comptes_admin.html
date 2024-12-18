@@ -53,7 +53,7 @@
                         <td>{{ admin.genre }}</td>
                         <td>
                             <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editAdminModal" data-id="{{ admin.ID_uti }}" data-name="{{ admin.nom_uti }}" data-firstname="{{ admin.prenom_uti }}" data-email="{{ admin.email_uti }}" data-phone="{{ admin.telephone }}" data-birthdate="{{ admin.date_naissance }}" data-gender="{{ admin.genre }}">Modifier</button>
-                            <form method="POST" action="{{ url_for('delete_admin', admin_id=admin.ID_uti) }}" style="display:inline;">
+                            <form method="POST" action="{{ url_for('delete_admin', admin_id=admin.ID_uti) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');" style="display:inline;">
                                 <button class="btn btn-danger btn-sm">Supprimer</button>
                             </form>
                         </td>
