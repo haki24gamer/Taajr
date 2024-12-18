@@ -81,7 +81,7 @@ Ce dépôt contient le code source du projet Taajr. Ce guide vous aidera à dém
 Pour démarrer un serveur SMTP de débogage local, exécutez la commande suivante :
 
 ```bash
-python -m smtpd -c DebuggingServer -n localhost:1025
+python3 -m aiosmtpd -n -l localhost:1025
 ```
 
 Cela démarrera un serveur SMTP sur `localhost` à l'écoute sur le port `1025`, qui imprimera les messages reçus dans la console pour le débogage.

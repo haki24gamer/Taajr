@@ -9,6 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 import re
 from functools import wraps
+import smtplib
+from email.message import EmailMessage
 
 app = Flask(__name__)
 
@@ -1120,6 +1122,28 @@ def boutique(vendeur_id):
 
 @app.route("/Contactez-nous", methods=['GET', 'POST'])
 def Contactez_nous():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        subject = request.form.get('subject')
+        message = request.form.get('message')
+
+        # Compose the email
+        msg = EmailMessage()
+        msg['Subject'] = f"Contact Form: {subject}"
+        msg['From'] = email
+        msg['To'] = 'your_email@example.com'  # Replace with your actual email
+        msg.set_content(f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}")
+
+        # Send the email via local SMTP server
+        try:
+            with smtplib.SMTP('localhost', 1025) as server:
+                server.send_message(msg)
+            flash('Votre message a été envoyé avec succès.', 'success')
+            return redirect(url_for('Contactez_nous'))
+        except Exception as e:
+            flash('Une erreur est survenue lors de l\'envoi du message.', 'danger')
+
     return render_template("contacter_nous.html")
 
 # Route pour la réinitialisation du mot de passe
