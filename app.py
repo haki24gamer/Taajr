@@ -55,19 +55,18 @@ def inject_user_info():
     if user_id:
         user = db.execute("SELECT nom_uti, prenom_uti, email_uti, telephone, date_naissance, genre, type_uti FROM utilisateur WHERE ID_uti = ?", user_id)
         if user:
-            return dict(user_name=f"{user[0]['nom_uti']} {user[0]['prenom_uti']}")
+            return dict(user_name=f"{user[0]['prenom_uti']} {user[0]['nom_uti']}")
     return dict(user_name=None)
 
 @app.context_processor
 def inject_categories():
     categories = db.execute("SELECT ID_cat, nom_cat FROM categorie")
     return dict(categories=categories)
-    return dict(categories=categories)
 
 @app.context_processor
 def inject_favoris_ids():
     user_id = session.get('user_id')
-    if (user_id):
+    if user_id:
         favoris = db.execute("SELECT ID_off FROM likes WHERE ID_uti = ?", user_id)
         favoris_ids = [item['ID_off'] for item in favoris]
         return dict(favoris_ids=favoris_ids)
@@ -75,8 +74,9 @@ def inject_favoris_ids():
 
 @app.context_processor
 def inject_cart_ids():
-    if ('user_id' in session):
+    if 'user_id' in session:
         cart_items = db.execute("SELECT ID_off FROM panier WHERE ID_uti = ?", session['user_id'])
+        cart_ids = [item['ID_off'] for item in cart_items]
         cart_ids = [item['ID_off'] for item in cart_items]
     else:
         cart_ids = []
@@ -727,15 +727,22 @@ def profil():
     if ('user_id' not in session):
         flash('Veuillez vous connecter pour accéder à votre profil.', 'danger')
         return redirect(url_for('connexion'))
+    
     user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
     if (not user):
         flash('Utilisateur non trouvé.', 'danger')
         return redirect(url_for('connexion'))
+    
+    # Redirect admin users to the admin page
+    if user[0]['type_uti'] == 'Admin':
+        return redirect(url_for('admin'))
+    
     details = {}
     if (user[0]['type_uti'] == 'Client'):
         details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
     elif (user[0]['type_uti'] == 'Vendeur'):
         details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
+    
     return render_template('Profil.html', user=user[0], details=details)
 
 @app.route('/modifier_profil', methods=['GET', 'POST'])
@@ -843,21 +850,24 @@ def offres_vendeurs():
 
 @app.route('/commandes_vendeurs')
 def commandes_vendeurs():
-    if ('user_id' not in session):
+    if 'user_id' not in session:
         flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
         return redirect(url_for('connexion'))
     
     user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
-    if (not user or user[0]['type_uti'] != 'Vendeur'):
+    if not user or user[0]['type_uti'] != 'Vendeur':
         flash('Accès interdit.', 'danger')
         return redirect(url_for('index'))
     
     commandes = db.execute("""
-        SELECT commande.*, utilisateur.nom_uti, utilisateur.prenom_uti
+        SELECT commande.*, utilisateur.nom_uti, utilisateur.prenom_uti, offre.libelle_off, contenir.quantite
         FROM commande
         JOIN utilisateur ON commande.ID_uti = utilisateur.ID_uti
-        WHERE commande.ID_uti = ?
+        JOIN contenir ON commande.ID_com = contenir.ID_com
+        JOIN offre ON contenir.ID_off = offre.ID_off
+        WHERE offre.ID_uti = ?
     """, session['user_id'])
+    
     return render_template('commandes_vendeurs.html', commandes=commandes)
 
 @app.route('/modifier_offre', methods=['POST'])
@@ -1218,7 +1228,11 @@ def gestion_categories():
 @app.route('/gestion_commandes')
 @admin_required
 def gestion_commandes():
-    commandes = db.execute("SELECT * FROM commande")
+    commandes = db.execute("""
+        SELECT commande.*, paiement.methode_pay
+        FROM commande
+        JOIN paiement ON commande.ID_pay = paiement.ID_pay
+    """)
     return render_template('admin/gestion_commandes.html', commandes=commandes)
 
 @app.route('/gestion_messages')
@@ -1435,6 +1449,157 @@ def supprimer_compte():
     session.clear()
     flash('Votre compte a été supprimé avec succès.', 'success')
     return redirect(url_for('index'))
+
+@app.route('/commandes_clients')
+def commandes_clients():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour accéder à vos commandes.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    commandes = db.execute("""
+        SELECT commande.*, paiement.methode_pay, offre.libelle_off, contenir.quantite
+        FROM commande
+        JOIN paiement ON commande.ID_pay = paiement.ID_pay
+        JOIN contenir ON commande.ID_com = contenir.ID_com
+        JOIN offre ON contenir.ID_off = offre.ID_off
+        WHERE commande.ID_uti = ?
+    """, session['user_id'])
+    
+    return render_template('commandes_clients.html', commandes=commandes)
+
+@app.route('/passer_commande', methods=['GET', 'POST'])
+def passer_commande():
+    if 'user_id' not in session:        
+        flash('Veuillez vous connecter pour passer une commande.', 'warning')
+        return redirect(url_for('connexion'))
+    
+
+    if request.method == 'GET':
+        # Fetch cart items
+        cart_items = db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id'])
+        if not cart_items:
+            flash('Votre panier est vide.', 'info')
+            return redirect(url_for('Panier'))
+        # Calculate total amount
+        total_amount = 0
+        for item in cart_items:
+            offer = db.execute("SELECT prix_off FROM offre WHERE ID_off = ?", item['ID_off'])[0]
+            total_amount += offer['prix_off'] * item['quantity']
+        # Available payment methods
+        payment_methods = ['Carte de Crédit', 'PayPal', 'Virement Bancaire']
+        # Render the payment page with total amount and payment methods
+        return render_template('payment.html', total_amount=total_amount, payment_methods=payment_methods)
+
+    else:
+        # Handle POST request to process payment
+        selected_method = request.form.get('payment_method')
+        if not selected_method:
+            flash('Veuillez sélectionner une méthode de paiement.', 'danger')
+            return redirect(url_for('passer_commande'))
+
+        # Fetch cart items
+        cart_items = db.execute("SELECT ID_off, quantity FROM panier WHERE ID_uti = ?", session['user_id'])
+        if not cart_items:
+            flash('Votre panier est vide.', 'info')
+            return redirect(url_for('Panier'))
+        # Calculate total amount
+        total_amount = 0
+        for item in cart_items:
+            offer = db.execute("SELECT prix_off FROM offre WHERE ID_off = ?", item['ID_off'])[0]
+            total_amount += offer['prix_off'] * item['quantity']
+
+        # Create a paiement record
+        paiement_id = db.execute("INSERT INTO paiement (montant_pay, methode_pay, type_pay) VALUES (?, ?, ?)",
+                                 total_amount, selected_method, 'Commande')
+
+        # Create a commande record
+        commande_id = db.execute("INSERT INTO commande (montant_com, date_com, status_com, ID_off, ID_uti, ID_pay) VALUES (?, date('now'), 'En cours', NULL, ?, ?)",
+                                 total_amount, session['user_id'], paiement_id)
+
+        # Insert into contenir table and update stock
+        for item in cart_items:
+            db.execute("INSERT INTO contenir (ID_com, ID_off, quantite) VALUES (?, ?, ?)",
+                       commande_id, item['ID_off'], item['quantity'])
+            # Update stock quantity
+            db.execute("UPDATE offre SET quantite_en_stock = quantite_en_stock - ? WHERE ID_off = ?",
+                       item['quantity'], item['ID_off'])
+
+        # Clear the user's cart
+        db.execute("DELETE FROM panier WHERE ID_uti = ?", session['user_id'])
+
+        flash('Commande passée avec succès.', 'success')
+        return redirect(url_for('commandes_clients'))
+
+@app.route('/change_order_status', methods=['POST'])
+@admin_required
+def change_order_status():
+    order_id = request.form.get('order_id')
+    new_status = request.form.get('new_status')
+    
+    if not order_id or not new_status:
+        flash('Informations de commande invalides.', 'danger')
+        return redirect(url_for('gestion_commandes'))
+    
+    # Mettre à jour le statut de la commande dans la base de données
+    db.execute("UPDATE commande SET status_com = ? WHERE ID_com = ?", new_status, order_id)
+    flash('Statut de la commande mis à jour avec succès.', 'success')
+    return redirect(url_for('gestion_commandes'))
+
+@app.route('/annuler_commande', methods=['POST'])
+def annuler_commande():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour annuler une commande.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    commande_id = request.form.get('commande_id')
+    if not commande_id:
+        flash('Commande invalide.', 'danger')
+        return redirect(url_for('commandes_clients'))
+    
+    # Vérifier si la commande appartient à l'utilisateur et n'est pas encore expédiée
+    commande = db.execute("SELECT * FROM commande WHERE ID_com = ? AND ID_uti = ? AND status_com != 'Expédiée'", commande_id, session['user_id'])
+    if not commande:
+        flash('Commande non trouvée ou déjà expédiée.', 'danger')
+        return redirect(url_for('commandes_clients'))
+    
+    # Changer le statut de la commande à "Annulée"
+    db.execute("UPDATE commande SET status_com = 'Annulée' WHERE ID_com = ?", commande_id)
+    
+    flash('Commande annulée avec succès.', 'success')
+    return redirect(url_for('commandes_clients'))
+
+@app.route('/update_order_status', methods=['POST'])
+def update_order_status():
+    if 'user_id' not in session:
+        flash('Veuillez vous connecter pour modifier le statut de la commande.', 'danger')
+        return redirect(url_for('connexion'))
+    
+    commande_id = request.form.get('commande_id')
+    new_status = request.form.get('status')
+    
+    if not commande_id or not new_status:
+        flash('Informations de commande invalides.', 'danger')
+        return redirect(url_for('commandes_vendeurs'))
+    
+    # Mettre à jour le statut de la commande dans la base de données
+    db.execute("UPDATE commande SET status_com = ? WHERE ID_com = ?", new_status, commande_id)
+    flash('Statut de la commande mis à jour avec succès.', 'success')
+    return redirect(url_for('commandes_vendeurs'))
+
+@app.route('/delete_order', methods=['POST'])
+@admin_required
+def delete_order():
+    order_id = request.form.get('order_id')
+    if not order_id:
+        flash('Commande invalide.', 'danger')
+        return redirect(url_for('gestion_commandes'))
+    
+    # Supprimer la commande de la base de données
+    db.execute("DELETE FROM contenir WHERE ID_com = ?", order_id)
+    db.execute("DELETE FROM commande WHERE ID_com = ?", order_id)
+    
+    flash('Commande supprimée avec succès.', 'success')
+    return redirect(url_for('gestion_commandes'))
 
 if __name__ == '__main__':
 

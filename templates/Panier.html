@@ -39,7 +39,9 @@
         <div class="d-flex justify-content-end">
             <h4>Total : {{ total_price }}fdj</h4>
         </div>
-        <a href="/checkout" class="btn btn-success btn-lg mt-3">Passer la commande</a>
+        <form action="{{ url_for('passer_commande') }}" method="POST">
+            <button class="btn btn-success btn-lg mt-3" type="submit">Passer la commande</button>
+        </form>
     {% else %}
         <p>Votre panier est vide.</p>
     {% endif %}

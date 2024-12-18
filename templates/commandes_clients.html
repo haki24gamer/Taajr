@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}Commandes - Taajr{% endblock %}
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+    }
+    header {
+        background: linear-gradient(90deg, #007bff, #6610f2);
+        color: white;
+    }
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .badge {
+        padding: 0.5em 0.75em;
+        font-size: 0.9em;
+    }
+    footer {
+        background: #343a40;
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+    }
+</style>
+<!-- Header -->
+<header class="py-4 text-center">
+    <div class="container">
+        <h1>Vos Commandes</h1>
+        <p>Visualisez toutes vos commandes.</p>
+    </div>
+</header>
+<!-- Liste des commandes -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Vos Commandes</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Nom du produit</th>
+                        <th>Quantité</th>
+                        <th>Prix total (€)</th>
+                        <th>Date de commande</th>
+                        <th>Statut</th>
+                        <th>Méthode de Paiement</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commande in commandes %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ commande['libelle_off'] }}</td>
+                        <td>{{ commande['quantite'] }}</td>
+                        <td>{{ commande['montant_com'] }}</td>
+                        <td>{{ commande['date_com'] }}</td>
+                        <td>{{ commande['status_com'] }}</td>
+                        <td>{{ commande['methode_pay'] }}</td>
+                        <td>
+                            {% if commande['status_com'] == 'En attente' %}
+                                <form action="{{ url_for('annuler_commande') }}" method="post">
+                                    <input type="hidden" name="commande_id" value="{{ commande['ID_com'] }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-danger btn-sm" disabled>Annuler</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

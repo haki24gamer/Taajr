@@ -194,3 +194,44 @@ a {
 .btn-primary:hover {
     background-color: #0056b3;
 }
+
+.payment-title {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.total-amount {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.payment-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.payment-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.payment-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+.payment-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.payment-form button:hover {
+    background-color: #0056b3;
+}
