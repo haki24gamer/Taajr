@@ -47,11 +47,16 @@
                     <td>{{ category.nom_cat }}</td>
                     <td>{{ category.description }}</td>
                     <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ category.ID_cat }}">
-                            <i class="fa fa-edit"></i></button>
-                        <form action="{{ url_for('delete_category', category_id=category.ID_cat) }}" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
-                        </form>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ category.ID_cat }}">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <form action="{{ url_for('delete_category', category_id=category.ID_cat) }}" method="post" style="display: inline; margin: 0;">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

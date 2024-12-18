@@ -58,10 +58,13 @@
                     </td>
                     <td>{{ commande.methode_pay }}</td>
                     <td>
-                        <form action="{{ url_for('delete_order') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">
-                            <input type="hidden" name="order_id" value="{{ commande.ID_com }}">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </form>
+                        <div class="d-flex gap-2">
+                            <form action="{{ url_for('delete_order') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');" style="margin: 0;">
+                                <input type="hidden" name="order_id" value="{{ commande.ID_com }}">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                            <!-- ...future action buttons... -->
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
