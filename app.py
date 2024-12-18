@@ -727,15 +727,22 @@ def profil():
     if ('user_id' not in session):
         flash('Veuillez vous connecter pour accéder à votre profil.', 'danger')
         return redirect(url_for('connexion'))
+    
     user = db.execute("SELECT * FROM utilisateur WHERE ID_uti = ?", session['user_id'])
     if (not user):
         flash('Utilisateur non trouvé.', 'danger')
         return redirect(url_for('connexion'))
+    
+    # Redirect admin users to the admin page
+    if user[0]['type_uti'] == 'Admin':
+        return redirect(url_for('admin'))
+    
     details = {}
     if (user[0]['type_uti'] == 'Client'):
         details = db.execute("SELECT * FROM Details_Client WHERE ID_uti = ?", session['user_id'])
     elif (user[0]['type_uti'] == 'Vendeur'):
         details = db.execute("SELECT * FROM Details_Vendeur WHERE ID_uti = ?", session['user_id'])
+    
     return render_template('Profil.html', user=user[0], details=details)
 
 @app.route('/modifier_profil', methods=['GET', 'POST'])
@@ -1578,6 +1585,21 @@ def update_order_status():
     db.execute("UPDATE commande SET status_com = ? WHERE ID_com = ?", new_status, commande_id)
     flash('Statut de la commande mis à jour avec succès.', 'success')
     return redirect(url_for('commandes_vendeurs'))
+
+@app.route('/delete_order', methods=['POST'])
+@admin_required
+def delete_order():
+    order_id = request.form.get('order_id')
+    if not order_id:
+        flash('Commande invalide.', 'danger')
+        return redirect(url_for('gestion_commandes'))
+    
+    # Supprimer la commande de la base de données
+    db.execute("DELETE FROM contenir WHERE ID_com = ?", order_id)
+    db.execute("DELETE FROM commande WHERE ID_com = ?", order_id)
+    
+    flash('Commande supprimée avec succès.', 'success')
+    return redirect(url_for('gestion_commandes'))
 
 if __name__ == '__main__':
 
