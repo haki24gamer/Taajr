@@ -95,7 +95,7 @@
                           {% endfor %}
                           ({{ product.reviews_count }} avis)
                       </p>
-                      <p class="card-text fw-bold">Prix : {{ product.prix_off }}  FDJ</p>
+                      <p class="card-text fw-bold">Prix : {{ product.prix_off }}   FDJ</p>
                       {% if product.ID_off in cart_ids %}
                           <button class="btn btn-secondary" disabled>Dans le panier</button>
                       {% else %}
@@ -151,7 +151,7 @@
                     {% endfor %}
                     ({{ service.reviews_count }} avis)
                 </p>
-                <p class="card-text fw-bold">Prix : {{ service.prix_off }}  FDJ</p>
+                <p class="card-text fw-bold">Prix : {{ service.prix_off }}   FDJ</p>
                 {% if service.ID_off in cart_ids %}
                     <button class="btn btn-secondary" disabled>Dans le panier</button>
                 {% else %}
