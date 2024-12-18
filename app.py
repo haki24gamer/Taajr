@@ -900,13 +900,14 @@ def modifier_offre():
 @app.route('/supprimer_offre/<int:offre_id>', methods=['POST'])
 def supprimer_offre(offre_id):
     if 'user_id' not in session:
-        flash('Veuillez vous connecter en tant qu\'administrateur pour effectuer cette action.', 'danger')
+        flash('Veuillez vous connecter pour effectuer cette action.', 'danger')
         return redirect(url_for('connexion'))
-    # Verify that the offer belongs to the logged-in admin or appropriate user
+    
+    # Verify that the offer belongs to the logged-in user
     offre = db.execute("SELECT * FROM offre WHERE ID_off = ?", offre_id)
     if not offre:
         flash('Offre non trouvée ou vous n\'avez pas la permission de la supprimer.', 'danger')
-        return redirect(url_for('gestion_offres'))
+        return redirect(url_for('index'))
     
     # Retrieve the image path before deletion
     image_path = offre[0]['image_off']
@@ -927,7 +928,13 @@ def supprimer_offre(offre_id):
     db.execute("DELETE FROM offre WHERE ID_off = ?", offre_id)
     
     flash('Offre et enregistrements associés supprimés avec succès.', 'success')
-    return redirect(url_for('gestion_offres'))
+    
+    # Redirect based on user type
+    user = db.execute("SELECT type_uti FROM utilisateur WHERE ID_uti = ?", session['user_id'])
+    if user[0]['type_uti'] == 'Admin':
+        return redirect(url_for('gestion_offres'))
+    else:
+        return redirect(url_for('offres_vendeurs'))
 
 @app.route('/ajouter_offre', methods=['POST'])
 def ajouter_offre():
