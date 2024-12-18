@@ -1269,7 +1269,14 @@ def gestion_commandes():
         FROM commande
         JOIN paiement ON commande.ID_pay = paiement.ID_pay
     """)
-    return render_template('admin/gestion_commandes.html', commandes=commandes)
+    # New code to count orders per status excluding 'Annulée'
+    status_counts = db.execute("""
+        SELECT status_com, COUNT(*) as count
+        FROM commande
+        WHERE status_com != 'Annulée'
+        GROUP BY status_com
+    """)
+    return render_template('admin/gestion_commandes.html', commandes=commandes, status_counts=status_counts)
 
 @app.route('/gestion_messages')
 @admin_required

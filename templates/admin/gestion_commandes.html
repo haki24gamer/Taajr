@@ -14,24 +14,14 @@
     <main class="container my-5">
         <!-- Section des statistiques commandes -->
         <div class="row text-center mb-4">
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>500</h4>
-                    <p>Total des commandes</p>
+            {% for status in status_counts %}
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h4>{{ status.count }}</h4>
+                        <p>{{ status.status_com }}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>320</h4>
-                    <p>Commandes traitées</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card">
-                    <h4>180</h4>
-                    <p>Commandes en attente</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
 

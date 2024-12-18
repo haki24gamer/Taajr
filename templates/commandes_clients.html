@@ -42,7 +42,7 @@
                         <th>#</th>
                         <th>Nom du produit</th>
                         <th>Quantité</th>
-                        <th>Prix total (  FDJ)</th>
+                        <th>Prix total</th>
                         <th>Date de commande</th>
                         <th>Statut</th>
                         <th>Méthode de Paiement</th>
@@ -55,7 +55,7 @@
                         <td>{{ loop.index }}</td>
                         <td>{{ commande['libelle_off'] }}</td>
                         <td>{{ commande['quantite'] }}</td>
-                        <td>{{ commande['montant_com'] }}</td>
+                        <td>{{ commande['montant_com'] }} FDJ</td>
                         <td>{{ commande['date_com'] }}</td>
                         <td>{{ commande['status_com'] }}</td>
                         <td>{{ commande['methode_pay'] }}</td>
