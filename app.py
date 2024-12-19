@@ -832,11 +832,30 @@ def modifier_profil():
             boutique = request.form.get('boutique')
             adresse_boutique = request.form.get('adresse_boutique')
             description = request.form.get('description')
-            db.execute("""
-                UPDATE Details_Vendeur
-                SET nom_boutique = ?, adresse_boutique = ?, description = ?
-                WHERE ID_uti = ?
-            """, boutique, adresse_boutique, description, session['user_id'])
+            logo = request.files.get('logo')
+
+            if logo and allowed_file(logo.filename):
+                # Remove the previous logo if it exists
+                if details['logo'] and details['logo'] != 'Images/Logo_Boutique/default.png':
+                    try:
+                        os.remove(os.path.join(app.root_path, 'static', details['logo']))
+                    except OSError as e:
+                        flash(f'Erreur lors de la suppression de l\'ancien logo: {e}', 'danger')
+                # Save the new logo
+                logo_filename = secure_filename(logo.filename)
+                logo.save(os.path.join(app.config['UPLOAD_FOLDER_LOGO'], logo_filename))
+                logo_relative_path = os.path.join('Images/Logo_Boutique', logo_filename)
+                db.execute("""
+                    UPDATE Details_Vendeur
+                    SET nom_boutique = ?, adresse_boutique = ?, description = ?, logo = ?
+                    WHERE ID_uti = ?
+                """, boutique, adresse_boutique, description, logo_relative_path, session['user_id'])
+            else:
+                db.execute("""
+                    UPDATE Details_Vendeur
+                    SET nom_boutique = ?, adresse_boutique = ?, description = ?
+                    WHERE ID_uti = ?
+                """, boutique, adresse_boutique, description, session['user_id'])
         
         flash('Profil mis à jour avec succès.', 'success')
         return redirect(url_for('profil'))
