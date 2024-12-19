@@ -148,12 +148,12 @@
                                 <input type="text" class="form-control" id="telephone" name="telephone" value="{{ user.telephone }}" required>
                             </div>
                             <div class="mb-3">
-                                <label for="birthdate" class="form-label">Date de Naissance</label>
-                                <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ user.date_naissance }}" required>
+                                <label for="date_naissance" class="form-label">Date de Naissance</label>
+                                <input type="date" class="form-control" id="date_naissance" name="date_naissance" value="{{ user.date_naissance }}" required>
                             </div>
                             <div class="mb-3">
-                                <label for="gender" class="form-label">Genre</label>
-                                <select class="form-control" id="gender" name="gender" required>
+                                <label for="genre" class="form-label">Genre</label>
+                                <select class="form-control" id="genre" name="genre" required>
                                     <option value="Homme" {% if user.genre == 'Homme' %}selected{% endif %}>Homme</option>
                                     <option value="Femme" {% if user.genre == 'Femme' %}selected{% endif %}>Femme</option>
                                 </select>
