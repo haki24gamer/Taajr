@@ -829,7 +829,7 @@ def modifier_profil():
                 WHERE ID_uti = ?
             """, adresse, session['user_id'])
         elif (user[0]['type_uti'] == 'Vendeur'):
-            boutique = request.form.get('boutique')
+            boutique = request.form.get('nom_boutique')
             adresse_boutique = request.form.get('adresse_boutique')
             description = request.form.get('description')
             logo = request.files.get('logo')
