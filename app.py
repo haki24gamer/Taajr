@@ -1293,16 +1293,6 @@ def gestion_comptes_admin():
     admins = db.execute("SELECT * FROM utilisateur WHERE type_uti = 'Admin'")
     return render_template('admin/gestion_comptes_admin.html', admins=admins)
 
-@app.route('/gestion_parametres')
-@admin_required
-def gestion_parametres():
-    return render_template('admin/gestion_parametres.html')
-
-@app.route('/gestion_notifications')
-@admin_required
-def gestion_notifications():
-    return render_template('admin/gestion_notifications.html')
-
 @app.route('/update_user', methods=['POST'])
 @admin_required
 def update_user():

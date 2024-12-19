@@ -1,0 +1,9 @@
+1. Created an email table
+2. Created a smtp server that sends messages and these messages get stored into the email table in the database, this python smtp server should get turned on 
+the only page that is connected to smtp server is the Contactez-nous page
+3. Made the gestion message page retrieve emails from the email table
+
+
+
+
+
