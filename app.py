@@ -240,6 +240,11 @@ def Inscription_Vendeur():
         mot_de_passe = request.form.get("password")
         confirm_password = request.form.get("confirmPassword")
         
+        # Check if email is already used
+        existing_user = db.execute("SELECT * FROM utilisateur WHERE email_uti = ?", email)
+        if existing_user:
+            errors.append("L'adresse email est déjà utilisée par un autre utilisateur.")
+        
         if not mot_de_passe:
             errors.append("Le mot de passe ne peut pas être vide.")
         elif mot_de_passe != confirm_password:
@@ -360,6 +365,11 @@ def Inscription_Client():
         email = request.form.get("email")
         mot_de_passe = request.form.get("password")
         confirm_password = request.form.get("confirmPassword")
+        
+        # Check if email is already used
+        existing_user = db.execute("SELECT * FROM utilisateur WHERE email_uti = ?", email)
+        if existing_user:
+            errors.append("L'adresse email est déjà utilisée par un autre utilisateur.")
         
         if not mot_de_passe:
             errors.append("Le mot de passe ne peut pas être vide.")
