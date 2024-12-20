@@ -447,9 +447,7 @@ def Inscription_Client():
                 'date_naiss': date_naissance,
                 'telephone': telephone,
                 'genre': genre,
-                'adresse': adresse,
-                'ville': "Djibouti",
-                'pays': "Djibouti"
+                'adresse': adresse
             }
             msg = Message('Votre code OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
             msg.body = f'Votre code OTP est {otp}'
@@ -483,9 +481,9 @@ def verify_otp():
             else:
                 # Insert client details
                 db.execute("""
-                    INSERT INTO Details_Client (ID_uti, adresse_cli, ville_cli, pays_cli)
-                    VALUES (?, ?, ?, ?)
-                """, user_id, data['adresse'], data['ville'], data['pays'])
+                    INSERT INTO Details_Client (ID_uti, adresse)
+                    VALUES (?, ?)
+                """, user_id, data['adresse'])
             session.clear()
             flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
             return redirect(url_for('connexion'))

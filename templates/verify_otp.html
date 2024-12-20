@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- ...existing code... -->
+    <title>Vérification OTP</title>
+</head>
+<body>
+    <!-- ...existing code... -->
+    <div class="container">
+        <h2>Vérification de votre e-mail</h2>
+        <form method="POST" action="{{ url_for('verify_otp') }}">
+            <div class="form-group">
+                <label for="otp">Entrez le code envoyé à votre adresse e-mail :</label>
+                <input type="text" class="form-control" id="otp" name="otp" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Vérifier</button>
+        </form>
+    </div>
+    <!-- ...existing code... -->
+</body>
+</html>
