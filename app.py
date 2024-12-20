@@ -1118,34 +1118,6 @@ def meilleure_offre():
         cart_ids = [item['ID_off'] for item in cart_items]
     return render_template("meilleure_offre.html", offres=offres, cart_ids=cart_ids)
 
-def create_admin(email, password):
-    errors = []
-    
-    # Validate email
-    if not is_valid_email(email):
-        errors.append("L'adresse email n'est pas valide ou le domaine n'est pas autorisé.")
-    
-    # Validate password
-    if not password:
-        errors.append("Le mot de passe est obligatoire.")
-    
-    if errors:
-        for error in errors:
-            flash(error, 'danger')
-        return
-    
-    # Hash the password
-    hashed_password = generate_password_hash(password)
-    
-    # Insert into utilisateur as admin
-    try:
-        db.execute("""
-            INSERT INTO utilisateur (email_uti, mot_de_passe, type_uti)
-            VALUES (?, ?, 'Admin')
-        """, email, hashed_password)
-        flash('Admin cr��é avec succès.', 'success')
-    except Exception as e:
-        flash(f"Une erreur est survenue : {str(e)}", 'danger')
 
 @app.route("/a_propos")
 def a_propos():
@@ -1429,9 +1401,9 @@ def gestion_offres():
                            num_products=num_products,
                            num_services=num_services)
 
-@app.route('/add_admin', methods=['POST'])
+@app.route('/Inscription_Admin', methods=['POST'])
 @admin_required
-def add_admin():
+def Inscription_Admin():
     admin_name = request.form.get('adminName')
     admin_first_name = request.form.get('adminFirstName')
     admin_email = request.form.get('adminEmail')
@@ -1448,14 +1420,23 @@ def add_admin():
     # Hash the password
     hashed_password = generate_password_hash(admin_password)
     
-    # Insert new admin into the database
-    db.execute("""
-        INSERT INTO utilisateur (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'Admin')
-    """, admin_name, admin_first_name, admin_email, hashed_password, admin_phone, admin_birth_date, admin_gender)
-    
-    flash('Nouvel administrateur ajouté avec succès.', 'success')
-    return redirect(url_for('gestion_comptes_admin'))
+    # flash(error, 'danger')
+    otp = random.randint(100000, 999999)
+    session['otp'] = otp
+    session['registration_data'] = {
+        'prenom_uti': admin_first_name,
+        'nom_uti': admin_name,
+        'email_uti': admin_email,
+        'password': hashed_password,
+        'date_naiss': admin_birth_date,
+        'telephone': admin_phone,
+        'genre': admin_gender
+    }
+    msg = Message('Votre code OTP', sender=app.config['MAIL_USERNAME'], recipients=[admin_email])
+    msg.body = f'Votre code OTP est {otp}'
+    mail.send(msg)
+    flash('Un code OTP a été envoyé à votre adresse email.', 'info')
+    return redirect(url_for('verify_otp'))
 
 @app.route('/supprimer_compte', methods=['POST', 'GET'])
 def supprimer_compte():
@@ -1733,17 +1714,29 @@ def verify_otp():
         if str(session.get('otp')) == entered_otp:
             data = session.get('registration_data')
             # Insert user into the database
+            user_type = 'Admin' if 'nom_boutique' not in data and 'adresse' not in data else 'Vendeur' if 'nom_boutique' in data else 'Client'
             user_id = db.execute("""
                 INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], 'Vendeur' if 'nom_boutique' in data else 'Client')
+            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], user_type)
+
+            if user_type == 'Vendeur':
+                db.execute("""
+                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
+                    VALUES (?, ?, ?, ?, ?)
+                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
+            elif user_type == 'Client':
+                db.execute("""
+                    INSERT INTO Details_Client (ID_uti, adresse)
+                    VALUES (?, ?)
+                """, user_id, data['adresse'])
             if 'nom_boutique' in data:
                 # Insert vendeur details
                 db.execute("""
                     INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
                     VALUES (?, ?, ?, ?, ?)
                 """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
-            else:
+            elif 'adresse' in data:
                 # Insert client details
                 db.execute("""
                     INSERT INTO Details_Client (ID_uti, adresse)
@@ -1867,6 +1860,8 @@ def mot_de_passe_oublie():
         
     else:
         return render_template('mot_de_passe_oublie.html')
+
+
 
 if __name__ == '__main__':
 
