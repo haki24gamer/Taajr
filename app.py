@@ -33,13 +33,13 @@ app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
 app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
 app.config['UPLOAD_FOLDER_CATEGORIES'] = UPLOAD_FOLDER_CATEGORIES
 
-# Configure Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp.example.com'  # Replace with your SMTP server
-app.config['MAIL_PORT'] = 587  # Replace with your SMTP port
-app.config['MAIL_USERNAME'] = 'your_email@example.com'  # Replace with your email
-app.config['MAIL_PASSWORD'] = 'your_password'  # Replace with your email password
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
+# Configure Flask-Mail for Gmail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Gmail SMTP server
+app.config['MAIL_PORT'] = 587  # Port for TLS
+app.config['MAIL_USERNAME'] = 'taajr.services@gmail.com'  # Replace with your Gmail address
+app.config['MAIL_PASSWORD'] = 'yrdr vnpx ezix eivc '  # Replace with your app password (not your Gmail password)
+app.config['MAIL_USE_TLS'] = True  # Use TLS
+app.config['MAIL_USE_SSL'] = False  # Don't use SSL
 mail = Mail(app)
 
 def allowed_file(filename):
