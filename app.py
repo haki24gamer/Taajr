@@ -358,7 +358,7 @@ def Inscription_Vendeur():
                 'nom_boutique': boutique,
                 'adresse_boutique': adresse_boutique,
                 'description': description,
-                'logo': logo
+                'logo': logo_relative_path
             }
             msg = Message('Votre code OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
             msg.body = f'Votre code OTP est {otp}'
@@ -1402,7 +1402,6 @@ def gestion_offres():
                            num_services=num_services)
 
 @app.route('/Inscription_Admin', methods=['POST'])
-@admin_required
 def Inscription_Admin():
     admin_name = request.form.get('adminName')
     admin_first_name = request.form.get('adminFirstName')
@@ -1714,7 +1713,12 @@ def verify_otp():
         if str(session.get('otp')) == entered_otp:
             data = session.get('registration_data')
             # Insert user into the database
-            user_type = 'Admin' if 'nom_boutique' not in data and 'adresse' not in data else 'Vendeur' if 'nom_boutique' in data else 'Client'
+            if 'adresse' in data:
+                user_type = 'Client'
+            elif 'nom_boutique' in data:
+                user_type = 'Vendeur'
+            else:
+                user_type = 'Admin'
             user_id = db.execute("""
                 INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -1730,25 +1734,14 @@ def verify_otp():
                     INSERT INTO Details_Client (ID_uti, adresse)
                     VALUES (?, ?)
                 """, user_id, data['adresse'])
-            if 'nom_boutique' in data:
-                # Insert vendeur details
-                db.execute("""
-                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
-                    VALUES (?, ?, ?, ?, ?)
-                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
-            elif 'adresse' in data:
-                # Insert client details
-                db.execute("""
-                    INSERT INTO Details_Client (ID_uti, adresse)
-                    VALUES (?, ?)
-                """, user_id, data['adresse'])
             session.clear()
             flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
             return redirect(url_for('connexion'))
         else:
             flash('Code OTP invalide. Veuillez réessayer.', 'danger')
             return redirect(url_for('verify_otp'))
-    return render_template('verify_otp.html')
+    else:
+        return render_template('verify_otp.html')
 
 @app.route('/verify_reset_otp', methods=['GET', 'POST'])
 def verify_reset_otp():
