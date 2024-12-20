@@ -324,6 +324,10 @@
 									<label for="logo" class="form-label">Logo de la Boutique</label>
 									<input class="form-control" type="file" id="logo" name="logo" accept="image/*">
 								</div>
+								<div class="mb-3">
+									<input type="checkbox" id="terms" name="terms"> J'accepte les <a href="{{ url_for('termes') }}">termes et conditions</a>
+									<div class="error-message" id="termsError"></div>
+								</div>
 								<!-- Submit -->
 								<button type="submit" class="btn btn-primary w-100">
 									S'inscrire

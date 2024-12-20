@@ -51,8 +51,7 @@ def is_valid_email(email):
     if re.match(pattern, email, re.IGNORECASE):  # Added re.IGNORECASE to make the regex case-insensitive
         domain = email.split('@')[1]
         allowed_domains = [
-            'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com',
-            'icloud.com', 'mail.com', 'zoho.com', 'protonmail.com'
+            'gmail.com'
         ]
         if domain in allowed_domains:
             return True
@@ -276,6 +275,8 @@ def Inscription_Vendeur():
         genre = request.form.get("gender")
         
 
+        if not request.form.get('terms'):
+            errors.append("Veuillez accepter les termes et conditions.")
         # Verify required fields are not empty
         if not nom:
             errors.append("Le nom est obligatoire.")
@@ -399,6 +400,8 @@ def Inscription_Client():
         genre = request.form.get("gender")
         type_uti = 'Client'
         
+        if not request.form.get('terms'):
+            errors.append("Veuillez accepter les termes et conditions.")
 
         # Verify required fields are not empty
         if not nom:
