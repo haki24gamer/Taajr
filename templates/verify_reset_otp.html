@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- ...existing code... -->
+    <title>Vérification OTP</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="/static/bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .verify-otp-container {
+            margin-top: 50px;
+            max-width: 500px;
+            /* Center the container */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+        .verify-otp-container h2 {
+            margin-bottom: 30px;
+        }
+        /* Add shadow to the card */
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        /* Style the submit button */
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ...existing code... -->
+    
+    <div class="container verify-otp-container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">Vérification de votre e-mail</h2>
+                        <form method="POST" action="{{ url_for('verify_reset_otp') }}">
+                            <div class="form-group">
+                                <label for="otp">Entrez le code envoyé à votre adresse e-mail :</label>
+                                <input type="text" class="form-control" id="otp" name="otp" required>
+                            </div>
+                            <!-- Add flashed messages -->
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                {% for category, message in messages %}
+                                <br>
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            <br>
+                            <button type="submit" class="btn btn-primary btn-block">Vérifier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="/static/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -119,7 +119,7 @@
               <input type="text" class="form-control" id="product-name" required>
             </div>
             <div class="mb-3">
-              <label for="product-price" class="form-label">Prix du Produit (€)</label>
+              <label for="product-price" class="form-label">Prix du Produit (  FDJ)</label>
               <input type="number" class="form-control" id="product-price" required>
             </div>
             <button type="submit" class="btn btn-primary">Ajouter</button>
@@ -148,7 +148,7 @@
               <input type="text" class="form-control" id="edit-product-name">
             </div>
             <div class="mb-3">
-              <label for="edit-product-price" class="form-label">Nouveau Prix (€)</label>
+              <label for="edit-product-price" class="form-label">Nouveau Prix (  FDJ)</label>
               <input type="number" class="form-control" id="edit-product-price">
             </div>
             <button type="submit" class="btn btn-warning">Modifier</button>
@@ -213,7 +213,7 @@
       }
 
       const productList = products.map(product => 
-        `ID: ${product.id}, Nom: ${product.name}, Type: ${product.type}, Prix: ${product.price} €`
+        `ID: ${product.id}, Nom: ${product.name}, Type: ${product.type}, Prix: ${product.price}   FDJ`
       ).join('\n');
       alert(`Liste des Produits:\n${productList}`);
     });

@@ -4,14 +4,6 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offres Vendeur</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       background-color: #f8f9fa;
@@ -21,12 +13,12 @@
     header {
       background: linear-gradient(90deg, #28a745, #20c997);
       color: white;
-      padding: 20px 0;
     }
 
     header h1, header p {
       margin: 0;
       text-align: center;
+      padding: 10px 0;
     }
 
     .table {
@@ -70,8 +62,6 @@
       padding: 20px 0;
     }
   </style>
-</head>
-<body>
   <!-- Header -->
   <header>
     <div class="container">
@@ -79,6 +69,79 @@
       <p>Gérez vos produits : ajoutez, modifiez ou supprimez vos offres.</p>
     </div>
   </header>
+  <!-- Bouton Ajouter un offre -->
+
+
+
+  <!-- Fenêtre Modale pour Ajouter un offre -->
+  <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="{{ url_for('ajouter_offre') }}" method="POST" enctype="multipart/form-data">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addOfferModalLabel">Ajouter un offre</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Champ Libellé -->
+            <div class="mb-3">
+              <label for="libelle_off" class="form-label">Libellé</label>
+              <input type="text" class="form-control" id="libelle_off" name="libelle_off" required>
+            </div>
+            
+            <!-- Champ Description -->
+            <div class="mb-3">
+              <label for="description_off" class="form-label">Description</label>
+              <textarea class="form-control" id="description_off" name="description_off" required></textarea>
+            </div>
+            
+            <!-- Champ Quantité en stock -->
+            <div class="mb-3">
+              <label for="quantite_en_stock" class="form-label">Quantité en stock</label>
+              <input type="number" class="form-control" id="quantite_en_stock" name="quantite_en_stock" required>
+            </div>
+            
+            <!-- Champ Prix -->
+            <div class="mb-3">
+              <label for="prix_off" class="form-label">Prix</label>
+              <input type="number" class="form-control" id="prix_off" name="prix_off" required>
+            </div>
+            
+            <!-- Champ Type -->
+            <div class="mb-3">
+              <label for="type_off" class="form-label">Type</label>
+              <select class="form-select" id="type_off" name="type_off" required>
+                <option value="Produit">Produit</option>
+                <option value="Service">Service</option>
+              </select>
+            </div>
+            
+            <!-- Champ Image -->
+            <div class="mb-3">
+              <label for="image_off" class="form-label">Image</label>
+              <input class="form-control" type="file" id="image_off" name="image_off" accept="image/*">
+            </div>
+
+            <!-- Champ Sélection des Catégories -->
+            <div class="mb-3">
+              <label for="categories" class="form-label">Catégories</label>
+              <select class="form-select" id="categories" name="categories" multiple required>
+                {% for category in categories %}
+                  <option value="{{ category.ID_cat }}">{{ category.nom_cat }}</option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Maintenez la touche Ctrl (Windows) ou Commande (Mac) pour sélectionner plusieurs catégories.</div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Liste des produits -->
   <section class="py-5">
@@ -86,40 +149,49 @@
       <h2 class="text-center mb-4">Vos Produits</h2>
       <div class="table-responsive">
         <table class="table table-bordered align-middle text-center" id="productTable">
+          <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+            Ajouter un offre
+          </button>
           <thead>
             <tr>
               <th>#</th>
-              <th>Produit</th>
+              <th>Offre</th>
               <th>Prix</th>
               <th>Quantité</th>
+              <th>Type</th>
+              <th>Catégories</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="product-list">
-            <tr data-id="1">
-              <td>1</td>
-              <td>Produit A</td>
-              <td>20.00 €</td>
-              <td>10</td>
+            {% for offre in offres %}
+            <tr data-id="{{ offre.ID_off }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ offre.libelle_off }}</td>
+              <td>{{ offre.prix_off }} fjd</td>
+              <td>{{ offre.quantite_en_stock }}</td>
+              <td>{{ offre.type_off }}</td>
               <td>
-                <button class="btn btn-modifier btn-sm" onclick="openEditForm(1, 'Produit A', 20, 10)">Modifier</button>
-                <button class="btn btn-supprimer btn-sm" onclick="deleteProduct(1)">Supprimer</button>
+                {% for category in offre.categories %}
+                  <span class="badge bg-secondary">{{ category }}</span>
+                {% endfor %}
+              </td>
+              <td>
+                <!-- Modifier Button -->
+                <button class="btn btn-modifier btn-sm" onclick="openEditForm('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}', '{{ offre.type_off }}', '{{ offre.categories|join(',') }}')">Modifier</button>
+                
+                <!-- Supprimer Form -->
+                <form action="{{ url_for('supprimer_offre', offre_id=offre.ID_off) }}" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-supprimer btn-sm" onclick="return confirm('Voulez-vous vraiment supprimer ce produit ?');">Supprimer</button>
+                </form>
               </td>
             </tr>
-            <tr data-id="2">
-              <td>2</td>
-              <td>Produit B</td>
-              <td>15.00 €</td>
-              <td>5</td>
-              <td>
-                <button class="btn btn-modifier btn-sm" onclick="openEditForm(2, 'Produit B', 15, 5)">Modifier</button>
-                <button class="btn btn-supprimer btn-sm" onclick="deleteProduct(2)">Supprimer</button>
-              </td>
-            </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
+    
   </section>
 
   <!-- Formulaire Modifier Produit (Popup) -->
@@ -131,18 +203,28 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
         </div>
         <div class="modal-body">
-          <form id="editForm">
+          <form id="editForm" action="{{ url_for('modifier_offre') }}" method="POST">
+            <input type="hidden" id="productId" name="productId">
             <div class="mb-3">
               <label for="productName" class="form-label">Nom du produit</label>
               <input type="text" class="form-control" id="productName" name="productName" required>
             </div>
             <div class="mb-3">
-              <label for="productPrice" class="form-label">Prix (€)</label>
+              <label for="productPrice" class="form-label">Prix (  FDJ)</label>
               <input type="number" class="form-control" id="productPrice" name="productPrice" step="0.01" required>
             </div>
             <div class="mb-3">
               <label for="productQuantity" class="form-label">Quantité</label>
               <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
+            </div>
+            <div class="mb-3">
+              <label for="productCategories" class="form-label">Catégories</label>
+              <select class="form-select" id="productCategories" name="productCategories" multiple required>
+                {% for category in categories %}
+                  <option value="{{ category.ID_cat }}">{{ category.nom_cat }}</option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Maintenez la touche Ctrl (Windows) ou Commande (Mac) pour sélectionner plusieurs catégories.</div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Enregistrer les modifications</button>
           </form>
@@ -151,16 +233,14 @@
     </div>
   </div>
 
-
-
   <!-- JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     let currentProductId = null;
 
     // Ouvre le formulaire de modification
-    function openEditForm(productId, productName, productPrice, productQuantity) {
+    function openEditForm(productId, productName, productPrice, productQuantity, productType, productCategories) {
       currentProductId = productId; // Stocker l'ID du produit
+      document.getElementById('productId').value = productId;
       document.getElementById('productName').value = productName;
       document.getElementById('productPrice').value = productPrice;
       document.getElementById('productQuantity').value = productQuantity;
@@ -168,33 +248,10 @@
       editModal.show();
     }
 
-    // Supprime un produit
-    function deleteProduct(productId) {
-      if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-        const row = document.querySelector(`tr[data-id="${productId}"]`);
-        row.remove();
-        alert('Produit supprimé avec succès.');
-      }
-    }
-
+    // Supprime un produit (handled by form submission)
+    
     // Gère la soumission du formulaire
-    document.getElementById('editForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const updatedName = document.getElementById('productName').value;
-      const updatedPrice = document.getElementById('productPrice').value;
-      const updatedQuantity = document.getElementById('productQuantity').value;
-
-      const row = document.querySelector(`tr[data-id="${currentProductId}"]`);
-      row.children[1].textContent = updatedName;
-      row.children[2].textContent = `${parseFloat(updatedPrice).toFixed(2)} €`;
-      row.children[3].textContent = parseInt(updatedQuantity);
-
-      const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-      editModal.hide();
-      alert('Produit modifié avec succès.');
-    });
+    // Removed JavaScript handling since form submission now manages updates
   </script>
-</body>
-</html>
 
 {% endblock %}

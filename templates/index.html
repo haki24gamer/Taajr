@@ -14,15 +14,15 @@
       <div class="carousel-item active">
         <img src="https://via.placeholder.com/1200x300/ffb6c1/333?text=Black+Friday+Week+21+nov+-+2+déc" class="d-block w-100" alt="Black Friday">
         <div class="carousel-caption d-none d-md-block">
-          <h5>Black Friday Week</h5>
-          <p>Commence à minuit du 21 nov. au 2 déc. !</p>
+          <h5>Bienvenue !</h5>
+          <p>venez acheter et vendre autant que vous voulez</p>
         </div>
       </div>
       <div class="carousel-item">
         <img src="https://via.placeholder.com/1200x300/007bff/fff?text=Livraison+Express+24H" class="d-block w-100" alt="Livraison Express">
         <div class="carousel-caption d-none d-md-block">
           <h5>Livraison Express 24H</h5>
-          <p>Recevez vos commandes rapidement partout en France.</p>
+          <p>Recevez vos commandes rapidement.</p>
         </div>
       </div>
       <div class="carousel-item">
@@ -82,9 +82,20 @@
                   </div>
                   <div class="card-body">
                       <h5 class="card-title">{{ product.libelle_off }}</h5>
-                      <p class="card-text">{{ product.description_off }}</p>
-                      <p class="rating">⭐⭐⭐☆☆ ({{ product.reviews_count }} avis)</p>
-                      <p class="card-text fw-bold">Prix : {{ product.prix_off }} fdj</p>
+                      <!-- Changed rating display -->
+                      <p class="rating">
+                          {% for i in range(1,6) %}
+                              {% if product.avg_stars >= i %}
+                                  ⭐
+                              {% elif product.avg_stars >= i - 0.5 %}
+                                  ☆
+                              {% else %}
+                                  ☆
+                              {% endif %}
+                          {% endfor %}
+                          ({{ product.reviews_count }} avis)
+                      </p>
+                      <p class="card-text fw-bold">Prix : {{ product.prix_off }}   FDJ</p>
                       {% if product.ID_off in cart_ids %}
                           <button class="btn btn-secondary" disabled>Dans le panier</button>
                       {% else %}
@@ -125,10 +136,21 @@
                 <img src="/static/{{ service.image_off }}" alt="Image de Service" class="card-img-top">
             </div>
             <div class="card-body">
-                <h5 class="card-title">{{ service.libelle_off }}</h5>
-                <p class="card-text">{{ service.description_off }}</p>
-                <p class="rating">⭐⭐⭐☆☆ ({{ service.reviews_count }} avis)</p>
-                <p class="card-text fw-bold">Prix : {{ service.prix_off }} fdj</p>
+                <h5 class="card-title">{{ service.libelle_off }}</h5>                        
+                <!-- Changed rating display -->
+                <p class="rating">
+                    {% for i in range(1, 6) %}
+                        {% if service.avg_stars >= i %}
+                            ⭐ 
+                        {% elif service.avg_stars >= i - 0.5 %}
+                            ☆
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                    ({{ service.reviews_count }} avis)
+                </p>
+                <p class="card-text fw-bold">Prix : {{ service.prix_off }}   FDJ</p>
                 {% if service.ID_off in cart_ids %}
                     <button class="btn btn-secondary" disabled>Dans le panier</button>
                 {% else %}

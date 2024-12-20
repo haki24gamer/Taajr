@@ -1,0 +1,125 @@
+{% extends "admin_layout.html" %}
+
+{% block content %}
+
+
+<!-- En-tête -->
+<header class="header">
+    <h1>Gestion des Offres</h1>
+    <p class="subtitle">Administrez toutes les offres</p>
+</header>
+
+    <!-- Contenu principal -->
+    <main class="container my-5">
+        <!-- Section des statistiques offres -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>Total Offres</h4>
+                    <p>{{ num_offers }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>Total Produits</h4>
+                    <p>{{ num_products }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h4>Total Services</h4>
+                    <p>{{ num_services }}</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Tableau des offres -->
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th>Date d'ajout</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offre in offres %}
+                <tr>
+                    <td>{{ offre.ID_off }}</td>
+                    <td>{{ offre.libelle_off }}</td>
+                    <td>
+                        {% for category in offre.categories %}
+                            {{ category }} <br>
+                        {% endfor %}
+                    </td>
+                    <td>{{ offre.prix_off }}</td>
+                    <td>{{ offre.quantite_en_stock }}</td>
+                    <td>{{ offre.date_off }}</td>
+                    <td>{{ offre.type_off }}</td>
+                    <td>
+                        <!-- View Button -->
+                        <button class="btn btn-info btn-sm" onclick="openViewModal('{{ offre.ID_off }}', '{{ offre.libelle_off }}', '{{ offre.categorie }}', '{{ offre.description_off }}', '{{ offre.prix_off }}', '{{ offre.quantite_en_stock }}', '{{ offre.date_off }}', '{{ offre.type_off }}', '{{ offre.prenom_uti }}', '{{ offre.nom_uti }}')">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                        
+                        <!-- Delete Button -->
+                        <form action="{{ url_for('supprimer_offre', offre_id=offre.ID_off) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre?');">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <!-- Modal de consultation des détails d'une offre -->
+    <div class="modal fade" id="viewOfferModal" tabindex="-1" aria-labelledby="viewOfferModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewOfferModalLabel">Détails de l'Offre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Nom:</strong> <span id="viewOfferName"></span></p>
+                    <p><strong>Catégorie:</strong> <span id="viewOfferCategory"></span></p>
+                    <p><strong>Description:</strong> <span id="viewOfferDescription"></span></p>
+                    <p><strong>Prix:</strong> <span id="viewOfferPrice"></span></p>
+                    <p><strong>Quantité:</strong> <span id="viewOfferQuantity"></span></p>
+                    <p><strong>Date:</strong> <span id="viewOfferDate"></span></p>
+                    <p><strong>Type:</strong> <span id="viewOfferType"></span></p>
+                    <p><strong>Vendeur:</strong> <span id="viewOfferSeller"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript to Handle View Button Click -->
+    <script>
+        function openViewModal(offerId, offerName, offerCategory, offerDescription, offerPrice, offerQuantity, offerDate, offerType, sellerFirstName, sellerLastName) {
+            document.getElementById('viewOfferName').textContent = offerName;
+            document.getElementById('viewOfferCategory').textContent = offerCategory;
+            document.getElementById('viewOfferDescription').textContent = offerDescription;
+            document.getElementById('viewOfferPrice').textContent = offerPrice;
+            document.getElementById('viewOfferQuantity').textContent = offerQuantity;
+            document.getElementById('viewOfferDate').textContent = offerDate;
+            document.getElementById('viewOfferType').textContent = offerType;
+            document.getElementById('viewOfferSeller').textContent = sellerFirstName + ' ' + sellerLastName;
+            
+            const viewModal = new bootstrap.Modal(document.getElementById('viewOfferModal'));
+            viewModal.show();
+        }
+    </script>
+
+
+{% endblock %}
