@@ -1729,6 +1729,16 @@ def delete_email(email_id):
     flash('Email supprimé avec succès.', 'success')
     return redirect(url_for('gestion_messages'))
 
+@app.route('/politique')
+def politique():
+    return render_template('politiques_et_confidentialite.html')
+
+@app.route('/termes')
+def termes():
+    return render_template('termes_et_conditions.html')
+
+
+
 if __name__ == '__main__':
 
     app.run(debug=True)
