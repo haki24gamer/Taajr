@@ -464,36 +464,6 @@ def Inscription_Client():
     else:
         return render_template('inscription_client.html')
 
-@app.route('/verify_otp', methods=['GET', 'POST'])
-def verify_otp():
-    if request.method == 'POST':
-        entered_otp = request.form.get('otp')
-        if str(session.get('otp')) == entered_otp:
-            data = session.get('registration_data')
-            # Insert user into the database
-            user_id = db.execute("""
-                INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], 'Vendeur' if 'nom_boutique' in data else 'Client')
-            if 'nom_boutique' in data:
-                # Insert vendeur details
-                db.execute("""
-                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
-                    VALUES (?, ?, ?, ?, ?)
-                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
-            else:
-                # Insert client details
-                db.execute("""
-                    INSERT INTO Details_Client (ID_uti, adresse)
-                    VALUES (?, ?)
-                """, user_id, data['adresse'])
-            session.clear()
-            flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
-            return redirect(url_for('connexion'))
-        else:
-            flash('Code OTP invalide. Veuillez réessayer.', 'danger')
-            return redirect(url_for('verify_otp'))
-    return render_template('verify_otp.html')
 
 @app.route('/Panier')
 def Panier():
@@ -1804,7 +1774,55 @@ def politique():
 def termes():
     return render_template('termes_et_conditions.html')
 
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        if str(session.get('otp')) == entered_otp:
+            data = session.get('registration_data')
+            # Insert user into the database
+            user_id = db.execute("""
+                INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], 'Vendeur' if 'nom_boutique' in data else 'Client')
+            if 'nom_boutique' in data:
+                # Insert vendeur details
+                db.execute("""
+                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
+                    VALUES (?, ?, ?, ?, ?)
+                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
+            else:
+                # Insert client details
+                db.execute("""
+                    INSERT INTO Details_Client (ID_uti, adresse)
+                    VALUES (?, ?)
+                """, user_id, data['adresse'])
+            session.clear()
+            flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
+            return redirect(url_for('connexion'))
+        else:
+            flash('Code OTP invalide. Veuillez réessayer.', 'danger')
+            return redirect(url_for('verify_otp'))
+    return render_template('verify_otp.html')
 
+@app.route('/mot_de_passe_oublie', methods=['GET', 'POST'])
+def mot_de_passe_oublie():
+    if request.method == 'POST':
+        user_email = request.form.get('email')
+
+        existing_user = db.execute("SELECT * FROM utilisateur WHERE email_uti = ?", user_email)
+        if not existing_user:
+            flash("Cette adresse e-mail n'est pas associée à un utilisateur existant.", "danger")
+            return render_template('mot_de_passe_oublie.html')
+        
+        if not user_email:
+            flash("Veuillez fournir une adresse e-mail valide.", "danger")
+            return redirect(url_for('mot_de_passe_oublie'))
+        # Logique pour envoyer un e-mail de réinitialisation ici
+        flash("Un e-mail de réinitialisation a été envoyé.", "success")
+        return redirect(url_for('connexion'))
+    else:
+        return render_template('mot_de_passe_oublie.html')
 
 if __name__ == '__main__':
 

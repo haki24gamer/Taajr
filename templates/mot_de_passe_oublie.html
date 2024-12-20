@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Mot de passe oublié</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <h1>Mot de passe oublié</h1>
+            <form method="POST" action="/mot_de_passe_oublie" class="mt-5">
+                <div class="form-group">
+            <!-- Flash error messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alert alert-danger">
+                        {% for category, message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+                    <label for="email">Entrez votre adresse e-mail :</label>
+                    <input type="email" id="email" name="email" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Recevoir le code</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
