@@ -351,7 +351,7 @@ def Inscription_Vendeur():
                 'prenom_uti': prenom,
                 'nom_uti': nom,
                 'email_uti': email,
-                'password': generate_password_hash(mot_de_passe),
+                'password': mot_de_passe,
                 'date_naiss': naissance,
                 'telephone': telephone,
                 'genre': genre,
@@ -446,7 +446,7 @@ def Inscription_Client():
                 'prenom_uti': prenom,
                 'nom_uti': nom,
                 'email_uti': email,
-                'password': generate_password_hash(mot_de_passe),
+                'password': mot_de_passe,
                 'date_naiss': date_naissance,
                 'telephone': telephone,
                 'genre': genre,
@@ -464,36 +464,6 @@ def Inscription_Client():
     else:
         return render_template('inscription_client.html')
 
-@app.route('/verify_otp', methods=['GET', 'POST'])
-def verify_otp():
-    if request.method == 'POST':
-        entered_otp = request.form.get('otp')
-        if str(session.get('otp')) == entered_otp:
-            data = session.get('registration_data')
-            # Insert user into the database
-            user_id = db.execute("""
-                INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], 'Vendeur' if 'nom_boutique' in data else 'Client')
-            if 'nom_boutique' in data:
-                # Insert vendeur details
-                db.execute("""
-                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
-                    VALUES (?, ?, ?, ?, ?)
-                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
-            else:
-                # Insert client details
-                db.execute("""
-                    INSERT INTO Details_Client (ID_uti, adresse)
-                    VALUES (?, ?)
-                """, user_id, data['adresse'])
-            session.clear()
-            flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
-            return redirect(url_for('connexion'))
-        else:
-            flash('Code OTP invalide. Veuillez réessayer.', 'danger')
-            return redirect(url_for('verify_otp'))
-    return render_template('verify_otp.html')
 
 @app.route('/Panier')
 def Panier():
@@ -1208,54 +1178,6 @@ def boutique(vendeur_id):
 
 
 
-# Route pour la réinitialisation du mot de passe
-@app.route('/reset_password', methods=["GET", "POST"])
-def reset_password():
-    if request.method == "POST":
-        # Obtenir les valeurs du formulaire
-        username = request.form.get("username")
-        new_password = request.form.get('new_password')
-        confirm_new_password = request.form.get('confirm_new_password')
-        
-        # Liste pour stocker les erreurs
-        errors = []
-        
-        # Vérifier si les mots de passe correspondent
-        if new_password or confirm_new_password:
-            if new_password != confirm_new_password:
-                errors.append('Les nouveaux mots de passe ne correspondent pas.')
-            
-            # Vérifier si le mot de passe est bien renseigné et qu'aucune autre erreur n'est présente
-            if new_password and not errors:
-                hashed_new_password = generate_password_hash(new_password)
-                
-                try:
-                    # Exécution de la requête pour mettre à jour le mot de passe
-                    rows_affected = db.execute("""
-                        UPDATE utilisateur 
-                        SET mot_de_passe = ?
-                        WHERE nom_uti = ?
-                    """, hashed_new_password, username)
-                    
-                    # Vérification si l'utilisateur existe
-                    if rows_affected == 0:
-                        errors.append("Utilisateur introuvable ou mot de passe non mis à jour.")
-                        return render_template("error.html", errors=errors)
-
-                except Exception as e:
-                    # Gestion des erreurs SQL
-                    errors.append(f"Une erreur est survenue : {str(e)}")
-                    return render_template("error.html", errors=errors)
-
-            # Si succès
-            if not errors:
-                return render_template("success.html")
-        
-        # Si échec ou présence d'erreurs
-        return render_template("error.html", errors=errors)
-    
-    # Afficher le formulaire par défaut
-    return render_template("reset_password.html")
 
 @app.route('/gestion_utilisateurs')
 @admin_required
@@ -1804,7 +1726,147 @@ def politique():
 def termes():
     return render_template('termes_et_conditions.html')
 
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        if str(session.get('otp')) == entered_otp:
+            data = session.get('registration_data')
+            # Insert user into the database
+            user_id = db.execute("""
+                INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], 'Vendeur' if 'nom_boutique' in data else 'Client')
+            if 'nom_boutique' in data:
+                # Insert vendeur details
+                db.execute("""
+                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
+                    VALUES (?, ?, ?, ?, ?)
+                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
+            else:
+                # Insert client details
+                db.execute("""
+                    INSERT INTO Details_Client (ID_uti, adresse)
+                    VALUES (?, ?)
+                """, user_id, data['adresse'])
+            session.clear()
+            flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
+            return redirect(url_for('connexion'))
+        else:
+            flash('Code OTP invalide. Veuillez réessayer.', 'danger')
+            return redirect(url_for('verify_otp'))
+    return render_template('verify_otp.html')
 
+@app.route('/verify_reset_otp', methods=['GET', 'POST'])
+def verify_reset_otp():
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        if str(session.get('otp')) == entered_otp:
+            return render_template('reset_password.html')
+        else:
+            flash('Code OTP invalide. Veuillez réessayer.', 'danger')
+            return redirect(url_for('verify_reset_otp'))
+    return render_template('verify_reset_otp.html')
+
+@app.route('/reset_new_password', methods=['POST'])
+def reset_new_password():
+    new_password = request.form.get('new_password')
+    confirm_new_password = request.form.get('confirm_new_password')
+    
+    if not new_password or not confirm_new_password:
+        flash('Veuillez remplir tous les champs.', 'danger')
+        return redirect(url_for('reset_new_password'))
+    
+    if new_password != confirm_new_password:
+        flash('Les mots de passe ne correspondent pas.', 'danger')
+        return redirect(url_for('reset_new_password'))
+    
+    hashed_password = generate_password_hash(new_password)
+    user_email = session.get('reset_email')
+    db.execute("UPDATE utilisateur SET mot_de_passe = ? WHERE email_uti = ?", hashed_password, user_email)
+    flash('Votre mot de passe a été réinitialisé avec succès.', 'success')
+    session.clear()
+    return redirect(url_for('connexion'))
+
+# Route pour la réinitialisation du mot de passe
+@app.route('/reset_password', methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+        
+        # Liste pour stocker les erreurs
+        errors = []
+        
+        # Vérifier si les mots de passe correspondent
+        if new_password or confirm_new_password:
+            if new_password != confirm_new_password:
+                errors.append('Les mots de passe ne correspondent pas.')
+
+
+            # Vérifier si le mot de passe est bien renseigné et qu'aucune autre erreur n'est présente
+            if new_password and not errors:
+                hashed_new_password = generate_password_hash(new_password)
+                
+                try:
+                    # Exécution de la requête pour mettre à jour le mot de passe
+                    db.execute("UPDATE utilisateur SET mot_de_passe = ? WHERE email_uti = ?", hashed_new_password, session['reset_email'])
+                    flash('Votre mot de passe a été réinitialisé avec succès.', 'success')
+                    return redirect(url_for('connexion'))
+                except Exception as e:
+                    errors.append(f"Une erreur est survenue : {str(e)}")
+            
+            # Si erreurs
+            if errors:
+                for error in errors:
+                    flash(error, 'danger')
+                return redirect(url_for('reset_password'))
+            
+            
+        else:
+            flash('Veuillez remplir tous les champs.', 'danger')
+            return redirect(url_for('reset_password'))
+        
+    
+    # Afficher le formulaire par défaut
+    return render_template("reset_password.html")
+
+@app.route('/mot_de_passe_oublie', methods=['GET', 'POST'])
+def mot_de_passe_oublie():
+    if request.method == 'POST':
+        user_email = request.form.get('email')
+
+        existing_user = db.execute("SELECT * FROM utilisateur WHERE email_uti = ?", user_email)
+        if not existing_user:
+            flash("Cette adresse e-mail n'est pas associée à un utilisateur existant.", "danger")
+            return render_template('mot_de_passe_oublie.html')
+        
+        if not user_email:
+            flash("Veuillez fournir une adresse e-mail valide.", "danger")
+            return redirect(url_for('mot_de_passe_oublie'))
+        # Generate a 6-digit OTP
+        otp = random.randint(100000, 999999)
+
+        # Store the OTP and email in the session
+        session['otp'] = otp
+        session['reset_email'] = user_email
+
+        # Create the email message
+        msg = Message(
+            subject="Votre code OTP de réinitialisation de mot de passe",
+            sender=app.config['MAIL_USERNAME'],
+            recipients=[user_email]
+        )
+        msg.body = f"Votre code OTP de réinitialisation de mot de passe est {otp}. Ce code est valide pendant 10 minutes."
+
+        # Send the OTP email
+        mail.send(msg)
+
+        flash("Un code OTP a été envoyé à votre adresse e-mail.", "success")
+        return redirect(url_for('verify_reset_otp'))
+        
+    else:
+        return render_template('mot_de_passe_oublie.html')
 
 if __name__ == '__main__':
 
