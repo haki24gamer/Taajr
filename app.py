@@ -11,6 +11,8 @@ import re
 from functools import wraps
 import smtplib
 from email.message import EmailMessage
+from flask_mail import Mail, Message
+import random
 
 app = Flask(__name__)
 
@@ -30,6 +32,15 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'avif',
 app.config['UPLOAD_FOLDER_OFFRES'] = UPLOAD_FOLDER_OFFRES
 app.config['UPLOAD_FOLDER_LOGO'] = UPLOAD_FOLDER_LOGO  # Configure the new upload folder
 app.config['UPLOAD_FOLDER_CATEGORIES'] = UPLOAD_FOLDER_CATEGORIES
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.example.com'  # Replace with your SMTP server
+app.config['MAIL_PORT'] = 587  # Replace with your SMTP port
+app.config['MAIL_USERNAME'] = 'your_email@example.com'  # Replace with your email
+app.config['MAIL_PASSWORD'] = 'your_password'  # Replace with your email password
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+mail = Mail(app)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -332,26 +343,31 @@ def Inscription_Vendeur():
         else:
             document_filename = None  # Or handle error
         
-        # Insert into utilisateur
-        user_id = db.execute("""
-            INSERT INTO utilisateur 
-            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, nom, prenom, email, mot_de_passe, telephone, naissance, genre, type_uti)
-        
-        # Combine fields into description
-        full_description = f"{description}; {jourDebut}; {jourFin}; {heureDebut}; {heureFin}; {politiqueRetour}"
-        
-        # Insert into Details_Vendeur
-        db.execute("""
-            INSERT INTO Details_Vendeur 
-            (ID_uti, nom_boutique, adresse_boutique, description, logo) 
-            VALUES (?, ?, ?, ?, ?)
-        """, user_id, boutique, adresse_boutique, full_description, logo_relative_path)
-
-        document = document_filename
-        
-        return redirect("/connexion")
+        if not errors:
+            otp = random.randint(100000, 999999)
+            session['otp'] = otp
+            session['registration_data'] = {
+                'prenom_uti': prenom,
+                'nom_uti': nom,
+                'email_uti': email,
+                'password': generate_password_hash(mot_de_passe),
+                'date_naiss': naissance,
+                'telephone': telephone,
+                'genre': genre,
+                'nom_boutique': boutique,
+                'adresse_boutique': adresse_boutique,
+                'description': description,
+                'logo': logo
+            }
+            msg = Message('Votre code OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
+            msg.body = f'Votre code OTP est {otp}'
+            mail.send(msg)
+            flash('Un code OTP a été envoyé à votre adresse email.', 'info')
+            return redirect(url_for('verify_otp'))
+        else:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('inscription_vendeur.html')
     else:
         return render_template('inscription_vendeur.html')
     
@@ -420,23 +436,63 @@ def Inscription_Client():
                 flash(error, 'danger')
             return render_template('inscription_client.html')
         
-        # Insert into utilisateur
-        user_id = db.execute("""
-            INSERT INTO utilisateur 
-            (nom_uti, prenom_uti, email_uti, mot_de_passe, telephone, date_naissance, genre, type_uti) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, nom, prenom, email, mot_de_passe, telephone, date_naissance, genre, type_uti)
-        
-        # Insert into Details_Client
-        db.execute("""
-            INSERT INTO Details_Client 
-            (ID_uti, adresse) 
-            VALUES (?, ?)
-        """, user_id, adresse)
-        
-        return redirect("/connexion")
+        if not errors:
+            otp = random.randint(100000, 999999)
+            session['otp'] = otp
+            session['registration_data'] = {
+                'prenom_uti': prenom,
+                'nom_uti': nom,
+                'email_uti': email,
+                'password': generate_password_hash(mot_de_passe),
+                'date_naiss': date_naissance,
+                'telephone': telephone,
+                'genre': genre,
+                'adresse': adresse,
+                'ville': "Djibouti",
+                'pays': "Djibouti"
+            }
+            msg = Message('Votre code OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
+            msg.body = f'Votre code OTP est {otp}'
+            mail.send(msg)
+            flash('Un code OTP a été envoyé à votre adresse email.', 'info')
+            return redirect(url_for('verify_otp'))
+        else:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('inscription_client.html')
     else:
         return render_template('inscription_client.html')
+
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        if str(session.get('otp')) == entered_otp:
+            data = session.get('registration_data')
+            # Insert user into the database
+            user_id = db.execute("""
+                INSERT INTO utilisateur (prenom_uti, nom_uti, email_uti, mot_de_passe, date_naissance, telephone, genre, type_uti)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, data['prenom_uti'], data['nom_uti'], data['email_uti'], data['password'], data['date_naiss'], data['telephone'], data['genre'], 'Vendeur' if 'nom_boutique' in data else 'Client')
+            if 'nom_boutique' in data:
+                # Insert vendeur details
+                db.execute("""
+                    INSERT INTO Details_Vendeur (ID_uti, nom_boutique, adresse_boutique, description, logo)
+                    VALUES (?, ?, ?, ?, ?)
+                """, user_id, data['nom_boutique'], data['adresse_boutique'], data['description'], data['logo'])
+            else:
+                # Insert client details
+                db.execute("""
+                    INSERT INTO Details_Client (ID_uti, adresse_cli, ville_cli, pays_cli)
+                    VALUES (?, ?, ?, ?)
+                """, user_id, data['adresse'], data['ville'], data['pays'])
+            session.clear()
+            flash('Inscription réussie. Vous pouvez maintenant vous connecter.', 'success')
+            return redirect(url_for('connexion'))
+        else:
+            flash('Code OTP invalide. Veuillez réessayer.', 'danger')
+            return redirect(url_for('verify_otp'))
+    return render_template('verify_otp.html')
 
 @app.route('/Panier')
 def Panier():
