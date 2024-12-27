@@ -1200,6 +1200,7 @@ def delete_user(user_id):
     db.execute("DELETE FROM panier WHERE ID_uti = ?", user_id)
     db.execute("DELETE FROM Details_Client WHERE ID_uti = ?", user_id)
     db.execute("DELETE FROM Details_Vendeur WHERE ID_uti = ?", user_id)
+    db.execute("DELETE FROM contenir WHERE ID_com IN (SELECT ID_com FROM commande WHERE ID_uti = ?)", user_id)
     db.execute("DELETE FROM commande WHERE ID_uti = ?", user_id)
     db.execute("DELETE FROM avis WHERE ID_uti = ?", user_id)
 
