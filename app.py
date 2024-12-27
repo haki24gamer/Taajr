@@ -1213,6 +1213,7 @@ def delete_user(user_id):
         db.execute("DELETE FROM likes WHERE ID_off = ?", offer_id)
         db.execute("DELETE FROM panier WHERE ID_off = ?", offer_id)
         db.execute("DELETE FROM appartenir WHERE ID_off = ?", offer_id)
+        db.execute("DELETE FROM contenir WHERE ID_off = ?", offer_id)
         db.execute("DELETE FROM avis WHERE ID_off = ?", offer_id)
         db.execute("DELETE FROM commande WHERE ID_off = ?", offer_id)
 
