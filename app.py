@@ -713,7 +713,13 @@ def offre_details(offre_id):
 
     if (request.method == 'POST'):
         commentaire = request.form.get('commentaire')
-        etoiles = request.form.get('etoiles')  # Added to capture the rating
+        etoiles = request.form.get('etoiles', '1')
+        try:
+            etoiles = int(etoiles)
+        except ValueError:
+            etoiles = 1
+        if etoiles < 1 or etoiles > 5:
+            etoiles = 1
         if ('user_id' in session):
             db.execute("""
                 INSERT INTO avis (ID_off, ID_uti, comment_avis, Etoiles, date_avis)
@@ -1860,5 +1866,5 @@ def mot_de_passe_oublie():
 
 if __name__ == '__main__':
 
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
 
