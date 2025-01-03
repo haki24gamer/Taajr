@@ -1051,9 +1051,9 @@ def ajouter_offre():
     # Gérer le téléchargement de l'image
     image = request.files.get('image_off')
     if (image and allowed_file(image.filename)):
-        image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER_OFFRES'], image_filename))
-        image_off = os.path.join('Images/Offres', image_filename)  # Updated path
+        filename = secure_filename(image.filename)
+        image_off = "/home/haki24gamer/Taajr/" + filename
+        image.save(image_off)
     else:
         image_off = 'Images/default.png'  # Image par défaut si aucune image n'est téléchargée
 
@@ -1345,9 +1345,9 @@ def add_category():
     description = request.form.get('description')
     image = request.files.get('image')
     if image and allowed_file(image.filename):
-        image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER_CATEGORIES'], image_filename))
-        image_path = os.path.join('Images/Categories', image_filename)
+        filename = secure_filename(image.filename)
+        image_path = "/home/haki24gamer/Taajr/" + filename
+        image.save(image_path)
     else:
         image_path = None
     db.execute("INSERT INTO categorie (nom_cat, description, image) VALUES (?, ?, ?)", nom_cat, description, image_path)
@@ -1361,10 +1361,10 @@ def edit_category(category_id):
     description = request.form.get('description')
     image = request.files.get('image')
     if image and allowed_file(image.filename):
-        image_filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER_CATEGORIES'], image_filename))
-        image_path = os.path.join('Images/Categories', image_filename)
-        db.execute("UPDATE categorie SET nom_cat = ?, description = ?, image = ? WHERE ID_cat = ?", nom_cat, description, image_path, category_id)
+        filename = secure_filename(image.filename)
+        new_image_path = "/home/haki24gamer/Taajr/" + filename
+        image.save(new_image_path)
+        db.execute("UPDATE categorie SET nom_cat = ?, description = ?, image = ? WHERE ID_cat = ?", nom_cat, description, new_image_path, category_id)
     else:
         db.execute("UPDATE categorie SET nom_cat = ?, description = ? WHERE ID_cat = ?", nom_cat, description, category_id)
     flash('Catégorie modifiée avec succès.', 'success')
