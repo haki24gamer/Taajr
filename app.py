@@ -1083,6 +1083,11 @@ def search():
         return redirect(url_for('index'))
 
     if category == 'boutique':
+        # display all boutiques if the user enters all
+        if query.lower() == 'all':
+            boutiques = db.execute("SELECT * FROM Details_Vendeur")
+            return render_template('search_results.html', results=boutiques, category='Boutiques')
+
         boutiques = db.execute("SELECT * FROM Details_Vendeur WHERE nom_boutique LIKE ?", f'%{query}%')
         return render_template('search_results.html', results=boutiques, category='Boutiques')
 
